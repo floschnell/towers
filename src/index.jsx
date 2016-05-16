@@ -1,10 +1,15 @@
 import React from 'react';
-import {render} from 'react-dom';
+import ReactDOM from 'react-dom';
+import {createStore, compose} from 'redux';
+import {Provider} from 'react-redux';
+import BoardContainer from './containers/BoardContainer';
+import reducer from './reducers/index';
 
-class App extends React.Component {
-  render () {
-    return <p> Hello React!</p>;
-  }
-}
+const store = createStore(reducer, undefined, compose(window.devToolsExtension()));
 
-render(<App/>, document.getElementById('app'));
+ReactDOM.render(
+  <Provider store={store}>
+    <BoardContainer />
+  </Provider>,
+  document.getElementById('app')
+);
