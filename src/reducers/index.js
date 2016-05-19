@@ -76,15 +76,16 @@ const checkMove = (player, towerPositions, fromCoords, toCoords) => {
         && (Math.abs(deltaY) === Math.abs(deltaX) || deltaX === 0)) {
             let x = 0;
         for (let y = 0; y < Math.abs(deltaY); y++) {
-            if (x < Math.abs(deltaX)) x++;
-            const xcoord = fromCoords.x + (deltaX < 0) ? -x : x;
-            const ycoord = fromCoords.y + (deltaY < 0) ? -y : y;
+            const xcoord = fromCoords.x + ((deltaX > 0) ? (0-x) : x);
+            const ycoord = fromCoords.y + ((deltaY > 0) ? (0-y) : y);
             if ((x !== 0 || y !== 0) && fieldHasTower(towerPositions, {x: xcoord, y: ycoord})) {
                 return false;
             }
+            if (x < Math.abs(deltaX)) x++;
         }
         return true;
     }
+    return false;
 }
 
 export default (state, action) => {
@@ -102,8 +103,11 @@ export default (state, action) => {
     switch (action.type) {
         
         case ACTION_TYPES.CLICK_ON_FIELD:
-            if (fieldHasTower(state.towerPositions, action.field)) {                
-                newState.game.selectedField = action.field;
+            if (fieldHasTower(state.towerPositions, action.field)) {
+                const towerOnField = getTowerFromField(state.towerPositions, action.field);
+                if (typeof state.game.currentColor === 'undefined' || towerOnField.color === state.game.currentColor) {
+                    newState.game.selectedField = action.field;
+                }
             } else {
                 if (state.game.selectedField) {
                     const sourceField = state.game.selectedField;
@@ -112,7 +116,9 @@ export default (state, action) => {
                     if (towerToMove.belongsToPlayer === state.game.currentPlayer) {
                         if (checkMove(state.game.currentPlayer, state.towerPositions, sourceField, targetField)) {
                             newState.towerPositions = moveTower(state.towerPositions, state.game.selectedField, action.field);
-                            newState.game.currentPlayer = (state.game.currentPlayer + 1) % 2; 
+                            newState.game.currentPlayer = (state.game.currentPlayer + 1) % 2;
+                            newState.game.currentColor = targetField.color;
+                            newState.game.selectedField = null;
                         }
                     }
                 }

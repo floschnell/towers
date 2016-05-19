@@ -9,7 +9,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx']
   },
-  devtool: 'eval-source-map',
+  devtool: 'eval',
   module: {
     loaders: [
       {
@@ -18,6 +18,5 @@ module.exports = {
         loader: 'babel'
       }
     ]
-  },
-  plugins: []
+  }
 };

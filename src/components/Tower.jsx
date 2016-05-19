@@ -2,7 +2,9 @@ import React from 'react';
 
 export default class Tower extends React.Component {
     render() {
-        const classname = `tower color-${this.props.color}`;
+        const tower = this.props.tower;
+        const activeModifier = this.props.isActive ? 'active' : 'inactive';
+        const classname = `tower color-${tower.color} tower--player${tower.belongsToPlayer} tower--${activeModifier}`;
         return <div className={classname}></div>;
     }
 }
@@ -10,5 +12,6 @@ export default class Tower extends React.Component {
 Tower.propTypes = {
   x: React.PropTypes.number,
   y: React.PropTypes.number,
-  color: React.PropTypes.number
-}
+  tower: React.PropTypes.object,
+  isActive: React.PropTypes.bool
+};
