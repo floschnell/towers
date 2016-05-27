@@ -1,4 +1,5 @@
 import React from 'react';
+import css from './Tower.styl';
 
 export default class Tower extends React.Component {
     render() {

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Board from '../components/Board';
+import Board from './Board';
 
 const mapStateToProps = (state) => ({
     fields: state.board

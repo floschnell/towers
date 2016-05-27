@@ -29,6 +29,7 @@ const createInitialTowerPositions = () => {
 
 const createInitialGame = (firstPlayer) => {
     return {
+        playerName: null,
         currentPlayer: firstPlayer,
         currentColor: undefined,
         selectedField: null
@@ -69,7 +70,7 @@ const fieldHasTower = (towerPositions, field) => {
     return (towerPositions.hasOwnProperty(fieldCoordinates));
 }
 
-const checkMove = (player, towerPositions, fromCoords, toCoords) => {
+export const checkMove = (player, towerPositions, fromCoords, toCoords) => {
     const deltaX = fromCoords.x - toCoords.x;
     const deltaY = fromCoords.y - toCoords.y;
     if (((deltaY < 0 && player === 0) || (deltaY > 0 && player === 1))
@@ -123,6 +124,14 @@ export default (state, action) => {
                     }
                 }
             }
+            break;
+            
+        case ACTION_TYPES.SET_PLAYER_NAME:
+            newState.game.playerName = action.playerName;
+            break;
+            
+        case ACTION_TYPES.NEW_GAME:
+            console.log("current games", action.game);
             break;
             
         default:

@@ -1,0 +1,31 @@
+.tower
+    display: block
+    position: relative
+    width: 40px
+    height: 40px
+    top: 50%
+    left: 50%
+    margin-left: -20px
+    margin-top: -20px
+    border-radius: 25px
+    border: 1px solid black
+    box-sizing: border-box
+    transition: all .2s ease-in-out
+
+.tower--active
+    border-width: 4px
+
+.tower--active:hover
+    transform: scale(1.2)
+    border-width: 4px
+
+.tower--player0::after    
+    content: 'X'
+    font-family: Arial
+    font-size: 21px
+    display: block
+    position: absolute
+    left: 50%
+    top: 50%
+    margin-left: -7px
+    margin-top: -11px

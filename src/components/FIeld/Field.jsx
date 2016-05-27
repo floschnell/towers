@@ -1,5 +1,6 @@
 import React from 'react';
-import TowerContainer from '../containers/TowerContainer';
+import TowerContainer from '../Tower/TowerContainer';
+import css from './Field.styl';
 
 export default class Field extends React.Component {
   render() {
@@ -8,7 +9,14 @@ export default class Field extends React.Component {
     if (this.props.tower) {
       tower = <TowerContainer x={this.props.x} y={this.props.y} tower={this.props.tower} />
     }
-    return <div className={classname} onClick={this.props.onClick}>{tower}</div>;
+    
+    const styles = {
+      position: 'absolute',
+      left: this.props.x * 50,
+      top: this.props.y * 50
+    };
+    
+    return <div className={classname} onClick={this.props.onClick} style={styles}>{tower}</div>;
   }
 }
 

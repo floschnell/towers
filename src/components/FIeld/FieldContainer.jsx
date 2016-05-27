@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import Field from '../components/Field';
-import {clickOnField} from '../actions/index';
+import Field from './Field';
+import {newGame, clickOnField} from '../../actions/index';
 
 const mapStateToProps = (state, ownProps) => ({
     tower: state.towerPositions[`${ownProps.y}-${ownProps.x}`]

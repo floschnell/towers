@@ -1,5 +1,6 @@
 import React from 'react';
-import FieldContainer from '../containers/FieldContainer';
+import FieldContainer from '../Field/FieldContainer';
+import css from './Board.styl';
 
 export default class Board extends React.Component {
   
@@ -9,9 +10,9 @@ export default class Board extends React.Component {
     
     const renderRow = (row, y) => {
       const rowKey = `row-${y}`;
-      return <div key={rowKey}>{row.map(
+      return row.map(
           (field, x) => renderField(field, x, y)
-        )}</div>;
+        );
     };
     
     const renderField = (field, x, y) => {

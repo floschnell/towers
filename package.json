@@ -2,8 +2,10 @@
   "name": "towers",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/app.js",
   "scripts": {
+    "prestart": "webpack",
+    "start": "node serve.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,12 +25,21 @@
     "babel-preset-react": "^6.5.0",
     "browser-sync": "^2.12.7",
     "browser-sync-webpack-plugin": "^1.0.1",
+    "css-loader": "^0.23.1",
+    "electron-prebuilt": "^1.1.1",
     "react": "^15.0.2",
     "react-dom": "^15.0.2",
+    "style-loader": "^0.13.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.1.0",
     "webpack": "^2.1.0-beta.7"
   },
   "dependencies": {
+    "express": "^4.13.4",
+    "firebase": "^3.0.3",
+    "history": "^2.1.1",
     "react-redux": "^4.4.5",
+    "react-router": "^2.4.1",
     "redux": "^3.5.2"
   }
 }

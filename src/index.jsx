@@ -2,14 +2,22 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {createStore, compose} from 'redux';
 import {Provider} from 'react-redux';
-import BoardContainer from './containers/BoardContainer';
 import reducer from './reducers/index';
+import { Router, Route, Link, hashHistory } from 'react-router'
 
-const store = createStore(reducer, undefined, compose(window.devToolsExtension()));
+import BoardContainer from './components/Board/BoardContainer';
+import LoginContainer from './components/Login/LoginContainer';
+import DashboardContainer from './components/Dashboard/DashboardContainer';
+
+const store = createStore(reducer);
 
 ReactDOM.render(
   <Provider store={store}>
-    <BoardContainer />
+    <Router history={hashHistory}>
+      <Route path="/main.html" component={BoardContainer}/>
+      <Route path="/dashboard.html" component={DashboardContainer}/>
+      <Route path="/" component={LoginContainer}/>
+    </Router>
   </Provider>,
   document.getElementById('app')
 );
