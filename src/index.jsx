@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {createStore, compose} from 'redux';
+import { createStore, compose } from 'redux';
 import {Provider} from 'react-redux';
 import reducer from './reducers/index';
 import { Router, Route, Link, hashHistory } from 'react-router'
