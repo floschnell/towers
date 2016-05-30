@@ -16,7 +16,9 @@ export default class Field extends React.Component {
       top: this.props.y * 50
     };
     
-    return <div className={classname} onClick={this.props.onClick} style={styles}>{tower}</div>;
+    const onClick = this.props.onClick.bind(null, this.props.playerName, this.props.currentGame);
+    
+    return <div className={classname} onClick={onClick} style={styles}>{tower}</div>;
   }
 }
 
@@ -25,4 +27,4 @@ Field.propTypes = {
   x: React.PropTypes.number,
   y: React.PropTypes.number,
   onClick: React.PropTypes.func
-}
+};

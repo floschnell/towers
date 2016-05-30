@@ -1,12 +1,16 @@
 export const ACTION_TYPES = {
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
     SET_PLAYER_NAME: 'SET_PLAYER_NAME',
-    NEW_GAME: 'NEW_GAME'
+    UPDATE_GAMES: 'UPDATE_GAMES',
+    START_GAME: 'START_GAME',
+    UPDATE_GAME: 'UPDATE_GAME'
 };
 
-export const clickOnField = field => ({
+export const clickOnField = (field, playerName, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_FIELD,
-    field
+    field,
+    playerName,
+    currentGame
 });
 
 export const setPlayerName = playerName => ({
@@ -14,7 +18,18 @@ export const setPlayerName = playerName => ({
     playerName
 });
 
-export const newGame = game => ({
-    type: ACTION_TYPES.NEW_GAME,
+export const updateGames = (game, details) => ({
+    type: ACTION_TYPES.UPDATE_GAMES,
+    game,
+    details
+});
+
+export const startGame = game => ({
+    type: ACTION_TYPES.START_GAME,
     game
-})
+});
+
+export const updateGame = game => ({
+    type: ACTION_TYPES.UPDATE_GAME,
+    game
+});
