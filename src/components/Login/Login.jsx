@@ -6,7 +6,6 @@ export default class Login extends React.Component {
     const onLogin = e => {
         e.preventDefault();
         this.props.finalizeLogin(this.refs.playerName.value, this.refs.password.value);
-        //hashHistory.push('dashboard.html');
     };
       
     return <div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { hashHistory } from 'react-router';
 
 export default class Dashboard extends React.Component {
   
@@ -15,9 +16,13 @@ export default class Dashboard extends React.Component {
       });
     };
     
+    const startNewGame = () => {
+      hashHistory.push('newGame.html');
+    };
+    
     return <div class="dashboard">
         <ul class="dashboard__list">{renderGames()}</ul>
-        <div class="dashboard__start-button">Neues Spiel Starten</div>
+        <div class="dashboard__start-button" onClick={startNewGame}>Neues Spiel Starten</div>
       </div>;
   }
 }

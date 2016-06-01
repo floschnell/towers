@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Dashboard from './Dashboard';
-import { updateGames, startGame } from '../../actions/index';
+import { updateGames, resumeGame, startGame } from '../../actions/index';
 import db from '../../database';
 import { hashHistory } from 'react-router';
 
@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     
     chooseGame: game => {
-        dispatch(startGame(game));
+        dispatch(resumeGame(game));
         hashHistory.push('main.html');
     }
 });

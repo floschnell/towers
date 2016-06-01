@@ -28,12 +28,12 @@ const createInitialTowerPositions = () => {
     return towers;
 }
 
-const createInitialGame = (firstPlayer) => {
+const createInitialGame = (firstPlayer, players) => {
     return {
-        player0: 'Flo',
-        player1: 'Dimi',
+        player0: players[0],
+        player1: players[1],
         currentPlayer: firstPlayer,
-        currentColor: undefined,
+        currentColor: null,
         selectedField: null
     };
 }
@@ -96,7 +96,7 @@ export default (state, action) => {
     if (typeof(state) === "undefined") {
         return {
             board: createInitialBoard(initialColors),
-            game: createInitialGame(0),
+            game: createInitialGame(0, []),
             towerPositions: createInitialTowerPositions()
         };
     }
@@ -110,7 +110,7 @@ export default (state, action) => {
             if (state.game[`player${state.game.currentPlayer}`] === action.playerName) {
                 if (fieldHasTower(state.towerPositions, action.field)) {
                     const towerOnField = getTowerFromField(state.towerPositions, action.field);
-                    if (typeof state.game.currentColor === 'undefined' || towerOnField.color === state.game.currentColor) {
+                    if (typeof state.game.currentColor === 'undefined' || state.game.currentColor === null || towerOnField.color === state.game.currentColor) {
                         newState.game.selectedField = action.field;
                     }
                 } else {
@@ -129,11 +129,20 @@ export default (state, action) => {
                     }
                 }
             }
-            db.ref(`games/${action.currentGame}`).update(newState);
+            setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
             break;
             
         case ACTION_TYPES.UPDATE_GAME:
             return action.game;
+            
+        case ACTION_TYPES.START_GAME:
+            const newGameState = {
+                board: createInitialBoard(initialColors),
+                game: createInitialGame(0, action.players),
+                towerPositions: createInitialTowerPositions()
+            };
+            setTimeout(function () {db.ref(`games/${action.game}`).update(newGameState)}, 0);
+            return newGameState;
             
         default:
 
