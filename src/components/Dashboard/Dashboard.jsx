@@ -21,8 +21,8 @@ export default class Dashboard extends React.Component {
     };
     
     return <div class="dashboard">
-        <ul class="dashboard__list">{renderGames()}</ul>
         <div class="dashboard__start-button" onClick={startNewGame}>Neues Spiel Starten</div>
+        <ul class="dashboard__list">{renderGames()}</ul>
       </div>;
   }
 }

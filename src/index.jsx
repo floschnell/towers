@@ -9,6 +9,7 @@ import BoardContainer from './components/Board/BoardContainer';
 import LoginContainer from './components/Login/LoginContainer';
 import DashboardContainer from './components/Dashboard/DashboardContainer';
 import CreateGameContainer from './components/CreateGame/CreateGameContainer';
+import CreateAccountContainer from './components/CreateAccount/CreateAccountContainer';
 
 const store = createStore(reducer);
 
@@ -18,6 +19,7 @@ ReactDOM.render(
       <Route path="/main.html" component={BoardContainer}/>
       <Route path="/dashboard.html" component={DashboardContainer}/>
       <Route path="/newGame.html" component={CreateGameContainer}/>
+      <Route path="/createAccount.html" component={CreateAccountContainer}/>
       <Route path="/" component={LoginContainer}/>
     </Router>
   </Provider>,

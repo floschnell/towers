@@ -20,10 +20,9 @@ export const setPlayerName = playerName => ({
     playerName
 });
 
-export const updateGames = (game, details) => ({
+export const updateGames = games => ({
     type: ACTION_TYPES.UPDATE_GAMES,
-    game,
-    details
+    games
 });
 
 export const resumeGame = game => ({

@@ -12,11 +12,16 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
     loadGames: (playerName) => {
         db.ref(`players/${playerName}/games`).on('value', snapshot => {
-            const games = snapshot.val();
-            games.forEach(game => {
-                db.ref(`games/${game}`).on('value', snap => {
-                    dispatch(updateGames(game, snap.val()));
-                })
+            const games = snapshot.val() || [];
+            const gamePromises = games.map(game => {
+                return db.ref(`games/${game}`).once('value');
+            });
+            Promise.all(gamePromises).then(games => {
+                const mapGameToDetails = {};
+                games.forEach(game => {
+                    mapGameToDetails[game.key] = game.val();
+                });
+                dispatch(updateGames(mapGameToDetails));
             });
         });
     },

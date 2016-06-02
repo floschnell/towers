@@ -13,12 +13,11 @@ export default (state, action) => {
     
     switch (action.type) {
         case ACTION_TYPES.UPDATE_GAMES:
-            const gamesCopy = JSON.parse(JSON.stringify(state.games));
-            gamesCopy[action.game] = action.details;
+            console.log(action.games);
             return {
                 searchStr: state.searchStr,
                 players: state.players,
-                games: gamesCopy,
+                games: action.games,
                 playerName: state.playerName,
                 currentGame: state.currentGame
             };

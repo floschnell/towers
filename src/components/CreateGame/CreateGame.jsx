@@ -1,4 +1,5 @@
 import React from 'react';
+import { hashHistory } from 'react-router';
 
 export default class CreateGame extends React.Component {
   
@@ -9,7 +10,7 @@ export default class CreateGame extends React.Component {
     
     const renderPlayers = () => {
         return Object.keys(this.props.players).map(player => {
-            return <li key={player} onClick={this.props.startGame.bind(null, this.props.playerName, player)}>{player}</li>;
+            return <li key={player} onClick={this.props.startGame.bind(null, this.props.playerName, player)}>{this.props.players[player].name}</li>;
         })
     };
     
@@ -17,7 +18,12 @@ export default class CreateGame extends React.Component {
         this.props.updatePlayerResults(this.refs.searchStr.value);
     };
     
+    const navigateBack = event => {
+        hashHistory.push('dashboard.html');
+    }
+    
     return <div class="dashboard">
+        <div class="dashboard__back-button" onClick={navigateBack}>Zurück</div>
         <input
             ref="searchStr"
             type="text"

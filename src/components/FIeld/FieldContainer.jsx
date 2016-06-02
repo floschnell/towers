@@ -8,7 +8,7 @@ const mapStateToProps = (state, ownProps) => ({
     currentGame: state.app.currentGame
 });
 
-const mapDispatchToProps = (dispatch, getState) => ({
+const mapDispatchToProps = (dispatch, ownProps) => ({
     onClick: (playerName, currentGame) => {
         dispatch(clickOnField({
             x: ownProps.x,
