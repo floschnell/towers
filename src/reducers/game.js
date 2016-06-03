@@ -139,7 +139,7 @@ export default (state, action) => {
         case ACTION_TYPES.CLICK_ON_FIELD:
             if (state.game[`player${currentPlayer}`] === action.playerName) {
                 let towerToMove = null;
-                if (currentColor === 'undefined') {
+                if (typeof currentColor === 'undefined') {
                     towerToMove = state.game.selectedField;
                 } else {
                     towerToMove = state.towerPositions[currentPlayer][currentColor];
