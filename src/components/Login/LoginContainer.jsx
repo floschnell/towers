@@ -10,12 +10,13 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     finalizeLogin: (playerName, password) => {
+        const playerId = playerName.toLowerCase();
         const hashedPassword = passwordHash.generate(password);
-        db.ref(`players/${playerName}`).once('value').then(snapshot => {
+        db.ref(`players/${playerId}`).once('value').then(snapshot => {
             const player = snapshot.val();
             if (player) {
                 if (passwordHash.verify(password, player.pass)) {
-                    dispatch(setPlayerName(playerName));
+                    dispatch(setPlayerName(playerId));
                     hashHistory.push('dashboard.html');
                 } else {
                     console.log('Wrong password! Try again ...');

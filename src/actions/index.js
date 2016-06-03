@@ -1,4 +1,5 @@
 export const ACTION_TYPES = {
+    CLICK_ON_TOWER: 'CLICK_ON_TOWER',
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
     SET_PLAYER_NAME: 'SET_PLAYER_NAME',
     UPDATE_GAMES: 'UPDATE_GAMES',
@@ -7,6 +8,13 @@ export const ACTION_TYPES = {
     UPDATE_GAME: 'UPDATE_GAME',
     UPDATE_PLAYERS: 'UPDATE_PLAYERS'
 };
+
+export const clickOnTower = (tower, playerName, currentGame) => ({
+    type: ACTION_TYPES.CLICK_ON_TOWER,
+    tower,
+    playerName,
+    currentGame
+});
 
 export const clickOnField = (field, playerName, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_FIELD,
