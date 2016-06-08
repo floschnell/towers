@@ -7,6 +7,7 @@ module.exports = {
     filename: './dist/towers.js',
   },
   resolve: {
+    root: path.resolve('./src'),
     extensions: ['.js', '.jsx']
   },
   devtool: 'source-map',
@@ -29,6 +30,7 @@ module.exports = {
   },
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
+      minimize: true,
         compress: {
             warnings: false
         }
