@@ -7,8 +7,10 @@ export default class Field extends React.Component {
     
     const styles = {
       position: 'absolute',
-      left: this.props.x * 50,
-      top: this.props.y * 50
+      left: this.props.x * this.props.fieldSize,
+      top: this.props.y * this.props.fieldSize,
+      width: this.props.fieldSize,
+      height: this.props.fieldSize
     };
     
     const onClick = this.props.onClick.bind(null, this.props.playerName, this.props.currentGame);

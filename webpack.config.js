@@ -9,7 +9,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx']
   },
-  devtool: 'eval',
+  devtool: 'source-map',
   module: {
     loaders: [
       {
@@ -26,5 +26,12 @@ module.exports = {
         loader: 'json-loader'
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        }
+    })
+  ]
 };

@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router';
 export default class Dashboard extends React.Component {
   
   componentWillMount() {
-    this.props.loadGames(this.props.playerName);
+    this.props.updateGames(this.props.playerName);
   }
   
   render() {

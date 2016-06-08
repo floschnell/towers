@@ -11,13 +11,16 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    updatePlayerResults: searchStr => {
+    updatePlayerResults: (searchStr, playerName) => {
         const searchStart = searchStr.toLowerCase();
         const searchEnd = `${searchStart}\uf8ff`;
         db.ref(`players`).orderByKey().startAt(searchStart).endAt(searchEnd).limitToFirst(10).on('value', snapshot => {
             if (snapshot.exists()) {
-                const playerObjs = snapshot.val();
-                dispatch(updatePlayers(searchStr, playerObjs));
+                const playersObj = snapshot.val();
+                if (playersObj[playerName]) {
+                    delete playersObj[playerName];
+                }
+                dispatch(updatePlayers(searchStr, playersObj));
             } else {
                 dispatch(updatePlayers(searchStr, []));
             }

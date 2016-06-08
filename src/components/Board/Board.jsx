@@ -24,7 +24,7 @@ export default class Board extends React.Component {
       return <FieldContainer key={key} x={x} y={y} color={field.color} onClick={this.props.onClick} />;
     };
     
-    return <div>
+    return <div className="board">
       {boardState.map(
         (row, y) => renderRow(row, y)
       )}

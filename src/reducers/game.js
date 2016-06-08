@@ -111,6 +111,22 @@ export const checkMove = (player, towerPositions, fromCoords, toCoords) => {
     return false;
 }
 
+export const canMove = (towerPositions, player, color) => {
+    const towerToMove = towerPositions[player][color];
+    const moveDirection = (player === 0) ? 1 : -1;
+    let canMove = false;
+    if (towerToMove.x < 7) {
+        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection }));
+    }
+    if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
+        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x, y: towerToMove.y + moveDirection }));
+    }
+    if (towerToMove.x > 0) {
+        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection }));
+    }
+    return canMove;
+}
+
 export default (state, action) => {
     
     if (typeof(state) === "undefined") {
@@ -144,14 +160,22 @@ export default (state, action) => {
                 } else {
                     towerToMove = state.towerPositions[currentPlayer][currentColor];
                 }
- 
+
                 const sourceField = towerToMove;
                 const targetField = action.field;
                 if (towerToMove.belongsToPlayer === state.game.currentPlayer) {
                     if (checkMove(state.game.currentPlayer, state.towerPositions, sourceField, targetField)) {
                         newState.towerPositions = moveTower(state.towerPositions, sourceField, targetField);
-                        newState.game.currentPlayer = (state.game.currentPlayer + 1) % 2;
-                        newState.game.currentColor = targetField.color;
+                        const nextPlayer = (state.game.currentPlayer + 1) % 2;
+                        const nextColor = targetField.color;
+                        if (canMove(newState.towerPositions, nextPlayer, nextColor)) {
+                            newState.game.currentPlayer = nextPlayer;
+                            newState.game.currentColor = nextColor;
+                        } else {
+                            const blockedTower = newState.towerPositions[nextPlayer][targetField.color];
+                            const fieldOfBlockedTower = newState.board[blockedTower.y][blockedTower.x];
+                            newState.game.currentColor = fieldOfBlockedTower.color;
+                        }
                         newState.game.selectedField = null;
                     }
                 }

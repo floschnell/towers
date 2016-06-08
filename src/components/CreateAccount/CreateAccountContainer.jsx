@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 });
             }).then(result => {
                 console.log('player has been successfully created!');
-                dispatch(setPlayerName(playerName));
+                dispatch(setPlayerName(playerId));
                 hashHistory.push('dashboard.html');
             }).catch(err => {
                 console.warn(`player could not be created because ${err}`);

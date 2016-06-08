@@ -7,56 +7,46 @@ export default (state, action) => {
             players: [],
             games: {},
             playerName: null,
-            currentGame: null
+            currentGame: null,
+            surfaceWidth: 0,
+            surfaceHeight: 0,
+            surfaceMinSize: 0
         };
     }
     
     switch (action.type) {
         case ACTION_TYPES.UPDATE_GAMES:
-            console.log(action.games);
-            return {
-                searchStr: state.searchStr,
-                players: state.players,
-                games: action.games,
-                playerName: state.playerName,
-                currentGame: state.currentGame
-            };
+            return Object.assign(state, {
+                games: action.games
+            });
             
         case ACTION_TYPES.SET_PLAYER_NAME:
-            return {
-                searchStr: state.searchStr,
-                players: state.players,
-                games: state.games,
-                playerName: action.playerName,
-                currentGame: state.currentGame
-            };
+            return Object.assign(state, {
+                playerName: action.playerName
+            });
             
         case ACTION_TYPES.RESUME_GAME:
-            return {
-                searchStr: state.searchStr,
-                players: state.players,
-                games: state.games,
-                playerName: state.playerName,
+            return Object.assign(state, {
                 currentGame: action.game
-            };
+            });
             
         case ACTION_TYPES.UPDATE_PLAYERS:
-            return {
+            return Object.assign(state, {
                 searchStr: action.searchStr,
-                players: action.players,
-                games: state.games,
-                playerName: state.playerName,
-                currentGame: state.currentGame
-            };
+                players: action.players
+            });
             
         case ACTION_TYPES.START_GAME:
-            return {
-                searchStr: state.searchStr,
-                players: state.players,
-                games: state.games,
-                playerName: state.playerName,
+            return Object.assign(state, {
                 currentGame: action.game
-            };
+            });
+            
+        case ACTION_TYPES.RESIZE_GAME_SURFACE:
+            return Object.assign(state, {
+                surfaceWidth: action.surfaceWidth,
+                surfaceHeight: action.surfaceHeight,
+                surfaceSize: (action.surfaceWidth < action.surfaceHeight) ? action.surfaceWidth : action.surfaceHeight 
+            });
             
         default:
             return state;
