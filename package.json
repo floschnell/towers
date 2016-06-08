@@ -2,7 +2,7 @@
   "name": "towers",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/app.js",
+  "main": "serve.js",
   "scripts": {
     "prestart": "webpack",
     "start": "node serve.js",
