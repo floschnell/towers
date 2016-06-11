@@ -8,9 +8,10 @@ module.exports = {
   },
   resolve: {
     root: path.resolve('./src'),
-    extensions: ['.js', '.jsx']
+    extensions: ['.js', '.jsx'],
+    modulesDirectories: ['node_modules']
   },
-  devtool: 'source-map',
+  devtool: 'eval',
   module: {
     loaders: [
       {
@@ -27,7 +28,7 @@ module.exports = {
         loader: 'json-loader'
       }
     ]
-  },
+  },/*
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       minimize: true,
@@ -35,5 +36,5 @@ module.exports = {
             warnings: false
         }
     })
-  ]
+  ]*/
 };

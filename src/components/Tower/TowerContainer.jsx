@@ -9,9 +9,8 @@ const mapStateToProps = (state, ownProps) => {
   return {
     tower,
     isActive: (ownProps.color === state.game.game.currentColor || typeof state.game.game.currentColor === 'undefined') && ownProps.player === state.game.game.currentPlayer,
-    isSelected: (ownProps.color === state.game.game.currentColor || (typeof state.game.game.currentColor === 'undefined' && state.game.selectedField && state.game.selectedField.x === tower.x && state.game.selectedField.y === tower.y)) && ownProps.player === state.game.game.currentPlayer,
-    playerName: state.app.playerName,
-    fieldSize: state.app.surfaceSize / 8
+    isSelected: (ownProps.color === state.game.game.currentColor || (typeof state.game.game.currentColor === 'undefined' && state.game.game.selectedField && state.game.game.selectedField.x === tower.x && state.game.game.selectedField.y === tower.y)) && ownProps.player === state.game.game.currentPlayer,
+    playerName: state.app.playerName
   };
 };
 

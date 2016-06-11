@@ -5,12 +5,13 @@ export default class Field extends React.Component {
   render() {
     const classname = `field color-${this.props.color}`;
     
+    const fieldSize = this.props.surfaceSize / 8;
     const styles = {
       position: 'absolute',
-      left: this.props.x * this.props.fieldSize,
-      top: this.props.y * this.props.fieldSize,
-      width: this.props.fieldSize,
-      height: this.props.fieldSize
+      left: this.props.x * fieldSize,
+      top: this.props.y * fieldSize,
+      width: fieldSize,
+      height: fieldSize
     };
     
     const onClick = this.props.onClick.bind(null, this.props.playerName, this.props.currentGame);

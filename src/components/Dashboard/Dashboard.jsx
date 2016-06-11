@@ -4,6 +4,10 @@ import { hashHistory } from 'react-router';
 export default class Dashboard extends React.Component {
   
   componentWillMount() {
+    if (this.props.playerName === null) {
+      hashHistory.push('/');
+      return;
+    }
     this.props.updateGames(this.props.playerName);
   }
   

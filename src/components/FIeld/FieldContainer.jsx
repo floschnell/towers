@@ -5,8 +5,7 @@ import {newGame, clickOnField} from '../../actions/index';
 const mapStateToProps = (state, ownProps) => ({
     tower: state.game.towerPositions[`${ownProps.y}-${ownProps.x}`],
     playerName: state.app.playerName,
-    currentGame: state.app.currentGame,
-    fieldSize: state.app.surfaceSize / 8,
+    currentGame: state.app.currentGame
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

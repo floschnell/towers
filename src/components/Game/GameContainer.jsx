@@ -20,9 +20,8 @@ const mapStateToProps = (state, ownProps) => {
     lost: state.game.towerPositions[opponentNumber].some(tower => tower.y === targetRow(opponentNumber)),
     game: state.app.currentGame,
     playerName: state.app.playerName,
-    gameSurfaceWidth: state.app.surfaceWidth,
-    gameSurfaceHeight: state.app.surfaceHeight,
-    gameSurfaceSize: state.app.surfaceSize
+    surfaceWidth: state.app.surfaceWidth,
+    surfaceHeight: state.app.surfaceHeight,
   }
 };
 

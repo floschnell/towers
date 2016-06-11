@@ -2,6 +2,7 @@ import React from 'react';
 import BoardContainer from '../Board/BoardContainer';
 import TowerSetContainer from '../TowerSet/TowerSetContainer';
 import Dialog from '../Dialog/Dialog';
+import { hashHistory } from 'react-router';
 
 export default class Game extends React.Component {
   
@@ -10,6 +11,10 @@ export default class Game extends React.Component {
   }
   
   componentWillMount() {
+    if (this.props.playerName === null) {
+      hashHistory.push('/');
+      this.render = () => false;
+    }
     this.onResize();
   }
   
@@ -43,20 +48,35 @@ export default class Game extends React.Component {
       dialog = <Dialog zIndex="10" message="You have lost!" buttons={dialogButtons} />
     }
     
-    const leftOffset = this.props.gameSurfaceWidth ? (this.props.gameSurfaceWidth - this.props.gameSurfaceSize) / 2 : 0;
-    const topOffset = this.props.gameSurfaceHeight ? (this.props.gameSurfaceHeight - this.props.gameSurfaceSize) / 2 : 0;
+    let surfaceSize = 0;
+    if (this.props.surfaceWidth < this.props.surfaceHeight) {
+      if (this.props.surfaceHeight - this.props.surfaceWidth < 200) {
+        surfaceSize = this.props.surfaceHeight - 200;
+      } else {
+        surfaceSize = this.props.surfaceWidth;
+      }
+    } else {
+      if (this.props.surfaceWidth - this.props.surfaceHeight < 200) {
+        surfaceSize = this.props.surfaceWidth - 200;
+      } else {
+        surfaceSize = this.props.surfaceHeight;
+      }
+    }
+    
+    const leftOffset = (this.props.surfaceWidth - surfaceSize) / 2;
+    const topOffset = (this.props.surfaceHeight - surfaceSize) / 2;
     const styles = {
       position: 'absolute',
       left: leftOffset,
       top: topOffset,
-      width: this.props.gameSurfaceSize,
-      height: this.props.gameSurfaceSize
+      width: surfaceSize,
+      height: surfaceSize
     };
     
     return <div style={styles}>
-      <BoardContainer />
-      <TowerSetContainer player="0" />
-      <TowerSetContainer player="1" />
+      <BoardContainer surfaceSize={surfaceSize} />
+      <TowerSetContainer player="0" surfaceSize={surfaceSize} />
+      <TowerSetContainer player="1" surfaceSize={surfaceSize} />
       {dialog}
     </div>;
   }

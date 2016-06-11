@@ -21,7 +21,7 @@ export default class Board extends React.Component {
     
     const renderField = (field, x, y) => {
       const key = `test-${y}-${x}`;
-      return <FieldContainer key={key} x={x} y={y} color={field.color} onClick={this.props.onClick} />;
+      return <FieldContainer key={key} x={x} y={y} color={field.color} onClick={this.props.onClick} surfaceSize={this.props.surfaceSize} />;
     };
     
     return <div className="board">
