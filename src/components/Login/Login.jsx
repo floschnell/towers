@@ -5,7 +5,7 @@ export default class Login extends React.Component {
   render() {
       
     const onLogin = e => {
-        this.props.finalizeLogin(this.refs.playerName.value, this.refs.password.value);
+        this.props.finalizeLogin(this.refs.email.value, this.refs.password.value);
     };
     
     const onCreateAccount = e => {
@@ -13,8 +13,8 @@ export default class Login extends React.Component {
     };
       
     return <div>
-        <input ref="playerName" type="text" name="name" />
-        <input ref="password" type="password" name="name" />
+        <input ref="email" type="text" name="email" />
+        <input ref="password" type="password" name="password" />
         <input type="button" value="Login" onClick={onLogin} />
         <input type="button" value="Create Account" onClick={onCreateAccount} />
     </div>;

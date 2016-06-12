@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "start": "node serve.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "webpack --config webpack.test.config.js && mocha -R mocha-better-spec-reporter ./test/test.js"
   },
   "repository": {
     "type": "git",
@@ -38,5 +38,10 @@
     "react-redux": "^4.4.5",
     "react-router": "^2.4.1",
     "redux": "^3.5.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "mocha-better-spec-reporter": "^3.0.2"
   }
 }

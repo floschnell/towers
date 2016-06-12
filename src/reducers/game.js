@@ -30,11 +30,10 @@ const createInitialTowerPositions = () => {
 
 const createInitialGame = (firstPlayer, players) => {
     return {
-        player0: players[0],
-        player1: players[1],
+        players,
         currentPlayer: firstPlayer,
         currentColor: null,
-        selectedField: null
+        selectedTower: null
     };
 }
 
@@ -47,85 +46,6 @@ const createInitialBoard = (colors) => colors.map((row, index) =>
         }
     )
 );
-
-/**
- * Moves tower from source location to the target field.
- * Returns a new tower positions object.
- */  
-const moveTower = (towerPositions, source, target) => {
-    if (fieldHasTower(towerPositions, source)) {
-        if (!fieldHasTower(towerPositions, target)) {
-            const newTowerPositions = JSON.parse(JSON.stringify(towerPositions));
-            const towerToMove = getTowerFromField(newTowerPositions, source);
-            const { x, y } = target;
-            towerToMove.x = x;
-            towerToMove.y = y;
-            return newTowerPositions;
-        }
-    }
-    return towerPositions;
-}
-
-/**
- * Gets the tower from the field at the given position.
- * Returns undefined if there is no tower on that field.
- * You can pass the owner of the tower to speed up search.
- */
-const getTowerFromField = (towerPositions, {x, y}, player = null) => {
-    let towers = [];
-    if (player === null) {
-        towers = towerPositions.reduce((previous, current) => previous.concat(current));
-    } else {
-        towers = towerPositions[player];
-    }
-    return towers.find(tower => tower.x === x && tower.y === y);
-}
-
-/**
- * Checks if there is a tower on the field with the given position.
- */
-const fieldHasTower = (towerPositions, {x, y}) => {
-    const towers = towerPositions.reduce((previous, current) => previous.concat(current));
-    return towers.some(tower => tower.x === x && tower.y === y);
-}
-
-/**
- * Checks if moving a tower from a source to a target location by a certain player is according to the rules.
- */
-export const checkMove = (player, towerPositions, fromCoords, toCoords) => {
-    const deltaX = fromCoords.x - toCoords.x;
-    const deltaY = fromCoords.y - toCoords.y;
-    if (((deltaY < 0 && player === 0) || (deltaY > 0 && player === 1))
-        && (Math.abs(deltaY) === Math.abs(deltaX) || deltaX === 0)) {
-            let x = 0;
-        for (let y = 0; y < Math.abs(deltaY); y++) {
-            const xcoord = fromCoords.x + ((deltaX > 0) ? (0-x) : x);
-            const ycoord = fromCoords.y + ((deltaY > 0) ? (0-y) : y);
-            if ((x !== 0 || y !== 0) && fieldHasTower(towerPositions, {x: xcoord, y: ycoord})) {
-                return false;
-            }
-            if (x < Math.abs(deltaX)) x++;
-        }
-        return true;
-    }
-    return false;
-}
-
-export const canMove = (towerPositions, player, color) => {
-    const towerToMove = towerPositions[player][color];
-    const moveDirection = (player === 0) ? 1 : -1;
-    let canMove = false;
-    if (towerToMove.x < 7) {
-        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection }));
-    }
-    if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
-        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x, y: towerToMove.y + moveDirection }));
-    }
-    if (towerToMove.x > 0) {
-        canMove = canMove || (!fieldHasTower(towerPositions, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection }));
-    }
-    return canMove;
-}
 
 export default (state, action) => {
     

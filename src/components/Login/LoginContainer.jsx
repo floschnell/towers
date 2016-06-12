@@ -9,19 +9,16 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    finalizeLogin: (playerName, password) => {
-        const playerId = playerName.toLowerCase();
-        const hashedPassword = passwordHash.generate(password);
-        db.ref(`players/${playerId}`).once('value').then(snapshot => {
-            const player = snapshot.val();
-            if (player) {
-                if (passwordHash.verify(password, player.pass)) {
-                    dispatch(setPlayerName(playerId));
-                    hashHistory.push('dashboard.html');
-                } else {
-                    console.log('Wrong password! Try again ...');
-                }
-            }
+    finalizeLogin: (email, password) => {
+        firebase.auth().signInWithEmailAndPassword(email, password).then(user => {
+            console.log(user.uid);
+            dispatch(setPlayerName(user.uid));
+            hashHistory.push('dashboard.html');
+        }).catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode + errorMessage);
         });
     }
 });

@@ -3,6 +3,7 @@ import CreateGame from './CreateGame';
 import db from '../../database';
 import { updatePlayers, startGame } from '../../actions/index';
 import { hashHistory } from 'react-router';
+import firebase from 'firebase';
 
 const mapStateToProps = (state) => ({
     players: state.app.players,
@@ -12,13 +13,15 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
     updatePlayerResults: (searchStr, playerName) => {
-        const searchStart = searchStr.toLowerCase();
+        const currentUser = firebase.auth().currentUser;
+        const searchStart = searchStr;
         const searchEnd = `${searchStart}\uf8ff`;
-        db.ref(`players`).orderByKey().startAt(searchStart).endAt(searchEnd).limitToFirst(10).on('value', snapshot => {
+        db.ref('players').orderByChild('name').equalTo(searchStart).on('value', snapshot => {
             if (snapshot.exists()) {
+                console.log(snapshot);
                 const playersObj = snapshot.val();
-                if (playersObj[playerName]) {
-                    delete playersObj[playerName];
+                if (playersObj[currentUser.uid]) {
+                    delete playersObj[currentUser.uid];
                 }
                 dispatch(updatePlayers(searchStr, playersObj));
             } else {

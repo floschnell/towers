@@ -1,0 +1,102 @@
+[
+    [
+        {
+            "color": 0,
+            "player": 0,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "color": 1,
+            "player": 0,
+            "x": 1,
+            "y": 0
+        },
+        {
+            "color": 2,
+            "player": 0,
+            "x": 2,
+            "y": 0
+        },
+        {
+            "color": 3,
+            "player": 0,
+            "x": 3,
+            "y": 0
+        },
+        {
+            "color": 4,
+            "player": 0,
+            "x": 4,
+            "y": 0
+        },
+        {
+            "color": 5,
+            "player": 0,
+            "x": 5,
+            "y": 0
+        },
+        {
+            "color": 6,
+            "player": 0,
+            "x": 6,
+            "y": 0
+        },
+        {
+            "color": 7,
+            "player": 0,
+            "x": 7,
+            "y": 0
+        }
+    ],
+    [
+        {
+            "color": 0,
+            "player": 1,
+            "x": 7,
+            "y": 7
+        },
+        {
+            "color": 1,
+            "player": 1,
+            "x": 6,
+            "y": 7
+        },
+        {
+            "color": 2,
+            "player": 1,
+            "x": 5,
+            "y": 7
+        },
+        {
+            "color": 3,
+            "player": 1,
+            "x": 4,
+            "y": 7
+        },
+        {
+            "color": 4,
+            "player": 1,
+            "x": 3,
+            "y": 7
+        },
+        {
+            "color": 5,
+            "player": 1,
+            "x": 2,
+            "y": 7
+        },
+        {
+            "color": 6,
+            "player": 1,
+            "x": 1,
+            "y": 7
+        },
+        {
+            "color": 7,
+            "player": 1,
+            "x": 0,
+            "y": 7
+        }
+    ]
+]
