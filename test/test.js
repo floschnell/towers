@@ -52,7 +52,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -163,8 +163,8 @@
 	// https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 	
 	var getName = __webpack_require__(7);
-	var getProperties = __webpack_require__(30);
-	var getEnumerableProperties = __webpack_require__(27);
+	var getProperties = __webpack_require__(31);
+	var getEnumerableProperties = __webpack_require__(28);
 	
 	module.exports = inspect;
 	
@@ -500,7 +500,7 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(42);
+	module.exports = __webpack_require__(44);
 
 
 /***/ },
@@ -640,9 +640,9 @@
 	
 	'use strict'
 	
-	var base64 = __webpack_require__(16)
-	var ieee754 = __webpack_require__(40)
-	var isArray = __webpack_require__(41)
+	var base64 = __webpack_require__(17)
+	var ieee754 = __webpack_require__(41)
+	var isArray = __webpack_require__(43)
 	
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -2342,7 +2342,7 @@
 	  return val !== val // eslint-disable-line no-self-compare
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer, __webpack_require__(43)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer, __webpack_require__(45)))
 
 /***/ },
 /* 6 */
@@ -2786,33 +2786,41 @@
 /***/ function(module, exports) {
 
 	"use strict";
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	/**
-	 * Moves a tower from the source field to the target field.
-	 * 
-	 * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
-	 * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
-	 * @param {{x: integer, y: integer}} targetField Field where the tower should go.
-	 * @returns {object} New tower positions object.
-	 */
-	var moveTower = exports.moveTower = function moveTower(towers, sourceField, targetField) {
-	    if (fieldHasTower(towers, sourceField)) {
-	        if (!fieldHasTower(towers, targetField)) {
-	            var newTowers = Object.assign({}, towers);
-	            var towerToMove = getTowerFromField(newTowers, sourceField);
-	            var x = targetField.x;
-	            var y = targetField.y;
 	
-	            towerToMove.x = x;
-	            towerToMove.y = y;
-	            return newTowers;
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * Copies a set of towers.
+	 * 
+	 * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Tower positions to copy over.
+	 * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
+	 */
+	var copyTowers = exports.copyTowers = function copyTowers(towers) {
+	    var copyOfTowers = [];
+	    for (var player in towers) {
+	        var copyOfPlayer = [];
+	        for (var color in towers[player]) {
+	            copyOfPlayer.push(Object.assign({}, towers[player][color]));
 	        }
+	        copyOfTowers.push(copyOfPlayer);
 	    }
-	    return towers;
+	    return copyOfTowers;
+	};
+	
+	/**
+	 * @param {{x: integer, y: integer}} fieldA
+	 * @param {{x: integer, y: integer}} fieldA
+	 * @returns {boolean} Whether the fields are equal.
+	 */
+	var fieldsAreEqual = function fieldsAreEqual(fieldA, fieldB) {
+	    return fieldA.x == fieldB.x && fieldA.y == fieldB.y;
 	};
 	
 	/**
@@ -2825,7 +2833,7 @@
 	 * @param {integer|null} [player] Index of the player this tower belongs to.
 	 * @returns {{x: integer, y: integer, player: integer, color: integer}}
 	 */
-	var getTowerFromField = function getTowerFromField(towers, field) {
+	var getTowerFromField = exports.getTowerFromField = function getTowerFromField(towers, field) {
 	    var player = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 	
 	    var arrayOfTowers = [];
@@ -2848,7 +2856,7 @@
 	 * @param {{x: integer, y: integer}} field Coordinates of the fied that we want to check.
 	 * @returns {boolean} Whether there is a tower on the given field coordinates.
 	 */
-	var fieldHasTower = function fieldHasTower(towers, field) {
+	var fieldHasTower = exports.fieldHasTower = function fieldHasTower(towers, field) {
 	    var arrayOfTowers = towers.reduce(function (previous, current) {
 	        return previous.concat(current);
 	    });
@@ -2858,89 +2866,166 @@
 	};
 	
 	/**
-	 * Checks if moving a tower from sourceField to targetField is a valid move.
+	 * Tells whether the given player should move up- or downward.
 	 * 
-	 * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
-	 * @param {integer} player Index of the player that 
-	 * @param {{x: integer, y: integer}} sourceField Field where the move starts.
-	 * @param {{x: integer, y: integer}} targetField Field where the move will end.
-	 * @returns {boolean} Whether this is a valid move.
+	 * @param {integer} player What player to get the move direction for.
+	 * @return {integer} -1 if upward, 1 if downward.
 	 */
-	var checkMove2 = exports.checkMove2 = function checkMove2(towers, player, sourceField, targetField) {
-	    var deltaX = sourceField.x - targetField.x;
-	    var deltaY = sourceField.y - targetField.y;
-	    if ((deltaY < 0 && player === 0 || deltaY > 0 && player === 1) && (Math.abs(deltaY) === Math.abs(deltaX) || deltaX === 0)) {
-	        var x = 0;
-	        for (var y = 0; y < Math.abs(deltaY); y++) {
-	            var xcoord = sourceField.x + (deltaX > 0 ? 0 - x : x);
-	            var ycoord = sourceField.y + (deltaY > 0 ? 0 - y : y);
-	            if ((x !== 0 || y !== 0) && fieldHasTower(towers, { x: xcoord, y: ycoord })) {
-	                return false;
-	            }
-	            if (x < Math.abs(deltaX)) x++;
-	        }
-	        return true;
-	    }
-	    return false;
+	var playerMoveDirection = function playerMoveDirection(player) {
+	    return player === 0 ? 1 : -1;
 	};
 	
-	/**
-	 * Checks if moving a tower from sourceField to targetField is a valid move.
-	 * 
-	 * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
-	 * @param {integer} player Index of the player that 
-	 * @param {integer} color Field where the move starts.
-	 * @param {{x: integer, y: integer}} targetField Field where the move will end.
-	 * @returns {boolean} Whether this is a valid move.
-	 */
-	var checkMove = exports.checkMove = function checkMove(towers, player, color, targetField) {
-	    var tower = towers[player][color];
-	    var deltaX = tower.x - targetField.x;
-	    var deltaY = tower.y - targetField.y;
-	    if ((deltaY < 0 && player === 0 || deltaY > 0 && player === 1) && (Math.abs(deltaY) === Math.abs(deltaX) || deltaX === 0)) {
-	        var x = 0;
-	        for (var y = 0; y < Math.abs(deltaY); y++) {
-	            var xcoord = tower.x + (deltaX > 0 ? 0 - x : x);
-	            var ycoord = tower.y + (deltaY > 0 ? 0 - y : y);
-	            if ((x !== 0 || y !== 0) && fieldHasTower(towers, { x: xcoord, y: ycoord })) {
-	                return false;
-	            }
-	            if (x < Math.abs(deltaX)) x++;
-	        }
-	        return true;
+	var GameLogic = function () {
+	    function GameLogic() {
+	        _classCallCheck(this, GameLogic);
 	    }
-	    return false;
-	};
 	
-	/**
-	 * Checks whether a player can make a valid move with a certain color.
-	 * 
-	 * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions. 
-	 * @param {integer} player Index of the player that should be checked.
-	 * @param {integer} color Color of the tower the player needs to use.
-	 * @returns {boolean} Whether the player is able to make a valid move with the tower.
-	 */
-	var canMove = exports.canMove = function canMove(towers, player, color) {
-	    var towerToMove = towers[player][color];
-	    var moveDirection = player === 0 ? 1 : -1;
-	    var canMove = false;
-	    if (towerToMove.x < 7) {
-	        canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection });
-	    }
-	    if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
-	        canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x, y: towerToMove.y + moveDirection });
-	    }
-	    if (towerToMove.x > 0) {
-	        canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection });
-	    }
-	    return canMove;
-	};
+	    _createClass(GameLogic, null, [{
+	        key: 'executeMove',
+	
+	
+	        /**
+	         * Moves a tower from the source field to the target field.
+	         * 
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
+	         * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
+	         * @param {{x: integer, y: integer}} targetField Field where the tower should go.
+	         * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} New tower positions object.
+	         */
+	        value: function executeMove(towers, sourceField, targetField) {
+	            if (fieldHasTower(towers, sourceField)) {
+	                if (!fieldHasTower(towers, targetField)) {
+	                    var newTowers = copyTowers(towers);
+	                    var towerToMove = getTowerFromField(newTowers, sourceField);
+	                    var x = targetField.x;
+	                    var y = targetField.y;
+	
+	                    towerToMove.x = x;
+	                    towerToMove.y = y;
+	                    return newTowers;
+	                } else {
+	                    throw 'The tower destination is already occupied!';
+	                }
+	            } else {
+	                throw 'The tower you want to move does not exist!';
+	            }
+	        }
+	    }, {
+	        key: 'checkMove',
+	
+	
+	        /**
+	         * Checks if moving a tower from sourceField to targetField is a valid move.
+	         * 
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
+	         * @param {integer} player Index of the player that 
+	         * @param {integer} color Field where the move starts.
+	         * @param {{x: integer, y: integer}} targetField Field where the move will end.
+	         * @returns {boolean} Whether this is a valid move.
+	         */
+	        value: function checkMove(towers, player, color, targetField) {
+	            var tower = towers[player][color];
+	            var currentField = {
+	                x: tower.x,
+	                y: tower.y
+	            };
+	            var deltaX = targetField.x - tower.x;
+	            var deltaY = targetField.y - tower.y;
+	            var moveDirection = playerMoveDirection(player);
+	            var directionValid = deltaY > 0 && moveDirection > 0 || deltaY < 0 && moveDirection < 0;
+	            var moveStraight = deltaX === 0;
+	            var moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
+	            var moveInLine = moveStraight || moveDiagonally;
+	
+	            var obstacleInMove = function obstacleInMove(towers, currentField, targetField, moveX, moveY) {
+	                var nextField = {
+	                    x: currentField.x + moveX,
+	                    y: currentField.y + moveY
+	                };
+	
+	                if (fieldHasTower(towers, nextField)) {
+	                    return true;
+	                } else if (fieldsAreEqual(nextField, targetField)) {
+	                    return false;
+	                } else {
+	                    return obstacleInMove(towers, nextField, targetField, moveX, moveY);
+	                }
+	            };
+	
+	            var moveX = deltaX !== 0 ? deltaX / Math.abs(deltaX) : 0;
+	
+	            console.log("moveX:", moveX);
+	
+	            return directionValid && moveInLine && !obstacleInMove(towers, currentField, targetField, moveX, moveDirection);
+	        }
+	    }, {
+	        key: 'canMove',
+	
+	
+	        /**
+	         * Checks whether a player can make a valid move with a certain color.
+	         * 
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions. 
+	         * @param {integer} player Index of the player that should be checked.
+	         * @param {integer} color Color of the tower the player needs to use.
+	         * @returns {boolean} Whether the player is able to make a valid move with the tower.
+	         */
+	        value: function canMove(towers, player, color) {
+	            var towerToMove = towers[player][color];
+	            var moveDirection = player === 0 ? 1 : -1;
+	            var canMove = false;
+	            if (towerToMove.x < 7) {
+	                canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection });
+	            }
+	            if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
+	                canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x, y: towerToMove.y + moveDirection });
+	            }
+	            if (towerToMove.x > 0) {
+	                canMove = canMove || !fieldHasTower(towers, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection });
+	            }
+	            return canMove;
+	        }
+	    }, {
+	        key: 'executeMoves',
+	
+	
+	        /**
+	         * Executes moves on a set of towers and returns the resulting new tower positions.
+	         * 
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Position of the player's towers.
+	         * @param {{player:integer,color:integer,from:{x:integer, y:integer},to:{x:integer, y:integer}}[]} moves An array of moves.
+	         * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} Tower positions after all moves have been executed.
+	         */
+	        value: function executeMoves(towers, moves) {
+	            var resultingTowers = copyTowers(towers);
+	            for (var index in moves) {
+	                var move = moves[index];
+	                var tower = resultingTowers[move.player][move.color];
+	                if (tower.x == move.from.x && tower.y == move.from.y) {
+	                    var isMoveValid = GameLogic.checkMove(resultingTowers, move.player, move.color, move.to);
+	                    if (isMoveValid) {
+	                        resultingTowers = GameLogic.executeMove(resultingTowers, move.from, move.to);
+	                    } else {
+	                        throw 'Moving tower ' + tower + ' from ' + move.from + ' to ' + move.to + ' is not valid.';
+	                    }
+	                } else {
+	                    throw 'Tower description of move ' + move + ' does not match the tower on that field.';
+	                }
+	            }
+	            return resultingTowers;
+	        }
+	    }]);
+	
+	    return GameLogic;
+	}();
+	
+	exports.default = GameLogic;
 
 /***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(17);
+	module.exports = __webpack_require__(18);
 
 
 /***/ },
@@ -2949,8 +3034,85 @@
 
 	"use strict";
 	'use strict';
+	var isObj = __webpack_require__(42);
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+	
+	function toObject(val) {
+		if (val === null || val === undefined) {
+			throw new TypeError('Sources cannot be null or undefined');
+		}
+	
+		return Object(val);
+	}
+	
+	function assignKey(to, from, key) {
+		var val = from[key];
+	
+		if (val === undefined || val === null) {
+			return;
+		}
+	
+		if (hasOwnProperty.call(to, key)) {
+			if (to[key] === undefined || to[key] === null) {
+				throw new TypeError('Cannot convert undefined or null to object (' + key + ')');
+			}
+		}
+	
+		if (!hasOwnProperty.call(to, key) || !isObj(val)) {
+			to[key] = val;
+		} else {
+			to[key] = assign(Object(to[key]), from[key]);
+		}
+	}
+	
+	function assign(to, from) {
+		if (to === from) {
+			return to;
+		}
+	
+		from = Object(from);
+	
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				assignKey(to, from, key);
+			}
+		}
+	
+		if (Object.getOwnPropertySymbols) {
+			var symbols = Object.getOwnPropertySymbols(from);
+	
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					assignKey(to, from, symbols[i]);
+				}
+			}
+		}
+	
+		return to;
+	}
+	
+	module.exports = function deepAssign(target) {
+		target = toObject(target);
+	
+		for (var s = 1; s < arguments.length; s++) {
+			assign(target, arguments[s]);
+		}
+	
+		return target;
+	};
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	'use strict';
 	
 	var _gamelogic = __webpack_require__(13);
+	
+	var _gamelogic2 = _interopRequireDefault(_gamelogic);
 	
 	var _chai = __webpack_require__(14);
 	
@@ -2958,112 +3120,130 @@
 	
 	var _towers2 = _interopRequireDefault(_towers);
 	
+	var _deepAssign = __webpack_require__(15);
+	
+	var _deepAssign2 = _interopRequireDefault(_deepAssign);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var copyTowers = function copyTowers() {
-	    return JSON.parse(JSON.stringify(_towers2.default));
-	};
-	
 	describe('Game Logic', function () {
+	
+	    describe('copyTowers', function () {
+	        it('should return a deep copy of a tower structure.', function () {
+	            // WHEN
+	            var copyOfTowers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            copyOfTowers[0][0].color = 1;
+	            copyOfTowers[0][0].player = 1;
+	            copyOfTowers[0][0].x = 4;
+	            copyOfTowers[0][0].y = 4;
+	
+	            // THEN
+	            _chai.assert.equal(_towers2.default[0][0].color, 0);
+	            _chai.assert.equal(_towers2.default[0][0].player, 0);
+	            _chai.assert.equal(_towers2.default[0][0].x, 0);
+	            _chai.assert.equal(_towers2.default[0][0].y, 0);
+	        });
+	    });
+	
 	    describe('checkMove', function () {
 	        it('should return true on a straight move of first player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 0, 0, { x: 0, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 0, { x: 0, y: 5 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return true on a right diagonal move of first player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 0, 0, { x: 5, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 0, { x: 5, y: 5 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return true on a left diagonal move of first player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 0, 7, { x: 2, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 7, { x: 2, y: 5 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return true on a straight move of second player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 1, 0, { x: 7, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 0, { x: 7, y: 2 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return true on a right diagonal move of second player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 1, 0, { x: 2, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 0, { x: 2, y: 2 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return true on a left diagonal move of second player', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 1, 7, { x: 5, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 7, { x: 5, y: 2 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
 	        });
 	
 	        it('should return false on an invalid move', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 0, 4, { x: 5, y: 3 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 4, { x: 5, y: 3 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
 	        });
 	
 	        it('should return false on an upward move of player one', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[0][4].y = 4;
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 0, 4, { x: 4, y: 0 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 4, { x: 4, y: 0 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
 	        });
 	
 	        it('should return false on a downward move of player two', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[1][4].y = 3;
 	
 	            // WHEN
-	            var moveIsValid = (0, _gamelogic.checkMove)(towers, 1, 4, { x: 4, y: 7 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 4, { x: 4, y: 7 });
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
 	        });
 	    });
@@ -3071,44 +3251,158 @@
 	    describe('canMove', function () {
 	        it('should return false when a tower can not be moved anymore', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[0][4].y = 6;
 	
 	            // WHEN
-	            var canBeMoved = (0, _gamelogic.canMove)(towers, 0, 4);
+	            var canBeMoved = _gamelogic2.default.canMove(towers, 0, 4);
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(canBeMoved);
 	        });
 	
 	        it('should return false when a left tower can not be moved anymore', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[0][0].y = 6;
 	
 	            // WHEN
-	            var canBeMoved = (0, _gamelogic.canMove)(towers, 0, 0);
+	            var canBeMoved = _gamelogic2.default.canMove(towers, 0, 0);
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(canBeMoved);
 	        });
 	
 	        it('should return false when a right tower can not be moved anymore', function () {
 	            // GIVEN
-	            var towers = copyTowers();
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[0][7].y = 6;
 	
 	            // WHEN
-	            var canBeMoved = (0, _gamelogic.canMove)(towers, 0, 7);
+	            var canBeMoved = _gamelogic2.default.canMove(towers, 0, 7);
 	
-	            // EXPECTED
+	            // THEN
 	            _chai.assert.isFalse(canBeMoved);
+	        });
+	    });
+	
+	    describe('executeMove', function () {
+	        it('should be able to move a tower', function () {
+	            // GIVEN
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	
+	            // WHEN
+	            var updatedTowers = _gamelogic2.default.executeMove(towers, { x: 0, y: 0 }, { x: 3, y: 5 });
+	
+	            // THEN
+	            _chai.assert.equal(updatedTowers[0][0].x, 3);
+	            _chai.assert.equal(updatedTowers[0][0].y, 5);
+	        });
+	
+	        it('should fail with an exception if tower does not exist', function () {
+	            // GIVEN
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var error = null;
+	
+	            // WHEN
+	            try {
+	                _gamelogic2.default.executeMove(towers, { x: 1, y: 1 }, { x: 3, y: 5 });
+	            } catch (e) {
+	                error = e;
+	            }
+	
+	            // THEN
+	            _chai.assert.isNotNull(error);
+	        });
+	
+	        it('should fail with an exception if tower destination is already occupied', function () {
+	            // GIVEN
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var error = null;
+	
+	            // WHEN
+	            try {
+	                _gamelogic2.default.executeMove(towers, { x: 0, y: 0 }, { x: 7, y: 7 });
+	            } catch (e) {
+	                error = e;
+	            }
+	
+	            // THEN
+	            _chai.assert.isNotNull(error);
+	        });
+	    });
+	
+	    describe('executeMoves', function () {
+	        it('should be able to execute a sequence of moves', function () {
+	            // GIVEN
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move1 = {
+	                player: 0,
+	                color: 0,
+	                from: { x: 0, y: 0 },
+	                to: { x: 0, y: 3 }
+	            };
+	            var move2 = {
+	                player: 1,
+	                color: 3,
+	                from: { x: 4, y: 7 },
+	                to: { x: 4, y: 2 }
+	            };
+	            var move3 = {
+	                player: 0,
+	                color: 0,
+	                from: { x: 0, y: 3 },
+	                to: { x: 2, y: 5 }
+	            };
+	            var moves = [move1, move2, move3];
+	
+	            // WHEN
+	            var resultingTowers = _gamelogic2.default.executeMoves(_towers2.default, moves);
+	
+	            // THEN
+	            _chai.assert.deepEqual(resultingTowers[0][0], { x: 2, y: 5, color: 0, player: 0 });
+	            _chai.assert.deepEqual(resultingTowers[1][3], { x: 4, y: 2, color: 3, player: 1 });
+	        });
+	
+	        it('should fail during a sequence of moves if a move is impossible', function () {
+	            // GIVEN
+	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move1 = {
+	                player: 0,
+	                color: 0,
+	                from: { x: 0, y: 0 },
+	                to: { x: 0, y: 3 }
+	            };
+	            var move2 = {
+	                player: 1,
+	                color: 3,
+	                from: { x: 4, y: 7 },
+	                to: { x: 5, y: 2 }
+	            };
+	            var move3 = {
+	                player: 0,
+	                color: 0,
+	                from: { x: 0, y: 3 },
+	                to: { x: 2, y: 5 }
+	            };
+	            var moves = [move1, move2, move3];
+	            var error = null;
+	
+	            // WHEN
+	            try {
+	                var resultingTowers = _gamelogic2.default.executeMoves(_towers2.default, moves);
+	            } catch (e) {
+	                error = e;
+	            }
+	
+	            // THEN
+	            _chai.assert.isNotNull(error);
 	        });
 	    });
 	});
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3224,7 +3518,7 @@
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -3252,7 +3546,7 @@
 	 * Utils for plugins (not exported)
 	 */
 	
-	var util = __webpack_require__(31);
+	var util = __webpack_require__(32);
 	
 	/**
 	 * # .use(function)
@@ -3290,40 +3584,40 @@
 	 * Primary `Assertion` prototype
 	 */
 	
-	var assertion = __webpack_require__(18);
+	var assertion = __webpack_require__(19);
 	exports.use(assertion);
 	
 	/*!
 	 * Core Assertions
 	 */
 	
-	var core = __webpack_require__(19);
+	var core = __webpack_require__(20);
 	exports.use(core);
 	
 	/*!
 	 * Expect interface
 	 */
 	
-	var expect = __webpack_require__(21);
+	var expect = __webpack_require__(22);
 	exports.use(expect);
 	
 	/*!
 	 * Should interface
 	 */
 	
-	var should = __webpack_require__(22);
+	var should = __webpack_require__(23);
 	exports.use(should);
 	
 	/*!
 	 * Assert interface
 	 */
 	
-	var assert = __webpack_require__(20);
+	var assert = __webpack_require__(21);
 	exports.use(assert);
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -3460,7 +3754,7 @@
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	/*!
@@ -5326,7 +5620,7 @@
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/*!
@@ -6977,7 +7271,7 @@
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7017,7 +7311,7 @@
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7224,7 +7518,7 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7342,7 +7636,7 @@
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7392,7 +7686,7 @@
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7446,7 +7740,7 @@
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7494,7 +7788,7 @@
 
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7526,7 +7820,7 @@
 
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7583,7 +7877,7 @@
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7632,7 +7926,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7674,7 +7968,7 @@
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -7693,7 +7987,7 @@
 	 * test utility
 	 */
 	
-	exports.test = __webpack_require__(35);
+	exports.test = __webpack_require__(36);
 	
 	/*!
 	 * type utility
@@ -7704,13 +7998,13 @@
 	/*!
 	 * expectTypes utility
 	 */
-	exports.expectTypes = __webpack_require__(26);
+	exports.expectTypes = __webpack_require__(27);
 	
 	/*!
 	 * message utility
 	 */
 	
-	exports.getMessage = __webpack_require__(28);
+	exports.getMessage = __webpack_require__(29);
 	
 	/*!
 	 * actual utility
@@ -7746,13 +8040,13 @@
 	 * Deep equal utility
 	 */
 	
-	exports.eql = __webpack_require__(36);
+	exports.eql = __webpack_require__(37);
 	
 	/*!
 	 * Deep path value
 	 */
 	
-	exports.getPathValue = __webpack_require__(29);
+	exports.getPathValue = __webpack_require__(30);
 	
 	/*!
 	 * Deep path info
@@ -7776,41 +8070,41 @@
 	 * add Property
 	 */
 	
-	exports.addProperty = __webpack_require__(25);
+	exports.addProperty = __webpack_require__(26);
 	
 	/*!
 	 * add Method
 	 */
 	
-	exports.addMethod = __webpack_require__(24);
+	exports.addMethod = __webpack_require__(25);
 	
 	/*!
 	 * overwrite Property
 	 */
 	
-	exports.overwriteProperty = __webpack_require__(34);
+	exports.overwriteProperty = __webpack_require__(35);
 	
 	/*!
 	 * overwrite Method
 	 */
 	
-	exports.overwriteMethod = __webpack_require__(33);
+	exports.overwriteMethod = __webpack_require__(34);
 	
 	/*!
 	 * Add a chainable method
 	 */
 	
-	exports.addChainableMethod = __webpack_require__(23);
+	exports.addChainableMethod = __webpack_require__(24);
 	
 	/*!
 	 * Overwrite chainable method
 	 */
 	
-	exports.overwriteChainableMethod = __webpack_require__(32);
+	exports.overwriteChainableMethod = __webpack_require__(33);
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7870,7 +8164,7 @@
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7928,7 +8222,7 @@
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports) {
 
 	/*!
@@ -7989,7 +8283,7 @@
 
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -8023,14 +8317,14 @@
 
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(37);
+	module.exports = __webpack_require__(38);
 
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -8043,7 +8337,7 @@
 	 * Module dependencies
 	 */
 	
-	var type = __webpack_require__(38);
+	var type = __webpack_require__(39);
 	
 	/*!
 	 * Buffer.isBuffer browser shim
@@ -8293,14 +8587,14 @@
 
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(39);
+	module.exports = __webpack_require__(40);
 
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports) {
 
 	/*!
@@ -8448,7 +8742,7 @@
 
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -8538,7 +8832,19 @@
 
 
 /***/ },
-/* 41 */
+/* 42 */
+/***/ function(module, exports) {
+
+	"use strict";
+	'use strict';
+	module.exports = function (x) {
+		var type = typeof x;
+		return x !== null && (type === 'object' || type === 'function');
+	};
+
+
+/***/ },
+/* 43 */
 /***/ function(module, exports) {
 
 	var toString = {}.toString;
@@ -8549,7 +8855,7 @@
 
 
 /***/ },
-/* 42 */
+/* 44 */
 /***/ function(module, exports) {
 
 	/*!
@@ -8689,7 +8995,7 @@
 
 
 /***/ },
-/* 43 */
+/* 45 */
 /***/ function(module, exports) {
 
 	var g;

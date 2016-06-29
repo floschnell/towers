@@ -1,24 +1,27 @@
 /**
- * Moves a tower from the source field to the target field.
+ * Copies a set of towers.
  * 
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
- * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
- * @param {{x: integer, y: integer}} targetField Field where the tower should go.
- * @returns {object} New tower positions object.
+ * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Tower positions to copy over.
+ * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
  */
-export const moveTower = (towers, sourceField, targetField) => {
-    if (fieldHasTower(towers, sourceField)) {
-        if (!fieldHasTower(towers, targetField)) {
-            const newTowers = Object.assign({}, towers);
-            const towerToMove = getTowerFromField(newTowers, sourceField);
-            const { x, y } = targetField;
-            towerToMove.x = x;
-            towerToMove.y = y;
-            return newTowers;
+export const copyTowers = towers => {
+    const copyOfTowers = [];
+    for (const player in towers) {
+        const copyOfPlayer = [];
+        for (const color in towers[player]) {
+            copyOfPlayer.push(Object.assign({}, towers[player][color]));
         }
+        copyOfTowers.push(copyOfPlayer);
     }
-    return towers;
-}
+    return copyOfTowers;
+};
+
+/**
+ * @param {{x: integer, y: integer}} fieldA
+ * @param {{x: integer, y: integer}} fieldA
+ * @returns {boolean} Whether the fields are equal.
+ */
+const fieldsAreEqual = (fieldA, fieldB) => (fieldA.x == fieldB.x && fieldA.y == fieldB.y);
 
 /**
  * Gets the tower from the field at the given position.
@@ -30,7 +33,7 @@ export const moveTower = (towers, sourceField, targetField) => {
  * @param {integer|null} [player] Index of the player this tower belongs to.
  * @returns {{x: integer, y: integer, player: integer, color: integer}}
  */
-const getTowerFromField = (towers, field, player = null) => {
+export const getTowerFromField = (towers, field, player = null) => {
     let arrayOfTowers = [];
     if (player === null) {
         arrayOfTowers = towers.reduce((previous, current) => previous.concat(current));
@@ -38,7 +41,7 @@ const getTowerFromField = (towers, field, player = null) => {
         arrayOfTowers = towers[player];
     }
     return arrayOfTowers.find(tower => tower.x === field.x && tower.y === field.y);
-}
+};
 
 
 /**
@@ -48,61 +51,135 @@ const getTowerFromField = (towers, field, player = null) => {
  * @param {{x: integer, y: integer}} field Coordinates of the fied that we want to check.
  * @returns {boolean} Whether there is a tower on the given field coordinates.
  */
-const fieldHasTower = (towers, field) => {
+export const fieldHasTower = (towers, field) => {
     const arrayOfTowers = towers.reduce((previous, current) => previous.concat(current));
     return arrayOfTowers.some(tower => tower.x === field.x && tower.y === field.y);
-}
+};
 
 /**
- * Checks if moving a tower from sourceField to targetField is a valid move.
+ * Tells whether the given player should move up- or downward.
  * 
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
- * @param {integer} player Index of the player that 
- * @param {integer} color Field where the move starts.
- * @param {{x: integer, y: integer}} targetField Field where the move will end.
- * @returns {boolean} Whether this is a valid move.
+ * @param {integer} player What player to get the move direction for.
+ * @return {integer} -1 if upward, 1 if downward.
  */
-export const checkMove = (towers, player, color, targetField) => {
-    const tower = towers[player][color];
-    const deltaX = tower.x - targetField.x;
-    const deltaY = tower.y - targetField.y;
-    if (((deltaY < 0 && player === 0) || (deltaY > 0 && player === 1))
-        && (Math.abs(deltaY) === Math.abs(deltaX) || deltaX === 0)) {
-        let x = 0;
-        for (let y = 0; y < Math.abs(deltaY); y++) {
-            const xcoord = tower.x + ((deltaX > 0) ? (0-x) : x);
-            const ycoord = tower.y + ((deltaY > 0) ? (0-y) : y);
-            if ((x !== 0 || y !== 0) && fieldHasTower(towers, {x: xcoord, y: ycoord})) {
-                return false;
+const playerMoveDirection = player => (player === 0) ? 1 : -1;
+
+export default class GameLogic {
+
+    /**
+     * Moves a tower from the source field to the target field.
+     * 
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
+     * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
+     * @param {{x: integer, y: integer}} targetField Field where the tower should go.
+     * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} New tower positions object.
+     */
+    static executeMove(towers, sourceField, targetField) {
+        if (fieldHasTower(towers, sourceField)) {
+            if (!fieldHasTower(towers, targetField)) {
+                const newTowers = copyTowers(towers);
+                const towerToMove = getTowerFromField(newTowers, sourceField);
+                const { x, y } = targetField;
+                towerToMove.x = x;
+                towerToMove.y = y;
+                return newTowers;
+            } else {
+                throw 'The tower destination is already occupied!';
             }
-            if (x < Math.abs(deltaX)) x++;
+        } else {
+            throw 'The tower you want to move does not exist!';
         }
-        return true;
-    }
-    return false;
-}
+    };
 
+    /**
+     * Checks if moving a tower from sourceField to targetField is a valid move.
+     * 
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
+     * @param {integer} player Index of the player that 
+     * @param {integer} color Field where the move starts.
+     * @param {{x: integer, y: integer}} targetField Field where the move will end.
+     * @returns {boolean} Whether this is a valid move.
+     */
+    static checkMove(towers, player, color, targetField) {
+        const tower = towers[player][color];
+        const currentField = {
+            x: tower.x,
+            y: tower.y
+        };
+        const deltaX = targetField.x - tower.x;
+        const deltaY = targetField.y - tower.y;
+        const moveDirection = playerMoveDirection(player);
+        const directionValid = (deltaY > 0 && moveDirection > 0) || (deltaY < 0 && moveDirection < 0);
+        const moveStraight = (deltaX === 0);
+        const moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
+        const moveInLine = moveStraight || moveDiagonally;
+        const moveX = (deltaX === 0) ? 0 : (deltaX / Math.abs(deltaX));
 
-/**
- * Checks whether a player can make a valid move with a certain color.
- * 
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions. 
- * @param {integer} player Index of the player that should be checked.
- * @param {integer} color Color of the tower the player needs to use.
- * @returns {boolean} Whether the player is able to make a valid move with the tower.
- */
-export const canMove = (towers, player, color) => {
-    const towerToMove = towers[player][color];
-    const moveDirection = (player === 0) ? 1 : -1;
-    let canMove = false;
-    if (towerToMove.x < 7) {
-        canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection }));
-    }
-    if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
-        canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x, y: towerToMove.y + moveDirection }));
-    }
-    if (towerToMove.x > 0) {
-        canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection }));
-    }
-    return canMove;
+        const obstacleInMove = (towers, currentField, targetField, moveX, moveY) => {
+            const nextField = {
+                x: currentField.x + moveX,
+                y: currentField.y + moveY
+            };
+
+            if (fieldHasTower(towers, nextField)) {
+                return true;
+            } else if (fieldsAreEqual(nextField, targetField)) {
+                return false;
+            } else {
+                return obstacleInMove(towers, nextField, targetField, moveX, moveY);
+            }
+        };
+
+        return directionValid && moveInLine && !obstacleInMove(towers, currentField, targetField, moveX, moveDirection);
+    };    
+
+    /**
+     * Checks whether a player can make a valid move with a certain color.
+     * 
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions. 
+     * @param {integer} player Index of the player that should be checked.
+     * @param {integer} color Color of the tower the player needs to use.
+     * @returns {boolean} Whether the player is able to make a valid move with the tower.
+     */
+    static canMove(towers, player, color) {
+        const towerToMove = towers[player][color];
+        const moveDirection = (player === 0) ? 1 : -1;
+        let canMove = false;
+        if (towerToMove.x < 7) {
+            canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection }));
+        }
+        if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
+            canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x, y: towerToMove.y + moveDirection }));
+        }
+        if (towerToMove.x > 0) {
+            canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x - 1, y: towerToMove.y + moveDirection }));
+        }
+        return canMove;
+    };
+
+    /**
+     * Executes moves on a set of towers and returns the resulting new tower positions.
+     * 
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Position of the player's towers.
+     * @param {{player:integer,color:integer,from:{x:integer, y:integer},to:{x:integer, y:integer}}[]} moves An array of moves.
+     * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} Tower positions after all moves have been executed.
+     */
+    static executeMoves(towers, moves) {
+        let resultingTowers = copyTowers(towers);
+        for (const index in moves) {
+            const move = moves[index];
+            const tower = resultingTowers[move.player][move.color];
+            if (tower.x == move.from.x && tower.y == move.from.y) {
+                const isMoveValid = GameLogic.checkMove(resultingTowers, move.player, move.color, move.to);
+                if (isMoveValid) {
+                    resultingTowers = GameLogic.executeMove(resultingTowers, move.from, move.to);
+                } else {
+                    throw `Moving tower ${tower} from ${move.from} to ${move.to} is not valid.`;
+                }
+            } else {
+                throw `Tower description of move ${move} does not match the tower on that field.`;
+            }
+        }
+        return resultingTowers;
+    };
 }
