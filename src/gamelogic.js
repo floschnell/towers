@@ -74,20 +74,16 @@ export default class GameLogic {
      * @param {{x: integer, y: integer}} targetField Field where the tower should go.
      * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} New tower positions object.
      */
-    static executeMove(towers, sourceField, targetField) {
-        if (fieldHasTower(towers, sourceField)) {
-            if (!fieldHasTower(towers, targetField)) {
-                const newTowers = copyTowers(towers);
-                const towerToMove = getTowerFromField(newTowers, sourceField);
-                const { x, y } = targetField;
-                towerToMove.x = x;
-                towerToMove.y = y;
-                return newTowers;
-            } else {
-                throw 'The tower destination is already occupied!';
-            }
+    static executeMove(towers, player, color, sourceField, targetField) {
+        if (GameLogic.checkMove(towers, player, color, sourceField, targetField)) {
+            const newTowers = copyTowers(towers);
+            const towerToMove = getTowerFromField(newTowers, sourceField);
+            const { x, y } = targetField;
+            towerToMove.x = x;
+            towerToMove.y = y;
+            return newTowers;
         } else {
-            throw 'The tower you want to move does not exist!';
+            throw 'Move is not valid and could not be executed!';
         }
     };
 
@@ -100,22 +96,24 @@ export default class GameLogic {
      * @param {{x: integer, y: integer}} targetField Field where the move will end.
      * @returns {boolean} Whether this is a valid move.
      */
-    static checkMove(towers, player, color, targetField) {
+    static checkMove(towers, player, color, sourceField, targetField) {
         const tower = towers[player][color];
-        const currentField = {
-            x: tower.x,
-            y: tower.y
-        };
         const deltaX = targetField.x - tower.x;
         const deltaY = targetField.y - tower.y;
         const moveDirection = playerMoveDirection(player);
-        const directionValid = (deltaY > 0 && moveDirection > 0) || (deltaY < 0 && moveDirection < 0);
         const moveStraight = (deltaX === 0);
         const moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
+
+        const towerIsOnSource = fieldsAreEqual(sourceField, {
+            x: tower.x,
+            y: tower.y
+        });
+        const targetIsFree = !fieldHasTower(towers, targetField);
+        const directionValid = (deltaY > 0 && moveDirection > 0) || (deltaY < 0 && moveDirection < 0);
         const moveInLine = moveStraight || moveDiagonally;
         const moveX = (deltaX === 0) ? 0 : (deltaX / Math.abs(deltaX));
 
-        const obstacleInMove = (towers, currentField, targetField, moveX, moveY) => {
+        const obstacleOnWay = (towers, currentField, targetField, moveX, moveY) => {
             const nextField = {
                 x: currentField.x + moveX,
                 y: currentField.y + moveY
@@ -126,11 +124,15 @@ export default class GameLogic {
             } else if (fieldsAreEqual(nextField, targetField)) {
                 return false;
             } else {
-                return obstacleInMove(towers, nextField, targetField, moveX, moveY);
+                return obstacleOnWay(towers, nextField, targetField, moveX, moveY);
             }
         };
 
-        return directionValid && moveInLine && !obstacleInMove(towers, currentField, targetField, moveX, moveDirection);
+        return towerIsOnSource
+            && targetIsFree
+            && directionValid
+            && moveInLine
+            && !obstacleOnWay(towers, sourceField, targetField, moveX, moveDirection);
     };    
 
     /**
@@ -170,12 +172,7 @@ export default class GameLogic {
             const move = moves[index];
             const tower = resultingTowers[move.player][move.color];
             if (tower.x == move.from.x && tower.y == move.from.y) {
-                const isMoveValid = GameLogic.checkMove(resultingTowers, move.player, move.color, move.to);
-                if (isMoveValid) {
-                    resultingTowers = GameLogic.executeMove(resultingTowers, move.from, move.to);
-                } else {
-                    throw `Moving tower ${tower} from ${move.from} to ${move.to} is not valid.`;
-                }
+                resultingTowers = GameLogic.executeMove(resultingTowers, move.player, move.color, move.from, move.to);
             } else {
                 throw `Tower description of move ${move} does not match the tower on that field.`;
             }

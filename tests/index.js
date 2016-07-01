@@ -28,7 +28,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 0, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 0, y: 5 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -39,7 +39,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 5, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 5, y: 5 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -50,7 +50,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 7, { x: 2, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, 0, 7, { x: 7, y: 0 }, { x: 2, y: 5 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -61,7 +61,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 7, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 7, y: 2 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -72,7 +72,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 2, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 2, y: 2 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -83,7 +83,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 7, { x: 5, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, 1, 7, { x: 0, y: 7 }, { x: 5, y: 2 });
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -94,7 +94,7 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers)
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 5, y: 3 });
+            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 3, y: 0 }, { x: 5, y: 3 });
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -106,7 +106,7 @@ describe('Game Logic', () => {
             towers[0][4].y = 4;
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 4, y: 0 });
+            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 4, y: 4 }, { x: 4, y: 0 });
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -118,7 +118,7 @@ describe('Game Logic', () => {
             towers[1][4].y = 3;
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 4, { x: 4, y: 7 });
+            const moveIsValid = GameLogic.checkMove(towers, 1, 4, { x: 4, y: 3 }, { x: 4, y: 7 });
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -169,11 +169,11 @@ describe('Game Logic', () => {
             const towers = copyTowers(initialTowers);
 
             // WHEN
-            const updatedTowers = GameLogic.executeMove(towers, {x: 0, y: 0}, {x: 3, y: 5});
+            const updatedTowers = GameLogic.executeMove(towers, 0, 0, { x: 0, y: 0 }, { x: 4, y: 4 });
 
             // THEN
-            assert.equal(updatedTowers[0][0].x, 3);
-            assert.equal(updatedTowers[0][0].y, 5);
+            assert.equal(updatedTowers[0][0].x, 4);
+            assert.equal(updatedTowers[0][0].y, 4);
         });
 
         it('should fail with an exception if tower does not exist', () => {
@@ -183,7 +183,7 @@ describe('Game Logic', () => {
 
             // WHEN
             try {
-                GameLogic.executeMove(towers, {x: 1, y: 1}, {x: 3, y: 5});
+                GameLogic.executeMove(towers, 0, 0, {x: 1, y: 1}, {x: 3, y: 5});
             } catch (e) {
                 error = e;
             }
@@ -199,7 +199,7 @@ describe('Game Logic', () => {
 
             // WHEN
             try {
-                GameLogic.executeMove(towers, {x: 0, y: 0}, {x: 7, y: 7});
+                GameLogic.executeMove(towers, 0, 0, {x: 0, y: 0}, {x: 7, y: 7});
             } catch (e) {
                 error = e;
             }
