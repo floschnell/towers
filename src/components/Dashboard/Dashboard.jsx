@@ -1,18 +1,27 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
+import firebase from 'firebase';
+import db from '../../database';
 
 export default class Dashboard extends React.Component {
   
+  constructor() {
+    super();
+    this.updateHandler = null;
+  }
+
   componentWillMount() {
-    if (this.props.playerName === null) {
-      hashHistory.push('/');
-      return;
+    this.updateHandler = this.props.updateGames(this.props.player.uid);
+  }
+
+  componentWillUnmount() {
+    if (this.updateHandler && this.props.player) {
+      db.ref(`players/${this.props.player.uid}/games`).off('value', this.stopHandleUpdates);
     }
-    this.props.updateGames(this.props.playerName);
   }
   
   render() {
-    
+
     const renderGames = () => {
       return Object.keys(this.props.games).map(key => {
         const chooseGame = this.props.chooseGame.bind(null, key);

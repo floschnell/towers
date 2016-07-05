@@ -3,7 +3,7 @@ import db from '../database';
 export const ACTION_TYPES = {
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
-    SET_PLAYER_NAME: 'SET_PLAYER_NAME',
+    SET_PLAYER: 'SET_PLAYER',
     UPDATE_GAMES: 'UPDATE_GAMES',
     RESUME_GAME: 'RESUME_GAME',
     START_GAME: 'START_GAME',
@@ -27,15 +27,15 @@ export const clickOnField = (field, playerName, currentGame) => ({
     currentGame
 });
 
-export const setPlayerName = playerName => ({
-    type: ACTION_TYPES.SET_PLAYER_NAME,
-    playerName
+export const setPlayer = player => ({
+    type: ACTION_TYPES.SET_PLAYER,
+    player
 });
 
-export const updateGames = (dispatch, playerName) => {
-    const playerGamesRef = db.ref(`players/${playerName}/games`);
+export const updateGames = (dispatch, playerUid) => {
+    const playerGamesRef = db.ref(`players/${playerUid}/games`);
     
-    playerGamesRef.on('value', snapshot => {
+    return playerGamesRef.on('value', snapshot => {
         const games = snapshot.val() || [];
         const gamePromises = games.map(game => {
             return db.ref(`games/${game}`).once('value');

@@ -2887,13 +2887,15 @@
 	        /**
 	         * Moves a tower from the source field to the target field.
 	         * 
-	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
-	         * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
-	         * @param {{x: integer, y: integer}} targetField Field where the tower should go.
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions.
+	         * {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}} move What tower of which player should be moved.
 	         * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} New tower positions object.
 	         */
-	        value: function executeMove(towers, player, color, sourceField, targetField) {
-	            if (GameLogic.checkMove(towers, player, color, sourceField, targetField)) {
+	        value: function executeMove(towers, move) {
+	            if (GameLogic.checkMove(towers, move)) {
+	                var sourceField = move.sourceField;
+	                var targetField = move.targetField;
+	
 	                var newTowers = copyTowers(towers);
 	                var towerToMove = getTowerFromField(newTowers, sourceField);
 	                var x = targetField.x;
@@ -2913,25 +2915,29 @@
 	        /**
 	         * Checks if moving a tower from sourceField to targetField is a valid move.
 	         * 
-	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
-	         * @param {integer} player Index of the player that 
-	         * @param {integer} color Field where the move starts.
-	         * @param {{x: integer, y: integer}} targetField Field where the move will end.
+	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions.
+	         * @param {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}} move What tower of which player should be moved.
 	         * @returns {boolean} Whether this is a valid move.
 	         */
-	        value: function checkMove(towers, player, color, sourceField, targetField) {
+	        value: function checkMove(towers, _ref) {
+	            var player = _ref.player;
+	            var color = _ref.color;
+	            var sourceField = _ref.sourceField;
+	            var targetField = _ref.targetField;
+	
 	            var tower = towers[player][color];
+	            var deltaX = targetField.x - tower.x;
+	            var deltaY = targetField.y - tower.y;
+	            var moveDirection = playerMoveDirection(player);
+	            var moveStraight = deltaX === 0;
+	            var moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
+	
 	            var towerIsOnSource = fieldsAreEqual(sourceField, {
 	                x: tower.x,
 	                y: tower.y
 	            });
 	            var targetIsFree = !fieldHasTower(towers, targetField);
-	            var deltaX = targetField.x - tower.x;
-	            var deltaY = targetField.y - tower.y;
-	            var moveDirection = playerMoveDirection(player);
 	            var directionValid = deltaY > 0 && moveDirection > 0 || deltaY < 0 && moveDirection < 0;
-	            var moveStraight = deltaX === 0;
-	            var moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
 	            var moveInLine = moveStraight || moveDiagonally;
 	            var moveX = deltaX === 0 ? 0 : deltaX / Math.abs(deltaX);
 	
@@ -2987,19 +2993,14 @@
 	         * Executes moves on a set of towers and returns the resulting new tower positions.
 	         * 
 	         * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Position of the player's towers.
-	         * @param {{player:integer,color:integer,from:{x:integer, y:integer},to:{x:integer, y:integer}}[]} moves An array of moves.
+	         * @param {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}[]} moves An array of moves.
 	         * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} Tower positions after all moves have been executed.
 	         */
 	        value: function executeMoves(towers, moves) {
 	            var resultingTowers = copyTowers(towers);
 	            for (var index in moves) {
 	                var move = moves[index];
-	                var tower = resultingTowers[move.player][move.color];
-	                if (tower.x == move.from.x && tower.y == move.from.y) {
-	                    resultingTowers = GameLogic.executeMove(resultingTowers, move.player, move.color, move.from, move.to);
-	                } else {
-	                    throw 'Tower description of move ' + move + ' does not match the tower on that field.';
-	                }
+	                resultingTowers = GameLogic.executeMove(resultingTowers, move);
 	            }
 	            return resultingTowers;
 	        }
@@ -3138,9 +3139,15 @@
 	        it('should return true on a straight move of first player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                color: 0,
+	                player: 0,
+	                sourceField: { x: 0, y: 0 },
+	                targetField: { x: 0, y: 5 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 0, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3149,9 +3156,15 @@
 	        it('should return true on a right diagonal move of first player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                color: 0,
+	                player: 0,
+	                sourceField: { x: 0, y: 0 },
+	                targetField: { x: 5, y: 5 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 5, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3160,9 +3173,15 @@
 	        it('should return true on a left diagonal move of first player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 0,
+	                color: 7,
+	                sourceField: { x: 7, y: 0 },
+	                targetField: { x: 2, y: 5 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 7, { x: 7, y: 0 }, { x: 2, y: 5 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3171,9 +3190,15 @@
 	        it('should return true on a straight move of second player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 1,
+	                color: 0,
+	                sourceField: { x: 7, y: 7 },
+	                targetField: { x: 7, y: 2 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 7, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3182,9 +3207,15 @@
 	        it('should return true on a right diagonal move of second player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 1,
+	                color: 0,
+	                sourceField: { x: 7, y: 7 },
+	                targetField: { x: 2, y: 2 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 2, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3193,9 +3224,15 @@
 	        it('should return true on a left diagonal move of second player', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 1,
+	                color: 7,
+	                sourceField: { x: 0, y: 7 },
+	                targetField: { x: 5, y: 2 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 7, { x: 0, y: 7 }, { x: 5, y: 2 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isTrue(moveIsValid);
@@ -3204,9 +3241,15 @@
 	        it('should return false on an invalid move', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 0,
+	                color: 4,
+	                sourceField: { x: 3, y: 0 },
+	                targetField: { x: 5, y: 3 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 4, { x: 3, y: 0 }, { x: 5, y: 3 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
@@ -3216,9 +3259,15 @@
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[0][4].y = 4;
+	            var move = {
+	                player: 0,
+	                color: 4,
+	                sourceField: { x: 4, y: 4 },
+	                targetField: { x: 4, y: 0 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 0, 4, { x: 4, y: 4 }, { x: 4, y: 0 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
@@ -3228,9 +3277,15 @@
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            towers[1][4].y = 3;
+	            var move = {
+	                player: 1,
+	                color: 4,
+	                sourceField: { x: 4, y: 3 },
+	                targetField: { x: 4, y: 7 }
+	            };
 	
 	            // WHEN
-	            var moveIsValid = _gamelogic2.default.checkMove(towers, 1, 4, { x: 4, y: 3 }, { x: 4, y: 7 });
+	            var moveIsValid = _gamelogic2.default.checkMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.isFalse(moveIsValid);
@@ -3279,9 +3334,15 @@
 	        it('should be able to move a tower', function () {
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
+	            var move = {
+	                player: 0,
+	                color: 0,
+	                sourceField: { x: 0, y: 0 },
+	                targetField: { x: 4, y: 4 }
+	            };
 	
 	            // WHEN
-	            var updatedTowers = _gamelogic2.default.executeMove(towers, 0, 0, { x: 0, y: 0 }, { x: 4, y: 4 });
+	            var updatedTowers = _gamelogic2.default.executeMove(towers, move);
 	
 	            // THEN
 	            _chai.assert.equal(updatedTowers[0][0].x, 4);
@@ -3292,10 +3353,16 @@
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            var error = null;
+	            var move = {
+	                player: 0,
+	                color: 0,
+	                sourceField: { x: 1, y: 1 },
+	                targetField: { x: 3, y: 5 }
+	            };
 	
 	            // WHEN
 	            try {
-	                _gamelogic2.default.executeMove(towers, 0, 0, { x: 1, y: 1 }, { x: 3, y: 5 });
+	                _gamelogic2.default.executeMove(towers, move);
 	            } catch (e) {
 	                error = e;
 	            }
@@ -3308,10 +3375,16 @@
 	            // GIVEN
 	            var towers = (0, _gamelogic.copyTowers)(_towers2.default);
 	            var error = null;
+	            var move = {
+	                player: 0,
+	                color: 0,
+	                sourceField: { x: 0, y: 0 },
+	                targetField: { x: 7, y: 7 }
+	            };
 	
 	            // WHEN
 	            try {
-	                _gamelogic2.default.executeMove(towers, 0, 0, { x: 0, y: 0 }, { x: 7, y: 7 });
+	                _gamelogic2.default.executeMove(towers, move);
 	            } catch (e) {
 	                error = e;
 	            }
@@ -3359,20 +3432,20 @@
 	            var move1 = {
 	                player: 0,
 	                color: 0,
-	                from: { x: 0, y: 0 },
-	                to: { x: 0, y: 3 }
+	                sourceField: { x: 0, y: 0 },
+	                targetField: { x: 0, y: 3 }
 	            };
 	            var move2 = {
 	                player: 1,
 	                color: 3,
-	                from: { x: 4, y: 7 },
-	                to: { x: 5, y: 2 }
+	                sourceField: { x: 4, y: 7 },
+	                targetField: { x: 5, y: 2 }
 	            };
 	            var move3 = {
 	                player: 0,
 	                color: 0,
-	                from: { x: 0, y: 3 },
-	                to: { x: 2, y: 5 }
+	                sourceField: { x: 0, y: 3 },
+	                targetField: { x: 2, y: 5 }
 	            };
 	            var moves = [move1, move2, move3];
 	            var error = null;

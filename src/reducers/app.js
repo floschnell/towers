@@ -6,7 +6,7 @@ export default (state, action) => {
         return {
             players: [],
             games: {},
-            playerName: null,
+            player: null,
             currentGame: null,
             surfaceWidth: 0,
             surfaceHeight: 0,
@@ -20,9 +20,9 @@ export default (state, action) => {
                 games: action.games
             });
             
-        case ACTION_TYPES.SET_PLAYER_NAME:
+        case ACTION_TYPES.SET_PLAYER:
             return Object.assign(state, {
-                playerName: action.playerName
+                player: action.player
             });
             
         case ACTION_TYPES.RESUME_GAME:

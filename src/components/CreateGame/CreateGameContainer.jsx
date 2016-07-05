@@ -8,15 +8,16 @@ import firebase from 'firebase';
 const mapStateToProps = (state) => ({
     players: state.app.players,
     searchStr: state.app.searchStr,
-    playerName: state.app.playerName
+    playerUid: state.app.player.uid
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    updatePlayerResults: (searchStr, playerName) => {
+
+    updatePlayerResults: (searchStr) => {
         const currentUser = firebase.auth().currentUser;
         const searchStart = searchStr;
         const searchEnd = `${searchStart}\uf8ff`;
-        db.ref('players').orderByChild('name').equalTo(searchStart).on('value', snapshot => {
+        db.ref('players').orderByChild('searchName').startAt(searchStart).endAt(searchEnd).on('value', snapshot => {
             if (snapshot.exists()) {
                 console.log(snapshot);
                 const playersObj = snapshot.val();

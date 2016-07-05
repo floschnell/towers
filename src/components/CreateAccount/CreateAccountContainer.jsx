@@ -26,7 +26,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         firebase.auth().createUserWithEmailAndPassword(email, password).then(result => {
             const playerRef = db.ref(`players/${result.uid}`);
             return playerRef.set({
-                    name: username
+                    name: username,
+                    searchName: username.toLowerCase()
             });
         }).then(() => {
             const user = firebase.auth().currentUser;
@@ -38,24 +39,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             var errorMessage = error.message;
             console.warn(errorCode, errorMessage);
         });
-        
-        
-        // playerRef.once('value').then(player => {
-        //     if (player.exists()) {
-        //         throw 'Account exists already!';
-        //     }
-        //     const hashedPassword = passwordHash.generate(password);
-        //     return playerRef.set({
-        //         pass: hashedPassword,
-        //         name: playerName
-        //     });
-        // }).then(result => {
-        //     console.log('player has been successfully created!');
-        //     dispatch(setPlayerName(playerId));
-        //     hashHistory.push('dashboard.html');
-        // }).catch(err => {
-        //     console.warn(`player could not be created because ${err}`);
-        // })
     }
 });
 

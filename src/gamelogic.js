@@ -21,7 +21,7 @@ export const copyTowers = towers => {
  * @param {{x: integer, y: integer}} fieldA
  * @returns {boolean} Whether the fields are equal.
  */
-const fieldsAreEqual = (fieldA, fieldB) => (fieldA.x == fieldB.x && fieldA.y == fieldB.y);
+export const fieldsAreEqual = (fieldA, fieldB) => (fieldA.x == fieldB.x && fieldA.y == fieldB.y);
 
 /**
  * Gets the tower from the field at the given position.
@@ -62,20 +62,20 @@ export const fieldHasTower = (towers, field) => {
  * @param {integer} player What player to get the move direction for.
  * @return {integer} -1 if upward, 1 if downward.
  */
-const playerMoveDirection = player => (player === 0) ? 1 : -1;
+export const playerMoveDirection = player => (player === 0) ? 1 : -1;
 
 export default class GameLogic {
 
     /**
      * Moves a tower from the source field to the target field.
      * 
-     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Current tower positions.
-     * @param {{x: integer, y: integer}} sourceField Field where the tower currently is.
-     * @param {{x: integer, y: integer}} targetField Field where the tower should go.
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions.
+     * {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}} move What tower of which player should be moved.
      * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} New tower positions object.
      */
-    static executeMove(towers, player, color, sourceField, targetField) {
-        if (GameLogic.checkMove(towers, player, color, sourceField, targetField)) {
+    static executeMove(towers, move) {
+        if (GameLogic.checkMove(towers, move)) {
+            const { sourceField, targetField } = move;
             const newTowers = copyTowers(towers);
             const towerToMove = getTowerFromField(newTowers, sourceField);
             const { x, y } = targetField;
@@ -90,13 +90,11 @@ export default class GameLogic {
     /**
      * Checks if moving a tower from sourceField to targetField is a valid move.
      * 
-     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} Data structure containing the towers and their positions.
-     * @param {integer} player Index of the player that 
-     * @param {integer} color Field where the move starts.
-     * @param {{x: integer, y: integer}} targetField Field where the move will end.
+     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions.
+     * @param {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}} move What tower of which player should be moved.
      * @returns {boolean} Whether this is a valid move.
      */
-    static checkMove(towers, player, color, sourceField, targetField) {
+    static checkMove(towers, { player, color, sourceField, targetField }) {
         const tower = towers[player][color];
         const deltaX = targetField.x - tower.x;
         const deltaY = targetField.y - tower.y;
@@ -163,19 +161,14 @@ export default class GameLogic {
      * Executes moves on a set of towers and returns the resulting new tower positions.
      * 
      * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Position of the player's towers.
-     * @param {{player:integer,color:integer,from:{x:integer, y:integer},to:{x:integer, y:integer}}[]} moves An array of moves.
+     * @param {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}[]} moves An array of moves.
      * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} Tower positions after all moves have been executed.
      */
     static executeMoves(towers, moves) {
         let resultingTowers = copyTowers(towers);
         for (const index in moves) {
             const move = moves[index];
-            const tower = resultingTowers[move.player][move.color];
-            if (tower.x == move.from.x && tower.y == move.from.y) {
-                resultingTowers = GameLogic.executeMove(resultingTowers, move.player, move.color, move.from, move.to);
-            } else {
-                throw `Tower description of move ${move} does not match the tower on that field.`;
-            }
+            resultingTowers = GameLogic.executeMove(resultingTowers, move);
         }
         return resultingTowers;
     };

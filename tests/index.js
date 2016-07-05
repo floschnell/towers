@@ -26,9 +26,15 @@ describe('Game Logic', () => {
         it('should return true on a straight move of first player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                color: 0,
+                player: 0,
+                sourceField: { x: 0, y: 0 },
+                targetField: { x: 0, y: 5 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 0, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -37,9 +43,15 @@ describe('Game Logic', () => {
         it('should return true on a right diagonal move of first player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                color: 0,
+                player: 0,
+                sourceField: { x: 0, y: 0 },
+                targetField: { x: 5, y: 5 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 0, { x: 0, y: 0 }, { x: 5, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -48,9 +60,15 @@ describe('Game Logic', () => {
         it('should return true on a left diagonal move of first player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                player: 0,
+                color: 7,
+                sourceField: { x: 7, y: 0 },
+                targetField: { x: 2, y: 5 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 7, { x: 7, y: 0 }, { x: 2, y: 5 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -59,9 +77,15 @@ describe('Game Logic', () => {
         it('should return true on a straight move of second player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                player: 1,
+                color: 0,
+                sourceField: { x: 7, y: 7 },
+                targetField: { x: 7, y: 2 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 7, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -70,9 +94,15 @@ describe('Game Logic', () => {
         it('should return true on a right diagonal move of second player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                player: 1,
+                color: 0,
+                sourceField: { x: 7, y: 7 },
+                targetField: { x: 2, y: 2 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 0, { x: 7, y: 7 }, { x: 2, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -81,9 +111,15 @@ describe('Game Logic', () => {
         it('should return true on a left diagonal move of second player', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                player: 1,
+                color: 7,
+                sourceField: { x: 0, y: 7 },
+                targetField: { x: 5, y: 2 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 7, { x: 0, y: 7 }, { x: 5, y: 2 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isTrue(moveIsValid);
@@ -92,9 +128,15 @@ describe('Game Logic', () => {
         it('should return false on an invalid move', () => {
             // GIVEN
             const towers = copyTowers(initialTowers)
+            const move = {
+                player: 0,
+                color: 4,
+                sourceField: { x: 3, y: 0 },
+                targetField: { x: 5, y: 3 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 3, y: 0 }, { x: 5, y: 3 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -104,9 +146,15 @@ describe('Game Logic', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
             towers[0][4].y = 4;
+            const move = {
+                player: 0,
+                color: 4,
+                sourceField: { x: 4, y: 4 },
+                targetField: { x: 4, y: 0 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 0, 4, { x: 4, y: 4 }, { x: 4, y: 0 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -116,9 +164,15 @@ describe('Game Logic', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
             towers[1][4].y = 3;
+            const move = {
+                player: 1,
+                color: 4,
+                sourceField: { x: 4, y: 3 },
+                targetField: { x: 4, y: 7 }
+            };
 
             // WHEN
-            const moveIsValid = GameLogic.checkMove(towers, 1, 4, { x: 4, y: 3 }, { x: 4, y: 7 });
+            const moveIsValid = GameLogic.checkMove(towers, move);
 
             // THEN
             assert.isFalse(moveIsValid);
@@ -167,9 +221,15 @@ describe('Game Logic', () => {
         it('should be able to move a tower', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
+            const move = {
+                player: 0,
+                color: 0,
+                sourceField: { x: 0, y: 0 },
+                targetField: { x: 4, y: 4 }
+            };
 
             // WHEN
-            const updatedTowers = GameLogic.executeMove(towers, 0, 0, { x: 0, y: 0 }, { x: 4, y: 4 });
+            const updatedTowers = GameLogic.executeMove(towers, move);
 
             // THEN
             assert.equal(updatedTowers[0][0].x, 4);
@@ -180,10 +240,16 @@ describe('Game Logic', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
             let error = null;
+            const move = {
+                player: 0,
+                color: 0,
+                sourceField: {x: 1, y: 1},
+                targetField: {x: 3, y: 5}
+            };
 
             // WHEN
             try {
-                GameLogic.executeMove(towers, 0, 0, {x: 1, y: 1}, {x: 3, y: 5});
+                GameLogic.executeMove(towers, move);
             } catch (e) {
                 error = e;
             }
@@ -196,10 +262,16 @@ describe('Game Logic', () => {
             // GIVEN
             const towers = copyTowers(initialTowers);
             let error = null;
+            const move = {
+                player: 0,
+                color: 0,
+                sourceField: {x: 0, y: 0},
+                targetField: {x: 7, y: 7}
+            };
 
             // WHEN
             try {
-                GameLogic.executeMove(towers, 0, 0, {x: 0, y: 0}, {x: 7, y: 7});
+                GameLogic.executeMove(towers, move);
             } catch (e) {
                 error = e;
             }
@@ -247,20 +319,20 @@ describe('Game Logic', () => {
             const move1 = {
                 player: 0,
                 color: 0,
-                from: {x:0, y:0},
-                to: {x:0, y:3}
+                sourceField: { x: 0, y: 0 },
+                targetField: { x: 0, y: 3 }
             };
             const move2 = {
                 player: 1,
                 color: 3,
-                from: {x:4, y:7},
-                to: {x:5, y:2}
+                sourceField: { x: 4, y: 7 },
+                targetField: { x: 5, y: 2 }
             };
             const move3 = {
                 player: 0,
                 color: 0,
-                from: {x:0, y:3},
-                to: {x:2, y:5}
+                sourceField: { x: 0, y: 3 },
+                targetField: { x: 2, y: 5 }
             };
             const moves = [move1, move2, move3];
             let error = null;

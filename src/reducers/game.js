@@ -1,5 +1,6 @@
 import {ACTION_TYPES} from '../actions/index';
 import db from '../database';
+import GameLogic, { copyTowers } from '../GameLogic';
 
 const initialColors = [
     [0, 1, 2, 3, 4, 5, 6, 7],
@@ -28,15 +29,6 @@ const createInitialTowerPositions = () => {
     return towers;
 }
 
-const createInitialGame = (firstPlayer, players) => {
-    return {
-        players,
-        currentPlayer: firstPlayer,
-        currentColor: null,
-        selectedTower: null
-    };
-}
-
 const createInitialBoard = (colors) => colors.map((row, index) =>
     row.map(
         color => {
@@ -52,14 +44,18 @@ export default (state, action) => {
     if (typeof(state) === "undefined") {
         return {
             board: createInitialBoard(initialColors),
-            game: createInitialGame(0, []),
+            players: [],
+            currentPlayer: null,
+            currentColor: null,
+            selectedTower: null,
+            moves: [],
             towerPositions: createInitialTowerPositions()
         };
     }
     
     const newState = JSON.parse(JSON.stringify(state));
-    const currentPlayer = state.game.currentPlayer;
-    const currentColor = state.game.currentColor;
+    const currentPlayer = state.currentPlayer;
+    const currentColor = state.currentColor;
     
     switch (action.type) {
         
@@ -74,29 +70,45 @@ export default (state, action) => {
         
         case ACTION_TYPES.CLICK_ON_FIELD:
             if (state.game[`player${currentPlayer}`] === action.playerName) {
-                let towerToMove = null;
-                if (typeof currentColor === 'undefined') {
-                    towerToMove = state.game.selectedField;
-                } else {
-                    towerToMove = state.towerPositions[currentPlayer][currentColor];
-                }
-
-                const sourceField = towerToMove;
+                let sourceField = null;
                 const targetField = action.field;
-                if (towerToMove.belongsToPlayer === state.game.currentPlayer) {
-                    if (checkMove(state.game.currentPlayer, state.towerPositions, sourceField, targetField)) {
-                        newState.towerPositions = moveTower(state.towerPositions, sourceField, targetField);
-                        const nextPlayer = (state.game.currentPlayer + 1) % 2;
+
+                if (typeof currentColor === 'undefined') {
+                    sourceField = state.selectedField;
+                } else {
+                    sourceField = state.towerPositions[currentPlayer][currentColor];
+                }
+                
+                if (towerToMove.belongsToPlayer === state.currentPlayer) {
+                    const move = {
+                        player: currentPlayer,
+                        color: currentColor,
+                        from: sourceField,
+                        to: targetField
+                    };
+
+                    try {
+                        newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
+                        const nextPlayer = (state.currentPlayer + 1) % 2;
                         const nextColor = targetField.color;
+
                         if (canMove(newState.towerPositions, nextPlayer, nextColor)) {
-                            newState.game.currentPlayer = nextPlayer;
-                            newState.game.currentColor = nextColor;
+                            newState.currentPlayer = nextPlayer;
+                            newState.currentColor = nextColor;
                         } else {
                             const blockedTower = newState.towerPositions[nextPlayer][targetField.color];
                             const fieldOfBlockedTower = newState.board[blockedTower.y][blockedTower.x];
-                            newState.game.currentColor = fieldOfBlockedTower.color;
+
+                            newState.currentColor = fieldOfBlockedTower.color;
                         }
-                        newState.game.selectedField = null;
+                        newState.selectedField = null;
+                        newState.moves.push(move);
+                    } catch (e) {
+                        console.log('move has failed, resetting ...', e);
+                        newState.currentPlayer = currentPlayer;
+                        newState.currentColor = currentColor;
+                        newState.selectedField = towerToMove;
+                        newState.towerPositions = copyTowers(state.towerPositions);
                     }
                 }
             }
