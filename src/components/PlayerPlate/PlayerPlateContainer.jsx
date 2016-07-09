@@ -4,7 +4,7 @@ import {setPlayerName} from '../../actions/index';
 import db from '../../database';
 
 const mapStateToProps = (state, ownProps) => ({
-    name: state.game.game[`player${ownProps.player}`]
+    name: ownProps.player
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

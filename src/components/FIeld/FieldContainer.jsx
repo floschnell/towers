@@ -4,17 +4,17 @@ import {newGame, clickOnField} from '../../actions/index';
 
 const mapStateToProps = (state, ownProps) => ({
     tower: state.game.towerPositions[`${ownProps.y}-${ownProps.x}`],
-    playerName: state.app.playerName,
+    playerUid: state.app.player.uid,
     currentGame: state.app.currentGame
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onClick: (playerName, currentGame) => {
+    onClick: (playerUid, currentGame) => {
         dispatch(clickOnField({
             x: ownProps.x,
             y: ownProps.y,
             color: ownProps.color
-        }, playerName, currentGame));
+        }, playerUid, currentGame));
     }
 });
 

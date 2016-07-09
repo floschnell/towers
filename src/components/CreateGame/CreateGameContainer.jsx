@@ -34,9 +34,9 @@ const mapDispatchToProps = (dispatch) => ({
     startGame: (playerName, opponentName) => {
         let gameName = '';
         if (playerName < opponentName) {
-            gameName = `${playerName.toLowerCase()}-${opponentName.toLowerCase()}`;
+            gameName = `${playerName}-${opponentName}`;
         } else {
-            gameName = `${opponentName.toLowerCase()}-${playerName.toLowerCase()}`;
+            gameName = `${opponentName}-${playerName}`;
         }
         const playerRef = db.ref(`players/${playerName}`);
         const opponentRef = db.ref(`players/${opponentName}`);
@@ -68,7 +68,7 @@ const mapDispatchToProps = (dispatch) => ({
             dispatch(startGame(gameName, [playerName, opponentName]));
             hashHistory.push('main.html');
         }).catch(err => {
-            console.log(`Could not start game becouse: ${err}`);
+            console.log('Could not start game becouse:', err);
         });
     }
 });

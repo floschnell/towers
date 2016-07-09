@@ -14,7 +14,7 @@ export default class Field extends React.Component {
       height: fieldSize
     };
     
-    const onClick = this.props.onClick.bind(null, this.props.playerName, this.props.currentGame);
+    const onClick = this.props.onClick.bind(null, this.props.playerUid, this.props.currentGame);
     
     return <div className={classname} onClick={onClick} style={styles}></div>;
   }

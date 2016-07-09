@@ -20,10 +20,10 @@ export const clickOnTower = (tower, playerName, currentGame) => ({
     currentGame
 });
 
-export const clickOnField = (field, playerName, currentGame) => ({
+export const clickOnField = (field, playerUid, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_FIELD,
     field,
-    playerName,
+    playerUid,
     currentGame
 });
 
