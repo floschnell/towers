@@ -16,7 +16,7 @@ export default class Tower extends React.Component {
         };
         
         const onClick = event => {
-            this.props.clickOnTower(tower, this.props.playerName);
+            this.props.clickOnTower(tower, this.props.playerUid);
         }
         
         const activeModifier = this.props.isActive ? 'tower--active' : 'tower--inactive';

@@ -56,15 +56,13 @@ const mapDispatchToProps = (dispatch) => ({
             if (game.exists()) {
                 throw 'Game exists already!';
             }
-            const updateGame = playerObj => {
-                if (playerObj !== null) {
-                    playerObj.games = playerObj.games || [];
-                    playerObj.games.push(gameName);
-                }
-                return playerObj;
+            const updateGame = gamesObj => {
+                gamesObj = gamesObj || [];
+                gamesObj.push(gameName);
+                return gamesObj;
             };
-            playerRef.transaction(updateGame);
-            opponentRef.transaction(updateGame);
+            db.ref(`players/${playerName}/games`).transaction(updateGame);
+            db.ref(`players/${opponentName}/games`).transaction(updateGame);
             dispatch(startGame(gameName, [playerName, opponentName]));
             hashHistory.push('main.html');
         }).catch(err => {

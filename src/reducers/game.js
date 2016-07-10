@@ -60,7 +60,7 @@ export default (state, action) => {
     switch (action.type) {
         
         case ACTION_TYPES.CLICK_ON_TOWER:
-            if (state.players[currentPlayer] === action.playerName) {
+            if (currentPlayer === action.playerUid) {
                 const towerOnField = action.tower;
                 if (typeof state.currentColor === 'undefined' || state.currentColor === null || towerOnField.color === state.currentColor) {
                     newState.selectedTower = action.tower;
@@ -72,7 +72,7 @@ export default (state, action) => {
             if (currentPlayer === action.playerUid) {
                 let towerToMove = null;
                 const targetField = action.field;
-                const currentPlayerNumber = state.players.findIndex(uid => uid === action.playerUid);
+                const currentPlayerNumber = state.players[action.playerUid];
 
                 if (typeof currentColor === 'undefined') {
                     towerToMove = state.selectedTower;
@@ -91,7 +91,7 @@ export default (state, action) => {
                     try {
                         newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
                         const nextPlayerNumber = (currentPlayerNumber + 1) % 2; 
-                        const nextPlayer = state.players[nextPlayerNumber];
+                        const nextPlayer = Object.keys(state.players).filter(uid => uid !== currentPlayer)[0];
                         const nextColor = targetField.color;
 
                         if (GameLogic.canMove(newState.towerPositions, nextPlayerNumber, nextColor)) {
@@ -122,8 +122,12 @@ export default (state, action) => {
             return action.game;
             
         case ACTION_TYPES.START_GAME:
+            const players = {};
+            action.players.forEach(
+                (uid, index) => players[uid] = index
+            );
             const newGameState = {
-                players: action.players,
+                players,
                 currentPlayer: action.players[0],
                 currentColor: null,
                 selectedTower: null,

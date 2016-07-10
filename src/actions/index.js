@@ -13,10 +13,10 @@ export const ACTION_TYPES = {
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
 };
 
-export const clickOnTower = (tower, playerName, currentGame) => ({
+export const clickOnTower = (tower, playerUid, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_TOWER,
     tower,
-    playerName,
+    playerUid,
     currentGame
 });
 
@@ -93,13 +93,8 @@ export const endGame = (dispatch, game, player) => {
     
     // remove player from game
     const gamePromise = gameRef.transaction(gameObj => {
-        if (gameObj && gameObj.game) {
-            if (gameObj.game.player0 === player) {
-                delete gameObj.game.player0;
-            }
-            if (gameObj.game.player1 === player) {
-                delete gameObj.game.player1;
-            }
+        if (gameObj) {
+            delete gameObj.players[player];
         }
         return gameObj;
     });
@@ -118,10 +113,8 @@ export const endGame = (dispatch, game, player) => {
         gameRef.once('value').then(game => {
             if (game.exists()) {
                 const gameObj = game.val();
-                if (gameObj.game) {
-                    if (typeof gameObj.game.player0 === 'undefined' && typeof gameObj.game.player1 === 'undefined') {
-                        gameRef.remove().catch(err => { console.warn('could not delete game!'); });
-                    }
+                if (typeof gameObj.players === 'undefined' || gameObj.players === null) {
+                    gameRef.remove().catch(err => { console.warn('could not delete game!'); });
                 }
             }
         });

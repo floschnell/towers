@@ -4,7 +4,7 @@ import { updateGames, resumeGame, startGame, endGame, resizeGameSurface } from '
 import { hashHistory } from 'react-router';
 
 const mapStateToProps = (state, ownProps) => {
-  const playerNumber = state.game.players.findIndex(uid => uid === state.game.currentPlayer);
+  const playerNumber = state.game.players[state.app.player.uid];
   const opponentNumber = playerNumber === 1 ? 0 : 1;
   const targetRow = (playerNumber) => (playerNumber === 0) ? 7 : 0;
   return {
