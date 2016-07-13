@@ -1,6 +1,28 @@
 /**
  * Copies a set of towers.
  * 
+ * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towersA Tower positions.
+ * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towersB Tower positions.
+ * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
+ */
+export const towerPositionsAreEqual = (towersA, towersB) => {
+    for (const player in towersA) {
+        for (const color in towersA) {
+            const fieldA = towersA[player][color];
+            const fieldB = towersB[player][color];
+            const equal = fieldA.color === fieldB.color
+                && fieldA.player === fieldB.player
+                && fieldA.x === fieldB.x
+                && fieldA.y === fieldB.y;
+            if (!equal) return false;
+        }
+    }
+    return true;
+};
+
+/**
+ * Copies a set of towers.
+ * 
  * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Tower positions to copy over.
  * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
  */

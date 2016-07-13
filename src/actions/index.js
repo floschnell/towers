@@ -85,18 +85,19 @@ export const resizeGameSurface = (dispatch, width, height) => {
 };
 
 export const endGame = (dispatch, game, player) => {
-    const gameRef = db.ref(`games/${game}`); 
+    const gameRef = db.ref(`games/${game}`);
+    const gamePlayersRef = db.ref(`games/${game}/players`);
     const playerRef = db.ref(`players/${player}`);
     
     // do not receive updates on this game anymore
     gameRef.off();
     
     // remove player from game
-    const gamePromise = gameRef.transaction(gameObj => {
-        if (gameObj) {
-            delete gameObj.players[player];
+    const gamePromise = gamePlayersRef.transaction(players => {
+        if (players) {
+            delete players[player];
         }
-        return gameObj;
+        return players;
     });
     
     // remove game from player

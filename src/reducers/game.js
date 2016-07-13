@@ -1,6 +1,6 @@
 import {ACTION_TYPES} from '../actions/index';
 import db from '../database';
-import GameLogic, { copyTowers } from '../GameLogic';
+import GameLogic, { copyTowers, towerPositionsAreEqual } from '../GameLogic';
 
 const initialColors = [
     [0, 1, 2, 3, 4, 5, 6, 7],
@@ -119,6 +119,17 @@ export default (state, action) => {
             break;
             
         case ACTION_TYPES.UPDATE_GAME:
+            try {
+                const initialTowers = createInitialTowerPositions();
+                const moves = action.game.moves;
+                const finalTowers = GameLogic.executeMoves(initialTowers, moves);
+                if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
+                    throw 'Game state is invalid!';
+                }
+            } catch (e) {
+                alert(e);
+                console.error('Game could not be loaded! ', e);
+            }
             return action.game;
             
         case ACTION_TYPES.START_GAME:
