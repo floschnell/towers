@@ -122,9 +122,11 @@ export default (state, action) => {
             try {
                 const initialTowers = createInitialTowerPositions();
                 const moves = action.game.moves;
-                const finalTowers = GameLogic.executeMoves(initialTowers, moves);
-                if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
-                    throw 'Game state is invalid!';
+                if (moves && moves.length > 0) {
+                    const finalTowers = GameLogic.executeMoves(initialTowers, moves);
+                    if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
+                        throw 'Game state is invalid!';
+                    }
                 }
             } catch (e) {
                 alert(e);
