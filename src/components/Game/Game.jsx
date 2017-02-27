@@ -77,11 +77,12 @@ export default class Game extends React.Component {
       width: gameSurfaceSize,
       height: gameSurfaceSize
     };
+    const playerPlateHorizontalOrientation = leftOffset >= 100;
     
     return <div style={styles}>
       <BoardContainer surfaceSize={gameSurfaceSize} />
-      <PlayerPlateContainer player="0" left="0" top="-20" />
-      <PlayerPlateContainer player="1" left="0" top={gameSurfaceSize+20} />
+      <PlayerPlateContainer player="0" left={playerPlateHorizontalOrientation ? -20 : 0} top={playerPlateHorizontalOrientation ? 0 : -20} />
+      <PlayerPlateContainer player="1" left={playerPlateHorizontalOrientation ? gameSurfaceSize + 20 : 0} top={playerPlateHorizontalOrientation ? 0 : gameSurfaceSize + 20} />
       <TowerSetContainer player="0" surfaceSize={gameSurfaceSize} />
       <TowerSetContainer player="1" surfaceSize={gameSurfaceSize} />
       {dialog}

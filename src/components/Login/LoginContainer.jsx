@@ -4,6 +4,7 @@ import {setPlayer} from '../../actions/index';
 import db from '../../database';
 import passwordHash from 'password-hash';
 import { hashHistory } from 'react-router';
+import firebase from 'firebase';
 
 const mapStateToProps = (state, ownProps) => ({
 });

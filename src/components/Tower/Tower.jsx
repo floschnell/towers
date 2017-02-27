@@ -1,5 +1,7 @@
 import React from 'react';
 import css from './Tower.styl';
+import towerSVG from '../../../graphics/tower.svg';
+import InlineSVG from 'svg-inline-react';
 
 export default class Tower extends React.Component {
     render() {
@@ -11,8 +13,8 @@ export default class Tower extends React.Component {
             position: 'absolute',
             left: tower.x * fieldSize,
             top: tower.y * fieldSize,
-            width: fieldSize - 10,
-            height: fieldSize - 10
+            width: fieldSize,
+            height: fieldSize
         };
         
         const onClick = event => {
@@ -21,8 +23,9 @@ export default class Tower extends React.Component {
         
         const activeModifier = this.props.isActive ? 'tower--active' : 'tower--inactive';
         const selectedModifier = this.props.isSelected ? 'tower--selected' : '';
-        const classname = `tower color-${tower.color} tower--player${tower.belongsToPlayer} ${activeModifier} ${selectedModifier}`;
-        return <div className={classname} style={styles} onClick={onClick}></div>;
+        const classname = `tower tower--color-${tower.color} tower--player${tower.belongsToPlayer} ${activeModifier} ${selectedModifier}`;
+
+        return <div className={classname} style={styles} onClick={onClick}><InlineSVG src={towerSVG} /></div>;
     }
 }
 

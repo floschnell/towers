@@ -288,20 +288,20 @@ describe('Game Logic', () => {
             const move1 = {
                 player: 0,
                 color: 0,
-                from: {x:0, y:0},
-                to: {x:0, y:3}
+                sourceField: {x:0, y:0},
+                targetField: {x:0, y:3}
             };
             const move2 = {
                 player: 1,
                 color: 3,
-                from: {x:4, y:7},
-                to: {x:4, y:2}
+                sourceField: {x:4, y:7},
+                targetField: {x:4, y:2}
             };
             const move3 = {
                 player: 0,
                 color: 0,
-                from: {x:0, y:3},
-                to: {x:2, y:5}
+                sourceField: {x:0, y:3},
+                targetField: {x:2, y:5}
             };
             const moves = [move1, move2, move3];
 

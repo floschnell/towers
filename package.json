@@ -4,9 +4,9 @@
   "description": "",
   "main": "serve.js",
   "scripts": {
-    "build": "webpack",
+    "build": "./node_modules/.bin/webpack --progress",
     "start": "node serve.js",
-    "test": "webpack --config webpack.test.config.js && mocha -R mocha-better-spec-reporter ./test/test.js"
+    "test": "./node_modules/.bin/webpack --config webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./test/test.js"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "mocha-better-spec-reporter": "^3.0.2"
+    "mocha-better-spec-reporter": "^3.0.2",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.5.0"
   }
 }

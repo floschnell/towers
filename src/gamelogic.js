@@ -188,8 +188,7 @@ export default class GameLogic {
      */
     static executeMoves(towers, moves) {
         let resultingTowers = copyTowers(towers);
-        for (const index in moves) {
-            const move = moves[index];
+        for (const move of moves) {
             resultingTowers = GameLogic.executeMove(resultingTowers, move);
         }
         return resultingTowers;

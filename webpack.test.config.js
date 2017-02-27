@@ -7,21 +7,24 @@ module.exports = {
     filename: './test/test.js',
   },
   resolve: {
-    root: path.resolve('./src'),
     extensions: ['.js', '.jsx'],
-    modulesDirectories: ['node_modules']
+    modules: [ path.resolve('./src'), 'node_modules' ]
   },
-  devtool: 'source-maps',
+  devtool: 'inline-source-map',
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js/,
+        test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel'
+        use: {
+          loader: 'babel-loader',
+        }
       },
       {
         test: /\.json$/,
-        loader: 'json-loader'
+        use: {
+          loader: 'json-loader',
+        }
       }
     ]
   }

@@ -1,6 +1,6 @@
 import {ACTION_TYPES} from '../actions/index';
 import db from '../database';
-import GameLogic, { copyTowers, towerPositionsAreEqual } from '../GameLogic';
+import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
 
 const initialColors = [
     [0, 1, 2, 3, 4, 5, 6, 7],
