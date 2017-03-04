@@ -7,9 +7,10 @@
  */
 export const towerPositionsAreEqual = (towersA, towersB) => {
     for (const player in towersA) {
-        for (const color in towersA) {
+        for (const color in towersA[player]) {
             const fieldA = towersA[player][color];
             const fieldB = towersB[player][color];
+
             const equal = fieldA.color === fieldB.color
                 && fieldA.player === fieldB.player
                 && fieldA.x === fieldB.x
@@ -27,13 +28,13 @@ export const towerPositionsAreEqual = (towersA, towersB) => {
  * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
  */
 export const copyTowers = towers => {
-    const copyOfTowers = [];
+    const copyOfTowers = {};
     for (const player in towers) {
         const copyOfPlayer = [];
         for (const color in towers[player]) {
             copyOfPlayer.push(Object.assign({}, towers[player][color]));
         }
-        copyOfTowers.push(copyOfPlayer);
+        copyOfTowers[player] = copyOfPlayer;
     }
     return copyOfTowers;
 };
@@ -58,7 +59,7 @@ export const fieldsAreEqual = (fieldA, fieldB) => (fieldA.x == fieldB.x && field
 export const getTowerFromField = (towers, field, player = null) => {
     let arrayOfTowers = [];
     if (player === null) {
-        arrayOfTowers = towers.reduce((previous, current) => previous.concat(current));
+        arrayOfTowers = Object.values(towers).reduce((previous, current) => previous.concat(current));
     } else {
         arrayOfTowers = towers[player];
     }
@@ -74,9 +75,11 @@ export const getTowerFromField = (towers, field, player = null) => {
  * @returns {boolean} Whether there is a tower on the given field coordinates.
  */
 export const fieldHasTower = (towers, field) => {
-    const arrayOfTowers = towers.reduce((previous, current) => previous.concat(current));
+    const arrayOfTowers = Object.values(towers).reduce((previous, current) => previous.concat(current));
     return arrayOfTowers.some(tower => tower.x === field.x && tower.y === field.y);
 };
+
+export const getOpponent = (player, players) => players.find(opponent => opponent !== player);
 
 /**
  * Tells whether the given player should move up- or downward.
@@ -84,7 +87,7 @@ export const fieldHasTower = (towers, field) => {
  * @param {integer} player What player to get the move direction for.
  * @return {integer} -1 if upward, 1 if downward.
  */
-export const playerMoveDirection = player => (player === 0) ? 1 : -1;
+export const playerMoveDirection = (player, players) => (player > getOpponent(player, players)) ? -1 : 1;
 
 export default class GameLogic {
 
@@ -120,7 +123,7 @@ export default class GameLogic {
         const tower = towers[player][color];
         const deltaX = targetField.x - tower.x;
         const deltaY = targetField.y - tower.y;
-        const moveDirection = playerMoveDirection(player);
+        const moveDirection = playerMoveDirection(player, Object.keys(towers));
         const moveStraight = (deltaX === 0);
         const moveDiagonally = Math.abs(deltaX) === Math.abs(deltaY);
 
@@ -165,8 +168,9 @@ export default class GameLogic {
      */
     static canMove(towers, player, color) {
         const towerToMove = towers[player][color];
-        const moveDirection = (player === 0) ? 1 : -1;
+        const moveDirection = playerMoveDirection(player, Object.keys(towers));
         let canMove = false;
+
         if (towerToMove.x < 7) {
             canMove = canMove || (!fieldHasTower(towers, { x: towerToMove.x + 1, y: towerToMove.y + moveDirection }));
         }

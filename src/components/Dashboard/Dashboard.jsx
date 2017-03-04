@@ -33,9 +33,9 @@ export default class Dashboard extends React.Component {
       hashHistory.push('newGame.html');
     };
     
-    return <div class="dashboard">
-        <div class="dashboard__start-button" onClick={startNewGame}>Neues Spiel Starten</div>
-        <ul class="dashboard__list">{renderGames()}</ul>
-      </div>;
+    return <div className="dashboard">
+            <div className="dashboard__start-button" onClick={startNewGame}>Neues Spiel Starten</div>
+            <ul className="dashboard__list">{renderGames()}</ul>
+          </div>;
   }
 }

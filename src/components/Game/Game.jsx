@@ -70,21 +70,39 @@ export default class Game extends React.Component {
     const gameSurfaceSize = calculateGameSurfaceSize();
     const leftOffset = (this.props.surfaceWidth - gameSurfaceSize) / 2;
     const topOffset = (this.props.surfaceHeight - gameSurfaceSize) / 2;
-    const styles = {
+
+    const gameSurfaceStyles = {
       position: 'absolute',
       left: leftOffset,
       top: topOffset,
       width: gameSurfaceSize,
       height: gameSurfaceSize
     };
+    const player1PlateStyles = {
+      display: 'block',
+      position: 'absolute',
+      width: '100%',
+      height: topOffset,
+      top: playerPlateHorizontalOrientation ? 0 : -topOffset,
+      left: playerPlateHorizontalOrientation ? -20 : 0
+    }
+    const player2PlateStyles = {
+      display: 'block',
+      position: 'absolute',
+      height: topOffset,
+      width: '100%',
+      top: playerPlateHorizontalOrientation ? 0 : gameSurfaceSize,
+      left: playerPlateHorizontalOrientation ? gameSurfaceSize + 20 : 0
+    }
+
     const playerPlateHorizontalOrientation = leftOffset >= 100;
     
-    return <div style={styles}>
+    return <div style={gameSurfaceStyles}>
       <BoardContainer surfaceSize={gameSurfaceSize} />
-      <PlayerPlateContainer player="0" left={playerPlateHorizontalOrientation ? -20 : 0} top={playerPlateHorizontalOrientation ? 0 : -20} />
-      <PlayerPlateContainer player="1" left={playerPlateHorizontalOrientation ? gameSurfaceSize + 20 : 0} top={playerPlateHorizontalOrientation ? 0 : gameSurfaceSize + 20} />
-      <TowerSetContainer player="0" surfaceSize={gameSurfaceSize} />
-      <TowerSetContainer player="1" surfaceSize={gameSurfaceSize} />
+      <div style={player1PlateStyles} ><PlayerPlateContainer player="0" height={topOffset} width={gameSurfaceSize} /></div>
+      <div style={player2PlateStyles} ><PlayerPlateContainer player="1" height={topOffset} width={gameSurfaceSize} /></div>
+      <TowerSetContainer player={this.props.playerUIDs[0]} surfaceSize={gameSurfaceSize} />
+      <TowerSetContainer player={this.props.playerUIDs[1]} surfaceSize={gameSurfaceSize} />
       {dialog}
     </div>;
   }

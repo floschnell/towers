@@ -5,7 +5,7 @@
   "main": "serve.js",
   "scripts": {
     "build": "./node_modules/.bin/webpack --progress",
-    "start": "node serve.js",
+    "start": "./node_modules/.bin/webpack-dev-server",
     "test": "./node_modules/.bin/webpack --config webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./test/test.js"
   },
   "repository": {
@@ -45,6 +45,7 @@
     "mocha": "^2.5.3",
     "mocha-better-spec-reporter": "^3.0.2",
     "stylus": "^0.54.5",
-    "stylus-loader": "^2.5.0"
+    "stylus-loader": "^2.5.0",
+    "webpack-dev-server": "^2.4.1"
   }
 }

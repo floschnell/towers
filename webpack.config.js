@@ -4,6 +4,7 @@ var path = require('path');
 module.exports = {
   entry: './src/index.jsx',
   output: {
+    publicPath: "/game/",
     filename: './dist/towers.js',
   },
   resolve: {

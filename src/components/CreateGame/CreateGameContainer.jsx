@@ -31,40 +31,52 @@ const mapDispatchToProps = (dispatch) => ({
         });
     },
   
-    startGame: (playerName, opponentName) => {
+    startGame: (playerUID, opponentUID) => {
         let gameName = '';
-        if (playerName < opponentName) {
-            gameName = `${playerName}-${opponentName}`;
+        if (playerUID < opponentUID) {
+            gameName = `${playerUID}-${opponentUID}`;
         } else {
-            gameName = `${opponentName}-${playerName}`;
+            gameName = `${opponentUID}-${playerUID}`;
         }
-        const playerRef = db.ref(`players/${playerName}`);
-        const opponentRef = db.ref(`players/${opponentName}`);
+        const playerRef = db.ref(`players/${playerUID}`);
+        const opponentRef = db.ref(`players/${opponentUID}`);
         const gameRef = db.ref(`games/${gameName}`);
-        
-        opponentRef.once('value').then(opponent => {
-            if (!opponent.exists()) {
-                throw 'Opponent does not exist in database!';
-            }
-            return playerRef.once('value');
-        }).then(player => {
-            if (!player.exists()) {
-                throw 'Player does not exist in database!';
-            }
-            return gameRef.once('value');
-        }).then(game => {
-            if (game.exists()) {
-                throw 'Game exists already!';
-            }
+
+        Promise.all([
+            opponentRef.once('value'),
+            playerRef.once('value'),
+            gameRef.once('value')
+        ]).then(results => {
+            const opponent = results[0];
+            const player = results[1];
+            const game = results[2];
             const updateGame = gamesObj => {
                 gamesObj = gamesObj || [];
                 gamesObj.push(gameName);
                 return gamesObj;
             };
-            db.ref(`players/${playerName}/games`).transaction(updateGame);
-            db.ref(`players/${opponentName}/games`).transaction(updateGame);
-            dispatch(startGame(gameName, [playerName, opponentName]));
-            hashHistory.push('main.html');
+
+            if (!opponent.exists()) {
+                throw 'Opponent does not exist in database!';
+            }
+            if (!player.exists()) {
+                throw 'Player does not exist in database!';
+            }
+            if (game.exists()) {
+                throw 'Game exists already!';
+            }
+            return Promise.all([
+                db.ref(`players/${playerUID}/games`).transaction(updateGame),
+                db.ref(`players/${opponentUID}/games`).transaction(updateGame)
+            ]).then(() => {
+                const players = {
+                    [playerUID]: player.val(),
+                    [opponentUID]: opponent.val()
+                };
+
+                dispatch(startGame(gameName, players));
+                hashHistory.push('main.html');
+            });
         }).catch(err => {
             console.log('Could not start game becouse:', err);
         });

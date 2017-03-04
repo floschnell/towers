@@ -13,19 +13,31 @@ const initialColors = [
     [7, 6, 5, 4, 3, 2, 1, 0],
 ];
 
-const createInitialTowerPositions = () => {
-    const towers = [[],[]];
-    const playerTowers = [];
-    for (let player = 0; player < 2; player++) {
-        for (let color = 0; color < 8; color++) {
-            towers[player].push({
-                color,
-                belongsToPlayer: player,
-                x: player === 0 ? color : 7 - color,
-                y: player === 0 ? 0 : 7
-            });
-        }        
+const createInitialTowerPositions = playerUIDs => {
+    const towers = {
+        [playerUIDs[0]]: [],
+        [playerUIDs[1]]: []
+    };
+    const keys = Object.keys(towers).sort((a, b) => a < b ? -1 : 1);
+
+    for (let color = 0; color < 8; color++) {
+        towers[keys[0]].push({
+            color,
+            belongsToPlayer: keys[0],
+            x: color,
+            y: 0
+        });
     }
+
+    for (let color = 0; color < 8; color++) {
+        towers[keys[1]].push({
+            color,
+            belongsToPlayer: keys[1],
+            x: 7 - color,
+            y: 7
+        });
+    }
+
     return towers;
 }
 
@@ -49,7 +61,7 @@ export default (state, action) => {
             currentColor: null,
             selectedTower: null,
             moves: [],
-            towerPositions: createInitialTowerPositions()
+            towerPositions: createInitialTowerPositions([0, 1])
         };
     }
     
@@ -72,17 +84,16 @@ export default (state, action) => {
             if (currentPlayer === action.playerUid) {
                 let towerToMove = null;
                 const targetField = action.field;
-                const currentPlayerNumber = state.players[action.playerUid];
 
                 if (typeof currentColor === 'undefined') {
                     towerToMove = state.selectedTower;
                 } else {
-                    towerToMove = state.towerPositions[currentPlayerNumber][currentColor];
+                    towerToMove = state.towerPositions[currentPlayer][currentColor];
                 }
                 
-                if (towerToMove.belongsToPlayer === currentPlayerNumber) {
+                if (towerToMove.belongsToPlayer === currentPlayer) {
                     const move = {
-                        player: currentPlayerNumber,
+                        player: currentPlayer,
                         color: towerToMove.color,
                         sourceField: towerToMove,
                         targetField
@@ -90,15 +101,14 @@ export default (state, action) => {
 
                     try {
                         newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
-                        const nextPlayerNumber = (currentPlayerNumber + 1) % 2; 
-                        const nextPlayer = Object.keys(state.players).filter(uid => uid !== currentPlayer)[0];
+                        const nextPlayer = Object.keys(state.players).find(uid => uid !== currentPlayer);
                         const nextColor = targetField.color;
 
-                        if (GameLogic.canMove(newState.towerPositions, nextPlayerNumber, nextColor)) {
+                        if (GameLogic.canMove(newState.towerPositions, nextPlayer, nextColor)) {
                             newState.currentPlayer = nextPlayer;
                             newState.currentColor = nextColor;
                         } else {
-                            const blockedTower = newState.towerPositions[nextPlayerNumber][targetField.color];
+                            const blockedTower = newState.towerPositions[nextPlayer][targetField.color];
                             const fieldOfBlockedTower = newState.board[blockedTower.y][blockedTower.x];
 
                             newState.currentColor = fieldOfBlockedTower.color;
@@ -114,16 +124,19 @@ export default (state, action) => {
                         newState.towerPositions = copyTowers(state.towerPositions);
                     }
                 }
+
+                setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
             }
-            setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
             break;
             
         case ACTION_TYPES.UPDATE_GAME:
             try {
-                const initialTowers = createInitialTowerPositions();
+                const initialTowers = createInitialTowerPositions(Object.keys(action.game.players));
                 const moves = action.game.moves;
+
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
+
                     if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
                         throw 'Game state is invalid!';
                     }
@@ -135,18 +148,14 @@ export default (state, action) => {
             return action.game;
             
         case ACTION_TYPES.START_GAME:
-            const players = {};
-            action.players.forEach(
-                (uid, index) => players[uid] = index
-            );
             const newGameState = {
-                players,
-                currentPlayer: action.players[0],
+                players: action.players,
+                currentPlayer: Object.keys(action.players)[0],
                 currentColor: null,
                 selectedTower: null,
                 moves: [],
                 board: createInitialBoard(initialColors),
-                towerPositions: createInitialTowerPositions()
+                towerPositions: createInitialTowerPositions(Object.keys(action.players))
             };
             setTimeout(function () {db.ref(`games/${action.game}`).update(newGameState)}, 0);
             return newGameState;

@@ -13,6 +13,10 @@ import CreateAccountContainer from '../CreateAccount/CreateAccountContainer';
 export default class App extends React.Component {
   
     componentWillMount() {
+        if (!this.props.user) {
+            hashHistory.push('/');
+        }
+
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 db.ref(`players/${user.uid}`).once('value').then(snapshot => {
