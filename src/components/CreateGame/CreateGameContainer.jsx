@@ -19,7 +19,6 @@ const mapDispatchToProps = (dispatch) => ({
         const searchEnd = `${searchStart}\uf8ff`;
         db.ref('players').orderByChild('searchName').startAt(searchStart).endAt(searchEnd).on('value', snapshot => {
             if (snapshot.exists()) {
-                console.log(snapshot);
                 const playersObj = snapshot.val();
                 if (playersObj[currentUser.uid]) {
                     delete playersObj[currentUser.uid];

@@ -4,6 +4,8 @@ import TowerSetContainer from '../TowerSet/TowerSetContainer';
 import PlayerPlateContainer from '../PlayerPlate/PlayerPlateContainer';
 import Dialog from '../Dialog/Dialog';
 import { hashHistory } from 'react-router';
+import css from './Game.styl';
+import closeButton from '../../../graphics/close.png';
 
 export default class Game extends React.Component {
   
@@ -50,26 +52,16 @@ export default class Game extends React.Component {
     }
     
     const calculateGameSurfaceSize = () => {
-      let surfaceSize = 0;
-      if (this.props.surfaceWidth < this.props.surfaceHeight) {
-        if (this.props.surfaceHeight - this.props.surfaceWidth < 200) {
-          surfaceSize = this.props.surfaceHeight - 200;
-        } else {
-          surfaceSize = this.props.surfaceWidth;
-        }
-      } else {
-        if (this.props.surfaceWidth - this.props.surfaceHeight < 200) {
-          surfaceSize = this.props.surfaceWidth - 200;
-        } else {
-          surfaceSize = this.props.surfaceHeight;
-        }
-      }
-      return surfaceSize;
+      const height = this.props.surfaceHeight - 150;
+      const width = this.props.surfaceWidth;
+
+      return height > width ? width : height;
     }
     
     const gameSurfaceSize = calculateGameSurfaceSize();
     const leftOffset = (this.props.surfaceWidth - gameSurfaceSize) / 2;
     const topOffset = (this.props.surfaceHeight - gameSurfaceSize) / 2;
+    const playerPlateHorizontalOrientation = leftOffset < 100;
 
     const gameSurfaceStyles = {
       position: 'absolute',
@@ -78,31 +70,39 @@ export default class Game extends React.Component {
       width: gameSurfaceSize,
       height: gameSurfaceSize
     };
-    const player1PlateStyles = {
-      display: 'block',
-      position: 'absolute',
-      width: '100%',
-      height: topOffset,
-      top: playerPlateHorizontalOrientation ? 0 : -topOffset,
-      left: playerPlateHorizontalOrientation ? -20 : 0
-    }
-    const player2PlateStyles = {
-      display: 'block',
-      position: 'absolute',
-      height: topOffset,
-      width: '100%',
-      top: playerPlateHorizontalOrientation ? 0 : gameSurfaceSize,
-      left: playerPlateHorizontalOrientation ? gameSurfaceSize + 20 : 0
-    }
 
-    const playerPlateHorizontalOrientation = leftOffset >= 100;
+    const player1PlateStyles = Object.assign({
+      display: 'block',
+      position: 'absolute'
+    }, {
+      width: '100%',
+      height: topOffset,
+      top: -topOffset,
+      left: 0
+    });
+
+    const player2PlateStyles = Object.assign({
+      display: 'block',
+      position: 'absolute'
+    }, {
+      height: topOffset,
+      width: '100%',
+      top: gameSurfaceSize,
+      left: 0
+    });
+
+    const goToDashboard = () => {
+      hashHistory.push('/dashboard.html');
+    };
+    const orientationMode = playerPlateHorizontalOrientation ? 'horizontal' : 'vertical';
     
     return <div style={gameSurfaceStyles}>
       <BoardContainer surfaceSize={gameSurfaceSize} />
-      <div style={player1PlateStyles} ><PlayerPlateContainer player="0" height={topOffset} width={gameSurfaceSize} /></div>
-      <div style={player2PlateStyles} ><PlayerPlateContainer player="1" height={topOffset} width={gameSurfaceSize} /></div>
+      <div style={player1PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[0]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
+      <div style={player2PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[1]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
       <TowerSetContainer player={this.props.playerUIDs[0]} surfaceSize={gameSurfaceSize} />
       <TowerSetContainer player={this.props.playerUIDs[1]} surfaceSize={gameSurfaceSize} />
+      <div className="close-button" onClick={goToDashboard}><img src={closeButton} /></div>
       {dialog}
     </div>;
   }

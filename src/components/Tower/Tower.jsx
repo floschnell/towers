@@ -1,11 +1,11 @@
 import React from 'react';
 import css from './Tower.styl';
-import towerPlayer1 from '../../../graphics/tower_player1.svg';
-import towerPlayer2 from '../../../graphics/tower_player2.svg';
+import towerPlayer2 from '../../../graphics/tower.svg';
+import towerPlayer2Active from '../../../graphics/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
 
-const towerElementPlayer1 = <InlineSVG src={towerPlayer1} />;
 const towerElementPlayer2 = <InlineSVG src={towerPlayer2} />;
+const towerElementPlayer2Active = <InlineSVG src={towerPlayer2Active} />;
 
 export default class Tower extends React.Component {
     render() {
@@ -27,10 +27,12 @@ export default class Tower extends React.Component {
         
         const activeModifier = this.props.isActive ? 'tower--active' : 'tower--inactive';
         const selectedModifier = this.props.isSelected ? 'tower--selected' : '';
-        const classname = `tower tower--color-${tower.color} tower--player${tower.belongsToPlayer} ${activeModifier} ${selectedModifier}`;
-        const towerElement = this.props.belongsToMe ? towerElementPlayer1 : towerElementPlayer2;
-
-        return <div className={classname} style={styles} onClick={onClick}>{towerElement}</div>;
+        const classname = `tower tower--color-${tower.color} tower--player${this.props.belongsToMe ? 1 : 2} ${activeModifier} ${selectedModifier}`;
+        if (this.props.isActive) {
+            return <div className={classname} style={styles} onClick={onClick}>{towerElementPlayer2Active}</div>;
+        } else {
+            return <div className={classname} style={styles} onClick={onClick}>{towerElementPlayer2}</div>;
+        }
     }
 }
 

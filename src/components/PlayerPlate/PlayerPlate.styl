@@ -1,10 +1,19 @@
 .player-plate
     font-size: 20px
-    transform: translateY(-50%);
-    margin-left: 10%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
     
 .player-plate__icon
     width: 50px;
     height: 50px;
     vertical-align: middle;
     display: inline-block;
+
+.player-plate__icon path#tower-body
+    stroke: black !important
+    stroke-width: 10 !important
+
+.player-plate__icon--player1 g#opponentHint
+    display: none

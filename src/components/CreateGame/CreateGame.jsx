@@ -29,14 +29,14 @@ export default class CreateGame extends React.Component {
             hashHistory.push('dashboard.html');
         }
 
-        return <div class="dashboard">
-            <div class="dashboard__back-button" onClick={navigateBack}>Zurück</div>
+        return <div className="dashboard">
+            <div className="dashboard__back-button" onClick={navigateBack}>Zurück</div>
             <input
                 ref="searchStr"
                 type="text"
                 onChange={searchPlayers}
             />
-            <ul class="dashboard__list">{renderPlayers()}</ul>        
+            <ul className="dashboard__list">{renderPlayers()}</ul>        
             </div>;
     }
 }

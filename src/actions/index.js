@@ -40,12 +40,13 @@ export const updateGames = (dispatch, playerUid) => {
         const gamePromises = games.map(game => {
             return db.ref(`games/${game}`).once('value');
         });
+        
         Promise.all(gamePromises).then(games => {
             const mapGameToDetails = {};
+
             games.forEach(game => {
                 mapGameToDetails[game.key] = game.val();
             });
-            console.log(mapGameToDetails);
             dispatch({
                 type: ACTION_TYPES.UPDATE_GAMES,
                 games: mapGameToDetails
