@@ -5,7 +5,8 @@
   "main": "serve.js",
   "scripts": {
     "build": "./node_modules/.bin/webpack --progress",
-    "start": "./node_modules/.bin/webpack-dev-server",
+    "dev": "./node_modules/.bin/webpack-dev-server",
+    "start": "node serve.js",
     "test": "./node_modules/.bin/webpack --config webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./test/test.js"
   },
   "repository": {
