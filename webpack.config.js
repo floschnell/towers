@@ -17,7 +17,7 @@ module.exports = {
       {
         test: /\.png$/,
         use: [{
-          loader: 'file-loader'
+          loader: 'url-loader'
         }]
       },
       {
