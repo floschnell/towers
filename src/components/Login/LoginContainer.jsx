@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import Login from './Login';
 import {setPlayer} from '../../actions/index';
 import db from '../../database';
-import passwordHash from 'password-hash';
 import { hashHistory } from 'react-router';
 import firebase from 'firebase';
 

@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import CreateAccount from './CreateAccount';
 import {setPlayerName} from '../../actions/index';
 import db from '../../database';
-import passwordHash from 'password-hash';
 import { hashHistory } from 'react-router';
 
 const mapStateToProps = (state, ownProps) => ({
