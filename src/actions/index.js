@@ -27,33 +27,16 @@ export const clickOnField = (field, playerUid, currentGame) => ({
     currentGame
 });
 
-export const setPlayer = player => ({
+export const setPlayer = (player, user) => ({
     type: ACTION_TYPES.SET_PLAYER,
-    player
+    player,
+    user
 });
 
-export const updateGames = (dispatch, playerUid) => {
-    const playerGamesRef = db.ref(`players/${playerUid}/games`);
-    
-    return playerGamesRef.on('value', snapshot => {
-        const games = snapshot.val() || [];
-        const gamePromises = games.map(game => {
-            return db.ref(`games/${game}`).once('value');
-        });
-        
-        Promise.all(gamePromises).then(games => {
-            const mapGameToDetails = {};
-
-            games.forEach(game => {
-                mapGameToDetails[game.key] = game.val();
-            });
-            dispatch({
-                type: ACTION_TYPES.UPDATE_GAMES,
-                games: mapGameToDetails
-            });
-        });
-    });
-};
+export const updateGames = games => ({
+    type: ACTION_TYPES.UPDATE_GAMES,
+    games
+});
 
 export const resumeGame = game => ({
     type: ACTION_TYPES.RESUME_GAME,

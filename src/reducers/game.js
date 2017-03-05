@@ -54,14 +54,16 @@ const createInitialBoard = (colors) => colors.map((row, index) =>
 export default (state, action) => {
     
     if (typeof(state) === "undefined") {
+        const initialPlayers = { "0": {}, "1": {} };
+
         return {
             board: createInitialBoard(initialColors),
-            players: [],
+            players: initialPlayers,
             currentPlayer: null,
             currentColor: null,
             selectedTower: null,
             moves: [],
-            towerPositions: createInitialTowerPositions([0, 1])
+            towerPositions: createInitialTowerPositions(Object.keys(initialPlayers))
         };
     }
     
@@ -137,6 +139,8 @@ export default (state, action) => {
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
 
+                    console.log('new game loaded!');
+                    return Object.assign({}, action.game);
                     if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
                         throw 'Game state is invalid!';
                     }
@@ -145,7 +149,7 @@ export default (state, action) => {
                 alert(e);
                 console.error('Game could not be loaded! ', e);
             }
-            return action.game;
+            return state;
             
         case ACTION_TYPES.START_GAME:
             const newGameState = {
