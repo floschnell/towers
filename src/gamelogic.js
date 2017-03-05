@@ -151,6 +151,8 @@ export default class GameLogic {
             }
         };
 
+        console.log(player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
+
         return towerIsOnSource
             && targetIsFree
             && directionValid

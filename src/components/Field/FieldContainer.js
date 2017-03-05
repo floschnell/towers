@@ -3,7 +3,6 @@ import Field from './native/Field';
 import {newGame, clickOnField} from '../../actions/index';
 
 const mapStateToProps = (state, ownProps) => ({
-    tower: state.game.towerPositions[`${ownProps.y}-${ownProps.x}`],
     playerUid: state.app.player.uid,
     currentGame: state.app.currentGame
 });

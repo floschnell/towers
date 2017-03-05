@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TouchableWithoutFeedback } from 'react-native';
 
 export default class Tower extends React.Component {
 
@@ -14,14 +14,27 @@ export default class Tower extends React.Component {
             width: this.props.size * 0.6,
             height: this.props.size * 0.6,
             backgroundColor: this.getColor(tower.color),
-            borderColor: 'grey', borderWidth: 1, borderStyle: 'solid'
         };
+        
+        Object.assign(styles, this.props.isActive ? {
+            borderColor: 'black',
+            borderWidth: 4,
+            borderStyle: 'solid'
+        } : {
+            borderColor: 'grey',
+            borderWidth: 2,
+            borderStyle: 'solid'
+        });
+
+        Object.assign(styles, !this.props.belongsToMe ? {
+            transform: [{ rotate: '45deg'}]
+        }: {});
 
         const onClick = event => {
             this.props.clickOnTower(tower, this.props.playerUid);
         }
 
-        return <View style={styles} onPress={onClick.bind(this)}></View>
+        return <TouchableWithoutFeedback onPress={onClick.bind(this)}><View style={styles}></View></TouchableWithoutFeedback>
     }
 
     getColor(colorCode) {

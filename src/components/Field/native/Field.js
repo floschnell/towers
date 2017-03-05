@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { TouchableWithoutFeedback, View } from 'react-native';
 
 export default class Field extends React.Component {
   render() {
@@ -15,7 +15,7 @@ export default class Field extends React.Component {
     
     const onClick = this.props.onClick.bind(null, this.props.playerUid, this.props.currentGame);
     
-    return <View style={styles} onPress={onClick}></View>;
+    return <TouchableWithoutFeedback onPress={onClick}><View style={styles}></View></TouchableWithoutFeedback>;
   }
 
   getColor(colorCode) {
