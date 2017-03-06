@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import CreateGame from './CreateGame';
+import CreateGame from './native/CreateGame';
 import db from '../../database';
 import { updatePlayers, startGame } from '../../actions/index';
 import { hashHistory } from 'react-router';
@@ -8,7 +8,7 @@ import firebase from 'firebase';
 const mapStateToProps = (state) => ({
     players: state.app.players,
     searchStr: state.app.searchStr,
-    playerUid: state.app.player.uid
+    player: state.app.player
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -32,6 +32,7 @@ const mapDispatchToProps = (dispatch) => ({
   
     startGame: (playerUID, opponentUID) => {
         let gameName = '';
+
         if (playerUID < opponentUID) {
             gameName = `${playerUID}-${opponentUID}`;
         } else {
@@ -64,18 +65,16 @@ const mapDispatchToProps = (dispatch) => ({
             if (game.exists()) {
                 throw 'Game exists already!';
             }
+
+            dispatch(startGame(gameName, {
+                [playerUID]: player.val(),
+                [opponentUID]: opponent.val()
+            }));
+
             return Promise.all([
                 db.ref(`players/${playerUID}/games`).transaction(updateGame),
                 db.ref(`players/${opponentUID}/games`).transaction(updateGame)
-            ]).then(() => {
-                const players = {
-                    [playerUID]: player.val(),
-                    [opponentUID]: opponent.val()
-                };
-
-                dispatch(startGame(gameName, players));
-                hashHistory.push('main.html');
-            });
+            ]);
         }).catch(err => {
             console.log('Could not start game becouse:', err);
         });

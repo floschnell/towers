@@ -3,6 +3,7 @@ import App from './native/App.js';
 import db from '../../database.js';
 import { setPlayer } from '../../actions/index';
 import firebase from 'firebase';
+import {Actions} from 'react-native-router-flux'
 
 const mapStateToProps = (state) => ({
     player: state.app.player,
@@ -19,6 +20,7 @@ const mapDispatchToProps = (dispatch) => ({
                     const dbUser = snapshot.val();
                     dbUser.uid = user.uid;
                     dispatch(setPlayer(dbUser, user));
+                    Actions.dashboard();
                     console.log('you got logged in');
                 }).catch(err => {
                     firebase.auth().signOut();

@@ -3,6 +3,7 @@ import Dashboard from './native/Dashboard';
 import { updateGames, resumeGame, startGame, updateGame } from '../../actions/index';
 import { hashHistory } from 'react-router';
 import db from '../../database.js';
+import {Actions} from 'react-native-router-flux'
 
 const mapStateToProps = (state, ownProps) => ({
     player: state.app.player,
@@ -31,14 +32,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 games.forEach(game => {
                     mapGameToDetails[game.key] = game.val();
                 });
+                console.log('updateGames:', mapGameToDetails);
+
                 dispatch(updateGames(mapGameToDetails));
             });
         });
     }, 
-    chooseGame: game => {
-        dispatch(resumeGame(game));
-        db.ref(`games/${game}`).on('value', snapshot => {
+    chooseGame: (key, game) => {
+        dispatch(resumeGame(key));
+        const playerUIDs = Object.keys(game.players);
+        console.log('choose game:', key);
+        db.ref(`games/${key}`).on('value', snapshot => {
             const gameState = snapshot.val();
+            console.log('got new state:', gameState);
             dispatch(updateGame(gameState));
         });
     }

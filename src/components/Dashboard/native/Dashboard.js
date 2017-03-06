@@ -4,10 +4,13 @@ import {
     Text,
     View,
     TextInput,
-    Button
+    Button,
+    Keyboard,
+    ScrollView
 } from 'react-native';
 import firebase from 'firebase';
 import { getOpponent } from '../../../gamelogic';
+import {Actions} from 'react-native-router-flux'
 
 export default class Login extends React.Component {
 
@@ -17,6 +20,7 @@ export default class Login extends React.Component {
     }
 
     componentWillMount() {
+        Keyboard.dismiss();
         this.props.subscribeOnGameUpdates(this.props.player.uid);
     }
 
@@ -43,24 +47,36 @@ export default class Login extends React.Component {
             }
         });
 
-        const renderGames = () => {
-            return Object.keys(this.props.games).map(key => {
-                const chooseGame = this.props.chooseGame.bind(null, key);
-                const game = this.props.games[key];
-                const playerUID = this.props.player.uid;
-                const opponentUID = getOpponent(playerUID, Object.keys(game.players));
-                const opponentName = game.players[opponentUID].name;
-                const myTurn = game.currentPlayer === playerUID;
+        const renderGames = () => Object.keys(this.props.games).map(key => {
+            console.log('games:', this.props.games);
+            const game = this.props.games[key];
+            const playerUIDs = Object.keys(game.players);
+            const chooseGame = () => {
+                this.props.chooseGame(key, game);
+                Actions.game({title: game.players[playerUIDs[0]].name + ' vs ' + game.players[playerUIDs[1]].name});
+            }
+            const playerUID = this.props.player.uid;
+            const opponentUID = getOpponent(playerUID, playerUIDs);
+            const opponentName = game.players[opponentUID].name;
+            const myTurn = game.currentPlayer === playerUID;
 
-                return <Text key={key} onPress={chooseGame}>
-                    {myTurn ? `It is your turn in the game against ${opponentName}!` : `Waiting for ${opponentName} to take his turn ...`}
-                </Text>;
-            });
-        };
+            return <View key={key+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={key} onPress={chooseGame} title={`Game versus ${opponentName}`}></Button></View>
+        });
 
-        return <View style={styles.container}>
-            <Text>These are your currently running games:</Text>
-            {renderGames()}
+        const gamesList = Object.keys(this.props.games).length > 0 ?
+            <View style={{flex: 1}} >
+                <Text style={{ margin: 15, marginBottom: 5 }}>These are your currently running Games:</Text>
+                <ScrollView style={{ flex: 1 }}>
+                    {renderGames()}
+                </ScrollView>
+            </View> :
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Text style={{ margin: 5 }}>You do not have any games currently, let's start one!</Text></View>;
+
+        return <View style={{ flex: 1 }}>
+            <View style={{ padding: 5 }}>
+                <Button onPress={() => Actions.createGame()} title="Start New Game" color="red" ></Button>
+            </View>
+            {gamesList}
         </View>;
     }
 };

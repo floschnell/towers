@@ -16,6 +16,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   clickOnTower: (tower, playerUid) => {
+    console.log('click on tower!');
     dispatch(clickOnTower(tower, playerUid));
   }
 });

@@ -6,16 +6,21 @@ import {
     TextInput,
     Button
 } from 'react-native';
+import dismissKeyboard from 'dismissKeyboard';
 
 export default class Login extends React.Component {
 
-        constructor() {
-            super();
-            this.state = {
-                username: '',
-                password: ''
-            };
-        }
+    constructor() {
+        super();
+        this.state = {
+            username: '',
+            password: ''
+        };
+    }
+
+    componentWillUnmount() {
+        dismissKeyboard();
+    }
 
     render() {
         const onLogin = e => {

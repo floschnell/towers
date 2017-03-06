@@ -74,6 +74,7 @@ export default (state, action) => {
     switch (action.type) {
         
         case ACTION_TYPES.CLICK_ON_TOWER:
+        console.log(currentPlayer, action.playerUid);
             if (currentPlayer === action.playerUid) {
                 const towerOnField = action.tower;
                 if (typeof state.currentColor === 'undefined' || state.currentColor === null || towerOnField.color === state.currentColor) {
@@ -139,12 +140,13 @@ export default (state, action) => {
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
 
-                    console.log('new game loaded!');
-                    return Object.assign({}, action.game);
                     if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
                         throw 'Game state is invalid!';
                     }
                 }
+
+                console.log('new game loaded!');
+                return Object.assign({}, action.game);
             } catch (e) {
                 alert(e);
                 console.error('Game could not be loaded! ', e);

@@ -11,8 +11,6 @@ export default class Game extends React.Component {
   
   render() {
     const size = this.props.width < this.props.height ? this.props.width : this.props.height;
-    const marginTop = (this.props.height - size) / 2;
-    const marginLeft = (this.props.width - size) / 2;
     
     console.log('uids: ', this.props.playerUIDs);
     console.log('position: ', this.props.towerPositions);
@@ -20,10 +18,10 @@ export default class Game extends React.Component {
     const playerOneTowers = this.props.towerPositions[this.props.playerUIDs[0]];
     const playerTwoTowers = this.props.towerPositions[this.props.playerUIDs[1]];
 
-    return <View style={{marginTop, marginLeft}}>
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><View style={{width: size, height: size}}>
       <BoardContainer size={size} />
       <TowerSetContainer towers={playerOneTowers} size={size} />
       <TowerSetContainer towers={playerTwoTowers} size={size} />
-    </View>;
+    </View></View>;
   }
 }

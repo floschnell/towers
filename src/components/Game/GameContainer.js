@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Game from './native/Game';
-import { updateGames, resumeGame, startGame, endGame, resizeGameSurface } from '../../actions/index';
+import { resumeGame, startGame, endGame, resizeGameSurface } from '../../actions/index';
 import { playerMoveDirection, getOpponent } from '../../gamelogic.js';
 
 const mapStateToProps = (state, ownProps) => {
