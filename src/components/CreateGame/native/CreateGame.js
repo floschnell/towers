@@ -8,7 +8,7 @@ import {
     Keyboard,
     ScrollView
 } from 'react-native';
-import {Actions} from 'react-native-router-flux';
+import {Actions, ActionConst} from 'react-native-router-flux';
 
 export default class CreateGame extends React.Component {
 
@@ -22,19 +22,23 @@ export default class CreateGame extends React.Component {
     render() {
 
         const renderPlayers = () => {
-            return Object.keys(this.props.players).map(uid => {
-                const opponent = this.props.players[uid];
+            return Object.keys(this.props.players).map(opponentUID => {
+                const playerUID = this.props.player.uid;
+                const player = this.props.player;
+                const opponent = this.props.players[opponentUID];
 
                 const startGame = () => {
-                    this.props.startGame(this.props.player.uid, uid);
-                    console.log('ok');
-                    Actions.pop();
-                    console.log('ok2');
-                    Actions.game({title: this.props.player.name + ' vs ' + opponent.name});
+                    this.props.startGame({
+                        uid: playerUID,
+                        val: player
+                    }, {
+                        uid: opponentUID,
+                        val: opponent
+                    });
                 };
 
-                return <View key={`${uid}-view`} style={{margin: 5}}>
-                    <Button key={uid} title={opponent.name} onPress={startGame} ></Button>
+                return <View key={`${opponentUID}-view`} style={{margin: 5}}>
+                    <Button key={opponentUID} title={opponent.name} onPress={startGame} ></Button>
                 </View>;
             })
         };
@@ -43,15 +47,18 @@ export default class CreateGame extends React.Component {
             this.props.updatePlayerResults(this.state.searchStr);
         };
 
-        return <View style={{flex: 1}}>
-            <TextInput
-                    onChangeText={searchStr => {
-                        this.setState({searchStr});
-                        searchPlayers();
-                    }}
-                    value={this.state.searchStr}
-                />
-                <ScrollView style={{ flex: 1, marginTop: 5 }}>
+        return <View style={{flex: 1, flexDirection: 'column'}}>
+            <View style={{flexGrow: 0, alignItems: 'center', alignSelf: 'stretch', flexDirection: 'row'}}>
+                <Text style={{padding: 5, paddingLeft: 10}}>Search for Opponent: </Text>
+                <TextInput style={{flexGrow: 1}}
+                        onChangeText={searchStr => {
+                            this.setState({searchStr});
+                            searchPlayers();
+                        }}
+                        value={this.state.searchStr}
+                    />
+                </View>
+                <ScrollView style={{ flexGrow: 1 }}>
                     {renderPlayers()}
                 </ScrollView>
         </View>;

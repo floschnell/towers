@@ -51,16 +51,18 @@ export default class Login extends React.Component {
             console.log('games:', this.props.games);
             const game = this.props.games[key];
             const playerUIDs = Object.keys(game.players);
-            const chooseGame = () => {
-                this.props.chooseGame(key, game);
-                Actions.game({title: game.players[playerUIDs[0]].name + ' vs ' + game.players[playerUIDs[1]].name});
-            }
             const playerUID = this.props.player.uid;
             const opponentUID = getOpponent(playerUID, playerUIDs);
+            const playerName = game.players[playerUID].name;
             const opponentName = game.players[opponentUID].name;
+            const chooseGame = () => {
+                this.props.chooseGame(key, game);
+                Actions.game({title: `${playerName} vs ${opponentName}`});
+            }
             const myTurn = game.currentPlayer === playerUID;
+            const turnDesc = myTurn ? '(your turn)' : '(waiting)';
 
-            return <View key={key+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={key} onPress={chooseGame} title={`Game versus ${opponentName}`}></Button></View>
+            return <View key={key+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={key} onPress={chooseGame} title={`You vs. ${opponentName} ${turnDesc}`}></Button></View>
         });
 
         const gamesList = Object.keys(this.props.games).length > 0 ?

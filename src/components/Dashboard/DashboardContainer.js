@@ -30,7 +30,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 const mapGameToDetails = {};
 
                 games.forEach(game => {
-                    mapGameToDetails[game.key] = game.val();
+                    if (game.exists()) {
+                        mapGameToDetails[game.key] = game.val();
+                    }
                 });
                 console.log('updateGames:', mapGameToDetails);
 

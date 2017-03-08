@@ -1,4 +1,6 @@
 import db from '../database';
+import { createInitialBoard, createInitialTowerPositions, initialColors, getGameKey } from '../reducers/game';
+import {Actions, ActionConst} from 'react-native-router-flux';
 
 export const ACTION_TYPES = {
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
@@ -43,11 +45,64 @@ export const resumeGame = game => ({
     game
 });
 
-export const startGame = (game, players) => ({
+export const gameStarted = game => ({
     type: ACTION_TYPES.START_GAME,
-    game,
-    players
+    game
 });
+
+export function startGame(playerUID, opponentUID, players) {
+    return dispatch => {
+        const newGame = {
+            players,
+            currentPlayer: Object.keys(players)[0],
+            moves: [],
+            board: createInitialBoard(initialColors),
+            towerPositions: createInitialTowerPositions(Object.keys(players))
+        };
+
+        const gameName = getGameKey(newGame);
+        const playerRef = db.ref(`players/${playerUID}`);
+        const opponentRef = db.ref(`players/${opponentUID}`);
+        const gameRef = db.ref(`games/${gameName}`);
+
+        return Promise.all([
+            opponentRef.once('value'),
+            playerRef.once('value'),
+            gameRef.once('value')
+        ]).then(results => {
+            const opponent = results[0];
+            const player = results[1];
+            const game = results[2];
+            const updatePlayerGames = gamesObj => {
+                gamesObj = gamesObj || [];
+                gamesObj.push(gameName);
+                return gamesObj;
+            };
+
+            if (!opponent.exists()) {
+                throw 'Opponent does not exist in database!';
+            }
+            if (!player.exists()) {
+                throw 'Player does not exist in database!';
+            }
+            if (game.exists()) {
+                throw 'Game exists already!';
+            }
+
+            gameRef.set(newGame).then(() => Promise.all([
+                db.ref(`players/${playerUID}/games`).transaction(updatePlayerGames),
+                db.ref(`players/${opponentUID}/games`).transaction(updatePlayerGames)
+            ])).then(() => {
+
+                dispatch(gameStarted(newGame));
+
+                Actions.game({title: players[playerUID].name + ' vs ' + players[opponentUID].name, type: ActionConst.REPLACE});
+            });
+        }).catch(err => {
+            console.log('Could not start game becouse:', err);
+        });
+    };
+};
 
 export const updateGame = game => ({
     type: ACTION_TYPES.UPDATE_GAME,
@@ -68,51 +123,40 @@ export const resizeGameSurface = (dispatch, width, height) => {
     });
 };
 
-export const endGame = (dispatch, game, player) => {
-    const gameRef = db.ref(`games/${game}`);
-    const gamePlayersRef = db.ref(`games/${game}/players`);
+export const endGame = (dispatch, gameKey, player) => {
+    const gameRef = db.ref(`games/${gameKey}`);
     const playerRef = db.ref(`players/${player}`);
     
     // do not receive updates on this game anymore
     gameRef.off();
-    
-    // remove player from game
-    const gamePromise = gamePlayersRef.transaction(players => {
-        if (players) {
-            delete players[player];
-        }
-        return players;
-    });
-    
-    // remove game from player
-    const playerPromise = playerRef.transaction(player => {
-        if (player && player.games) {
-            player.games = player.games.filter(playerGame => playerGame !== game);
-        }
-        return player;
-    });
-    
-    const removeUnusedGame = () => {
-        
-        // remove game if all players are gone
-        gameRef.once('value').then(game => {
-            if (game.exists()) {
-                const gameObj = game.val();
-                if (typeof gameObj.players === 'undefined' || gameObj.players === null) {
-                    gameRef.remove().catch(err => { console.warn('could not delete game!'); });
+
+    gameRef.once('value').then(snapshot => {
+        const game = snapshot.val();
+        const opponent = Object.keys(game.players).find(uid => uid !== player);
+
+        // remove game from player
+        playerRef.transaction(player => {
+            if (player && player.games) {
+                player.games = player.games.filter(playerGame => playerGame !== gameKey);
+            }
+            return player;
+        });
+
+        return db.ref(`players/${opponent}/games`).once('value').then(val => {
+            if (val.exists() && val.val().some(gameID => gameID === gameKey)) {
+                if (game.currentPlayer === player) {
+                    gameRef.child('currentPlayer').set(opponent);
+                }
+            } else {
+                if (game.currentPlayer === player) {
+                    gameRef.remove();
                 }
             }
         });
-    };
-    
-    Promise.all([gamePromise, playerPromise]).then(result => {
-        removeUnusedGame();
-    }).catch(err => {
-        removeUnusedGame();
-    });
-    
+    }).catch(e => console.log(e));
+
     dispatch({
         type: ACTION_TYPES.END_GAME,
-        game
+        gameKey
     });
 }

@@ -12,12 +12,13 @@ import {
   View
 } from 'react-native';
 
-import { createStore, compose } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import reducer from './src/reducers/index';
 import AppContainer from './src/components/App/AppContainer';
 
-const store = createStore(reducer);
+const store = createStore(reducer, applyMiddleware(thunk));
 
 export default class towers extends Component {
   render() {

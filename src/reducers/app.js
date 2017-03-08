@@ -1,4 +1,5 @@
 import {ACTION_TYPES} from '../actions/index';
+import {getGameKey} from './game';
 
 export default (state, action) => {
     
@@ -39,8 +40,13 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.START_GAME:
+            const gameKey = getGameKey(action.game);
+
             return Object.assign(state, {
-                currentGame: action.game
+                currentGame: gameKey,
+                games: Object.assign(state.games, {
+                    [gameKey]: action.game
+                })
             });
             
         case ACTION_TYPES.RESIZE_GAME_SURFACE:

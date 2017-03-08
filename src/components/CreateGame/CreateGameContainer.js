@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import CreateGame from './native/CreateGame';
 import db from '../../database';
-import { updatePlayers, startGame } from '../../actions/index';
+import { updatePlayers, startGame, updateGame } from '../../actions/index';
 import { hashHistory } from 'react-router';
 import firebase from 'firebase';
 
@@ -30,54 +30,11 @@ const mapDispatchToProps = (dispatch) => ({
         });
     },
   
-    startGame: (playerUID, opponentUID) => {
-        let gameName = '';
-
-        if (playerUID < opponentUID) {
-            gameName = `${playerUID}-${opponentUID}`;
-        } else {
-            gameName = `${opponentUID}-${playerUID}`;
-        }
-        const playerRef = db.ref(`players/${playerUID}`);
-        const opponentRef = db.ref(`players/${opponentUID}`);
-        const gameRef = db.ref(`games/${gameName}`);
-
-        Promise.all([
-            opponentRef.once('value'),
-            playerRef.once('value'),
-            gameRef.once('value')
-        ]).then(results => {
-            const opponent = results[0];
-            const player = results[1];
-            const game = results[2];
-            const updateGame = gamesObj => {
-                gamesObj = gamesObj || [];
-                gamesObj.push(gameName);
-                return gamesObj;
-            };
-
-            if (!opponent.exists()) {
-                throw 'Opponent does not exist in database!';
-            }
-            if (!player.exists()) {
-                throw 'Player does not exist in database!';
-            }
-            if (game.exists()) {
-                throw 'Game exists already!';
-            }
-
-            dispatch(startGame(gameName, {
-                [playerUID]: player.val(),
-                [opponentUID]: opponent.val()
-            }));
-
-            return Promise.all([
-                db.ref(`players/${playerUID}/games`).transaction(updateGame),
-                db.ref(`players/${opponentUID}/games`).transaction(updateGame)
-            ]);
-        }).catch(err => {
-            console.log('Could not start game becouse:', err);
-        });
+    startGame: (player, opponent) => {
+        dispatch(startGame(player.uid, opponent.uid, {
+            [player.uid]: player.val,
+            [opponent.uid]: opponent.val
+        }));
     }
 });
 

@@ -2,7 +2,19 @@ import {ACTION_TYPES} from '../actions/index';
 import db from '../database';
 import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
 
-const initialColors = [
+export const getGameKey = game => {
+    const playerUIDs = Object.keys(game.players);
+    const playerA = playerUIDs[0];
+    const playerB = playerUIDs[1];
+
+    if (playerA < playerB) {
+        return `${playerA}-${playerB}`;
+    } else {
+        return `${playerB}-${playerA}`;
+    }
+};
+
+export const initialColors = [
     [0, 1, 2, 3, 4, 5, 6, 7],
     [5, 0, 3, 6, 1, 4, 7, 2],
     [6, 3, 0, 5, 4, 7, 2, 1],
@@ -13,7 +25,7 @@ const initialColors = [
     [7, 6, 5, 4, 3, 2, 1, 0],
 ];
 
-const createInitialTowerPositions = playerUIDs => {
+export const createInitialTowerPositions = playerUIDs => {
     const towers = {
         [playerUIDs[0]]: [],
         [playerUIDs[1]]: []
@@ -41,7 +53,7 @@ const createInitialTowerPositions = playerUIDs => {
     return towers;
 }
 
-const createInitialBoard = (colors) => colors.map((row, index) =>
+export const createInitialBoard = (colors) => colors.map((row, index) =>
     row.map(
         color => {
             return {
@@ -94,7 +106,7 @@ export default (state, action) => {
                     towerToMove = state.towerPositions[currentPlayer][currentColor];
                 }
                 
-                if (towerToMove.belongsToPlayer === currentPlayer) {
+                if (towerToMove && towerToMove.belongsToPlayer === currentPlayer) {
                     const move = {
                         player: currentPlayer,
                         color: towerToMove.color,
@@ -126,9 +138,9 @@ export default (state, action) => {
                         newState.selectedTower = towerToMove;
                         newState.towerPositions = copyTowers(state.towerPositions);
                     }
-                }
 
-                setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
+                    setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
+                }
             }
             break;
             
@@ -154,17 +166,8 @@ export default (state, action) => {
             return state;
             
         case ACTION_TYPES.START_GAME:
-            const newGameState = {
-                players: action.players,
-                currentPlayer: Object.keys(action.players)[0],
-                currentColor: null,
-                selectedTower: null,
-                moves: [],
-                board: createInitialBoard(initialColors),
-                towerPositions: createInitialTowerPositions(Object.keys(action.players))
-            };
-            setTimeout(function () {db.ref(`games/${action.game}`).update(newGameState)}, 0);
-            return newGameState;
+            console.log('created game:', action.game);
+            return Object.assign({}, action.game);
             
         default:
 
