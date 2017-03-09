@@ -1,6 +1,7 @@
 import db from '../database';
 import { createInitialBoard, createInitialTowerPositions, initialColors, getGameKey } from '../reducers/game';
 import {Actions, ActionConst} from 'react-native-router-flux';
+import firebase from 'firebase';
 
 export const ACTION_TYPES = {
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
@@ -10,6 +11,7 @@ export const ACTION_TYPES = {
     RESUME_GAME: 'RESUME_GAME',
     START_GAME: 'START_GAME',
     UPDATE_GAME: 'UPDATE_GAME',
+    START_SEARCH_FOR_PLAYERS: 'START_SEARCH_FOR_PLAYERS',
     UPDATE_PLAYERS: 'UPDATE_PLAYERS',
     END_GAME: 'END_GAME',
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
@@ -109,9 +111,38 @@ export const updateGame = game => ({
     game
 });
 
+export function searchForPlayers(searchStr) {
+    return dispatch => {
+        const currentUser = firebase.auth().currentUser;
+        const searchStart = searchStr;
+        const searchEnd = `${searchStart}\uf8ff`;
+
+        db.ref('players')
+        .orderByChild('searchName')
+        .startAt(searchStart)
+        .endAt(searchEnd)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const playersObj = snapshot.val();
+                if (playersObj[currentUser.uid]) {
+                    delete playersObj[currentUser.uid];
+                }
+                dispatch(updatePlayers(searchStr, playersObj));
+            } else {
+                dispatch(updatePlayers(searchStr, []));
+            }
+        });
+    }
+}
+
+export const startSearchForPlayers = searchStr => ({
+    type: ACTION_TYPES.START_SEARCH_FOR_PLAYERS,
+    searchStr
+});
+
 export const updatePlayers = (searchStr, players) => ({
     type: ACTION_TYPES.UPDATE_PLAYERS,
-    searchStr,
     players
 });
 
@@ -123,40 +154,44 @@ export const resizeGameSurface = (dispatch, width, height) => {
     });
 };
 
-export const endGame = (dispatch, gameKey, player) => {
-    const gameRef = db.ref(`games/${gameKey}`);
-    const playerRef = db.ref(`players/${player}`);
-    
-    // do not receive updates on this game anymore
-    gameRef.off();
+export function endGame(gameKey, player) {
+    return dispatch => {
+        const gameRef = db.ref(`games/${gameKey}`);
+        const playerRef = db.ref(`players/${player}`);
+        
+        // do not receive updates on this game anymore
+        gameRef.off();
 
-    gameRef.once('value').then(snapshot => {
-        const game = snapshot.val();
-        const opponent = Object.keys(game.players).find(uid => uid !== player);
+        gameRef.once('value').then(snapshot => {
+            const game = snapshot.val();
+            const opponent = Object.keys(game.players).find(uid => uid !== player);
 
-        // remove game from player
-        playerRef.transaction(player => {
-            if (player && player.games) {
-                player.games = player.games.filter(playerGame => playerGame !== gameKey);
-            }
-            return player;
-        });
-
-        return db.ref(`players/${opponent}/games`).once('value').then(val => {
-            if (val.exists() && val.val().some(gameID => gameID === gameKey)) {
-                if (game.currentPlayer === player) {
-                    gameRef.child('currentPlayer').set(opponent);
+            // remove game from player
+            playerRef.transaction(player => {
+                if (player && player.games) {
+                    player.games = player.games.filter(playerGame => playerGame !== gameKey);
                 }
-            } else {
-                if (game.currentPlayer === player) {
-                    gameRef.remove();
-                }
-            }
-        });
-    }).catch(e => console.log(e));
+                return player;
+            });
 
-    dispatch({
-        type: ACTION_TYPES.END_GAME,
-        gameKey
-    });
+            return db.ref(`players/${opponent}/games`).once('value').then(val => {
+                if (val.exists() && val.val().some(gameID => gameID === gameKey)) {
+                    if (game.currentPlayer === player) {
+                        gameRef.child('currentPlayer').set(opponent);
+                    }
+                } else {
+                    if (game.currentPlayer === player) {
+                        gameRef.remove();
+                    }
+                }
+            });
+        }).then(() => {
+            dispatch(gameEnded(gameKey));
+        }).catch(e => console.log(e));
+    };
 }
+
+export const gameEnded = (gameKey, player) => ({
+    type: ACTION_TYPES.END_GAME,
+    gameKey
+});

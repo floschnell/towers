@@ -20,25 +20,20 @@ export default class CreateGame extends React.Component {
     }
   
     render() {
-
         const renderPlayers = () => {
             return Object.keys(this.props.players).map(opponentUID => {
                 const playerUID = this.props.player.uid;
                 const player = this.props.player;
                 const opponent = this.props.players[opponentUID];
-
-                const startGame = () => {
-                    this.props.startGame({
-                        uid: playerUID,
-                        val: player
-                    }, {
-                        uid: opponentUID,
-                        val: opponent
+                const startGameOnClick = () => {
+                    this.props.startGame(playerUID, opponentUID, {
+                        [playerUID]: player,
+                        [opponentUID]: opponent
                     });
                 };
 
                 return <View key={`${opponentUID}-view`} style={{margin: 5}}>
-                    <Button key={opponentUID} title={opponent.name} onPress={startGame} ></Button>
+                    <Button key={opponentUID} title={opponent.name} onPress={startGameOnClick} ></Button>
                 </View>;
             })
         };
@@ -53,7 +48,7 @@ export default class CreateGame extends React.Component {
                 <TextInput style={{flexGrow: 1}}
                         onChangeText={searchStr => {
                             this.setState({searchStr});
-                            searchPlayers();
+                            this.props.searchForPlayers(searchStr);
                         }}
                         value={this.state.searchStr}
                     />

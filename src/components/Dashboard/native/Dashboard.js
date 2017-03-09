@@ -56,8 +56,9 @@ export default class Login extends React.Component {
             const playerName = game.players[playerUID].name;
             const opponentName = game.players[opponentUID].name;
             const chooseGame = () => {
-                this.props.chooseGame(key, game);
-                Actions.game({title: `${playerName} vs ${opponentName}`});
+                this.props.chooseGame(key, game).then(() => {
+                    Actions.game({title: `${playerName} vs ${opponentName}`});
+                });
             }
             const myTurn = game.currentPlayer === playerUID;
             const turnDesc = myTurn ? '(your turn)' : '(waiting)';

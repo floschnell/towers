@@ -42,9 +42,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }, 
     chooseGame: (key, game) => {
         dispatch(resumeGame(key));
-        const playerUIDs = Object.keys(game.players);
         console.log('choose game:', key);
-        db.ref(`games/${key}`).on('value', snapshot => {
+        return db.ref(`games/${key}`).once('value', snapshot => {
             const gameState = snapshot.val();
             console.log('got new state:', gameState);
             dispatch(updateGame(gameState));
