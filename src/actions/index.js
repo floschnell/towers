@@ -4,6 +4,8 @@ import {Actions, ActionConst} from 'react-native-router-flux';
 import firebase from 'firebase';
 
 export const ACTION_TYPES = {
+    START_LOADING: 'START_LOADING',
+    END_LOADING: 'END_LOADING',
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
     SET_PLAYER: 'SET_PLAYER',
@@ -16,6 +18,18 @@ export const ACTION_TYPES = {
     END_GAME: 'END_GAME',
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
 };
+
+export function startLoading() {
+    return {
+        type: ACTION_TYPES.START_LOADING
+    };
+}
+
+export function endLoading() {
+    return {
+        type: ACTION_TYPES.END_LOADING
+    };
+}
 
 export const clickOnTower = (tower, playerUid, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_TOWER,
@@ -54,6 +68,8 @@ export const gameStarted = game => ({
 
 export function startGame(playerUID, opponentUID, players) {
     return dispatch => {
+        dispatch(startLoading());
+
         const newGame = {
             players,
             currentPlayer: Object.keys(players)[0],
@@ -61,7 +77,6 @@ export function startGame(playerUID, opponentUID, players) {
             board: createInitialBoard(initialColors),
             towerPositions: createInitialTowerPositions(Object.keys(players))
         };
-
         const gameName = getGameKey(newGame);
         const playerRef = db.ref(`players/${playerUID}`);
         const opponentRef = db.ref(`players/${opponentUID}`);
@@ -97,10 +112,12 @@ export function startGame(playerUID, opponentUID, players) {
             ])).then(() => {
 
                 dispatch(gameStarted(newGame));
+                dispatch(endLoading());
 
                 Actions.game({title: players[playerUID].name + ' vs ' + players[opponentUID].name, type: ActionConst.REPLACE});
             });
         }).catch(err => {
+            dispatch(endLoading());
             console.log('Could not start game becouse:', err);
         });
     };
@@ -118,21 +135,21 @@ export function searchForPlayers(searchStr) {
         const searchEnd = `${searchStart}\uf8ff`;
 
         db.ref('players')
-        .orderByChild('searchName')
-        .startAt(searchStart)
-        .endAt(searchEnd)
-        .once('value')
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                const playersObj = snapshot.val();
-                if (playersObj[currentUser.uid]) {
-                    delete playersObj[currentUser.uid];
+            .orderByChild('searchName')
+            .startAt(searchStart)
+            .endAt(searchEnd)
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const playersObj = snapshot.val();
+                    if (playersObj[currentUser.uid]) {
+                        delete playersObj[currentUser.uid];
+                    }
+                    dispatch(updatePlayers(searchStr, playersObj));
+                } else {
+                    dispatch(updatePlayers(searchStr, []));
                 }
-                dispatch(updatePlayers(searchStr, playersObj));
-            } else {
-                dispatch(updatePlayers(searchStr, []));
-            }
-        });
+            });
     }
 }
 

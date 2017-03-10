@@ -5,7 +5,8 @@ import { searchForPlayers, startGame, updateGame } from '../../actions/index';
 const mapStateToProps = (state) => ({
     players: state.app.players,
     searchStr: state.app.searchStr,
-    player: state.app.player
+    player: state.app.player,
+    isLoading: state.app.isLoading
 });
 
 const mapDispatchToProps = (dispatch) => ({

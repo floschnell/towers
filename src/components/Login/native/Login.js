@@ -7,6 +7,7 @@ import {
     Button
 } from 'react-native';
 import dismissKeyboard from 'dismissKeyboard';
+import { Actions } from 'react-native-router-flux';
 
 export default class Login extends React.Component {
 
@@ -27,8 +28,8 @@ export default class Login extends React.Component {
             this.props.finalizeLogin(this.state.username, this.state.password);
         };
 
-        const onCreateAccount = e => {
-            // ok
+        const onCreateAccount = () => {
+            Actions.register({title: 'Create Account'});
         };
 
         const styles = StyleSheet.create({
@@ -69,6 +70,7 @@ export default class Login extends React.Component {
                 />
             </View>
             <Button onPress={onLogin} title="Log In" color="#841584" accessibilityLabel="Learn more about this purple button" />
+            <Text style={{textDecorationStyle: 'solid', color: 'blue', marginTop: 10}} onPress={onCreateAccount}>Not registered yet, click here</Text>
         </View>;
     }
 };

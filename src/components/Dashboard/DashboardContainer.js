@@ -1,13 +1,14 @@
 import { connect } from 'react-redux';
 import Dashboard from './native/Dashboard';
-import { updateGames, resumeGame, startGame, updateGame } from '../../actions/index';
+import { updateGames, resumeGame, startGame, updateGame, startLoading, endLoading } from '../../actions/index';
 import { hashHistory } from 'react-router';
 import db from '../../database.js';
 import {Actions} from 'react-native-router-flux'
 
 const mapStateToProps = (state, ownProps) => ({
     player: state.app.player,
-    games: state.app.games
+    games: state.app.games,
+    isLoading: state.app.isLoading
 });
 
 let playerGamesRef = null;
@@ -41,13 +42,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         });
     }, 
     chooseGame: (key, game) => {
+        dispatch(startLoading());
         dispatch(resumeGame(key));
         console.log('choose game:', key);
-        return db.ref(`games/${key}`).once('value', snapshot => {
+        return db.ref(`games/${key}`).once('value').then(snapshot => {
             const gameState = snapshot.val();
             console.log('got new state:', gameState);
             dispatch(updateGame(gameState));
-        });
+            dispatch(endLoading());
+        }).catch(e => {
+            dispatch(endLoading());
+        })
     }
 });
 

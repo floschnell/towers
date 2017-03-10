@@ -1,43 +1,50 @@
 import { connect } from 'react-redux';
-import CreateAccount from './CreateAccount';
-import {setPlayerName} from '../../actions/index';
+import CreateAccount from './native/CreateAccount';
+import { setPlayerName, endLoading, startLoading, setPlayer } from '../../actions/index';
 import db from '../../database';
-import passwordHash from 'password-hash';
-import { hashHistory } from 'react-router';
+import firebase from 'firebase';
 
 const mapStateToProps = (state, ownProps) => ({
+    isLoading: state.app.isLoading
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     createAccount: (username, email, password, passwordRepeat) => {
         if (password !== passwordRepeat) {
-            console.warn('Passwords do not match!');
+            alert('Passwords do not match!');
             return;
         }
         
         if (username.length < 3) {
-            console.warn('Username is too short');
+            alert('Username is too short');
         }
         
         if (!/[\w]{0,}[\w\s]*/.test(username)) {
-            console.warn('Username is too short');
+            alert('Username is too short');
         }
         
+        const playerObj = {
+            name: username,
+            searchName: username.toLowerCase()
+        };
+
+        dispatch(startLoading());
         firebase.auth().createUserWithEmailAndPassword(email, password).then(result => {
             const playerRef = db.ref(`players/${result.uid}`);
-            return playerRef.set({
-                    name: username,
-                    searchName: username.toLowerCase()
-            });
+            
+            return playerRef.set(playerObj);
         }).then(() => {
             const user = firebase.auth().currentUser;
-            dispatch(setPlayerName(user.uid));
-            hashHistory.push('dashboard.html');
+            playerObj.uid = user.uid;
+
+            dispatch(setPlayer(playerObj, user));
+            dispatch(endLoading());
         }).catch(error => {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            console.warn(errorCode, errorMessage);
+            alert(`Unknown error: ${errorCode} ${errorMessage}`);
+            dispatch(endLoading());
         });
     }
 });

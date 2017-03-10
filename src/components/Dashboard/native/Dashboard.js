@@ -6,7 +6,8 @@ import {
     TextInput,
     Button,
     Keyboard,
-    ScrollView
+    ScrollView,
+    ActivityIndicator
 } from 'react-native';
 import firebase from 'firebase';
 import { getOpponent } from '../../../gamelogic';
@@ -56,9 +57,11 @@ export default class Login extends React.Component {
             const playerName = game.players[playerUID].name;
             const opponentName = game.players[opponentUID].name;
             const chooseGame = () => {
-                this.props.chooseGame(key, game).then(() => {
-                    Actions.game({title: `${playerName} vs ${opponentName}`});
-                });
+                if (!this.props.isLoading) {
+                    this.props.chooseGame(key, game).then(() => {
+                        Actions.game({title: `${playerName} vs ${opponentName}`});
+                    });
+                }
             }
             const myTurn = game.currentPlayer === playerUID;
             const turnDesc = myTurn ? '(your turn)' : '(waiting)';
@@ -75,11 +78,22 @@ export default class Login extends React.Component {
             </View> :
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Text style={{ margin: 5 }}>You do not have any games currently, let's start one!</Text></View>;
 
+        const createActivityIndicator = () => {
+            if (this.props.isLoading) {
+                return <View style={{zIndex: 2, flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'white', opacity: 0.5}}>
+                    <ActivityIndicator size={50} />
+                </View>;
+            } else {
+                return null;
+            }
+        }
+
         return <View style={{ flex: 1 }}>
-            <View style={{ padding: 5 }}>
+            <View style={{ zIndex:1, padding: 5 }}>
                 <Button onPress={() => Actions.createGame()} title="Start New Game" color="red" ></Button>
             </View>
             {gamesList}
+            {createActivityIndicator()}
         </View>;
     }
 };

@@ -5,6 +5,7 @@ export default (state, action) => {
     
     if (typeof state === 'undefined') {
         return {
+            isLoading: false,
             players: [],
             games: {},
             player: null,
@@ -17,6 +18,17 @@ export default (state, action) => {
     }
     
     switch (action.type) {
+
+        case ACTION_TYPES.START_LOADING:
+           return Object.assign(state, {
+                isLoading: true
+            });
+
+        case ACTION_TYPES.END_LOADING:
+           return Object.assign(state, {
+                isLoading: false
+            }); 
+
         case ACTION_TYPES.UPDATE_GAMES:
             return Object.assign(state, {
                 games: action.games

@@ -19,6 +19,7 @@ import LoginContainer from '../../Login/LoginContainer';
 import DashboardContainer from '../../Dashboard/DashboardContainer';
 import GameContainer from '../../Game/GameContainer';
 import CreateGameContainer from '../../CreateGame/CreateGameContainer';
+import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 
 export default class App extends React.Component {
 
@@ -33,8 +34,9 @@ export default class App extends React.Component {
         return <Router>
                     <Scene key="root" style={{paddingTop: navbarHeight}}>
                         <Scene key="login" component={LoginContainer} title="Login" initial="true" />
-                        <Scene key="dashboard" component={DashboardContainer} title="Dashboard"/>
-                        <Scene key="createGame" component={CreateGameContainer} title="Create Game"/>
+                        <Scene key="register" component={CreateAccountContainer} title="Create Account" />
+                        <Scene key="dashboard" component={DashboardContainer} title="Dashboard" />
+                        <Scene key="createGame" component={CreateGameContainer} title="Create Game" />
                         <Scene key="game" component={GameContainer} width={windowDimensions.width} height={windowDimensions.height - navbarHeight} />
                     </Scene>
                 </Router>;
