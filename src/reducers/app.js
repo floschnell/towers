@@ -6,6 +6,7 @@ export default (state, action) => {
     if (typeof state === 'undefined') {
         return {
             isLoading: false,
+            loadingMessage: '',
             players: [],
             games: {},
             player: null,
@@ -21,7 +22,8 @@ export default (state, action) => {
 
         case ACTION_TYPES.START_LOADING:
            return Object.assign(state, {
-                isLoading: true
+                isLoading: true,
+                loadingMessage: action.message
             });
 
         case ACTION_TYPES.END_LOADING:

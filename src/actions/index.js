@@ -2,6 +2,7 @@ import db from '../database';
 import { createInitialBoard, createInitialTowerPositions, initialColors, getGameKey } from '../reducers/game';
 import {Actions, ActionConst} from 'react-native-router-flux';
 import firebase from 'firebase';
+import Game from '../models/Game';
 
 export const ACTION_TYPES = {
     START_LOADING: 'START_LOADING',
@@ -19,9 +20,137 @@ export const ACTION_TYPES = {
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
 };
 
-export function startLoading() {
+const gamelistSubscriptionRef = null;
+const gameSubscriptionRef = null;
+
+export function login(email, password) {
+    return dispatch => {
+        dispatch(startLoading('Authenticating ...'));
+
+        firebase.auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(user => {
+            dispatch(endLoading());
+        }).catch(error => {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            alert(errorMessage);
+            dispatch(endLoading());
+        });
+    };
+}
+
+export function startListeningForGameUpdates(gameKey) {
+    return dispatch => {
+        gameSubscriptionRef = db.ref(`games/${gameKey}`).on('value', snapshot => {
+            const gameState = snapshot.val();
+
+            if (gameState !== null) {
+                console.log('got new state:', gameState);
+                dispatch(updateGame(gameState));
+            }
+        });
+    };
+}
+
+export function stopListeningForGameUpdates(gameKey) {
+    if (gameSubscriptionRef) {
+        db.ref(`games/${gameKey}`).off('value', gameSubscriptionRef);
+    }
+}
+
+export function loadGame(game) {
+    return dispatch => {
+        const playerUID = firebase.auth().currentUser.uid;
+        const gameKey = Game.getKey(game);
+        const playerName = Game.getPlayer(game, playerUID).name;
+        const opponentName = Game.getOpponent(game, playerUID).name;
+        console.log(playerName, opponentName);
+
+        dispatch(startLoading(`Loading game ${playerName} vs ${opponentName}`));
+        dispatch(resumeGame(gameKey));
+        console.log('choose game:', gameKey);
+        db.ref(`games/${gameKey}`).once('value').then(snapshot => {
+            const gameState = snapshot.val();
+            console.log('got new state:', gameState);
+            dispatch(updateGame(gameState));
+            dispatch(endLoading());
+            Actions.game({title: `${playerName} vs ${opponentName}`});
+        }).catch(e => {
+            dispatch(endLoading());
+        });
+    }
+}
+
+export function startListeningForGamelistUpdates(playerUid) {
+    return dispatch => {
+        const playerGamesRef = db.ref(`players/${playerUid}/games`);
+        
+        gamelistSubscriptionRef = playerGamesRef.on('value', snapshot => {
+            const games = snapshot.val() || [];
+            const gamePromises = games.map(game => {
+                return db.ref(`games/${game}`).once('value');
+            });
+            
+            Promise.all(gamePromises).then(games => {
+                const mapGameToDetails = {};
+
+                games.forEach(game => {
+                    if (game.exists()) {
+                        mapGameToDetails[game.key] = game.val();
+                    }
+                });
+                console.log('updateGames:', mapGameToDetails);
+
+                dispatch(updateGames(mapGameToDetails));
+            });
+        });
+    }
+}
+
+export function stopListeningForGamelistUpdates(playerUid) {
+    return dispatch => {
+        if (gamelistSubscriptionRef) {
+            const playerGamesRef = db.ref(`players/${playerUid}/games`);
+
+            playerGamesRef.off('value', gamelistSubscriptionRef);
+        }
+    };
+}
+
+export function createAccount(username, email, password) {
+     return dispatch => {
+        const playerObj = {
+            name: username,
+            searchName: username.toLowerCase()
+        };
+
+        dispatch(startLoading());
+        firebase.auth().createUserWithEmailAndPassword(email, password).then(result => {
+            const playerRef = db.ref(`players/${result.uid}`);
+            
+            return playerRef.set(playerObj);
+        }).then(() => {
+            const user = firebase.auth().currentUser;
+            playerObj.uid = user.uid;
+
+            dispatch(setPlayer(playerObj, user));
+            dispatch(endLoading());
+        }).catch(error => {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            alert(`Unknown error: ${errorCode} ${errorMessage}`);
+            dispatch(endLoading());
+        });
+    };
+}
+
+export function startLoading(message) {
     return {
-        type: ACTION_TYPES.START_LOADING
+        type: ACTION_TYPES.START_LOADING,
+        message
     };
 }
 
@@ -65,6 +194,32 @@ export const gameStarted = game => ({
     type: ACTION_TYPES.START_GAME,
     game
 });
+
+export function waitForLogin() {
+    return dispatch => {
+        firebase.auth().onAuthStateChanged(user => {
+            console.log('auth change: ', user);
+            if (user) {
+                dispatch(startLoading('We are logging you back in ...'));
+                db.ref(`players/${user.uid}`)
+                    .once('value')
+                    .then(snapshot => {
+                    const dbUser = snapshot.val();
+                    dbUser.uid = user.uid;
+                    dispatch(setPlayer(dbUser, user));
+                    dispatch(endLoading());
+                    Actions.dashboard();
+                    console.log('you got logged in');
+                }).catch(err => {
+                    firebase.auth().signOut();
+                    console.log('login failed:', err);
+                });
+            } else {
+                dispatch(setPlayer(null))
+            }
+        });
+    }
+}
 
 export function startGame(playerUID, opponentUID, players) {
     return dispatch => {
@@ -204,7 +359,11 @@ export function endGame(gameKey, player) {
             });
         }).then(() => {
             dispatch(gameEnded(gameKey));
-        }).catch(e => console.log(e));
+            Actions.pop();
+        }).catch(e => {
+            console.error('an error occured while ending the game:', e);
+            Actions.pop();
+        });
     };
 }
 

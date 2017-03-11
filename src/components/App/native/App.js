@@ -24,7 +24,7 @@ import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 export default class App extends React.Component {
 
     componentWillMount() {
-        this.props.listenForAuthentication();
+        this.props.waitForLogin();
     }
 
     render() {

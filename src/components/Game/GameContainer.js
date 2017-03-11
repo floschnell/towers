@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Game from './native/Game';
-import { updateGame, endGame, resizeGameSurface } from '../../actions/index';
+import { updateGame, endGame, resizeGameSurface, startListeningForGameUpdates, stopListeningForGameUpdates } from '../../actions/index';
 import { playerMoveDirection, getOpponent } from '../../gamelogic.js';
 import db from '../../database';
 
@@ -30,17 +30,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     resizeGameSurface(dispatch, width, height);
   },
   subscribeToUpdates: gameKey => {
-    db.ref(`games/${gameKey}`).on('value', snapshot => {
-        const gameState = snapshot.val();
-
-        if (gameState !== null) {
-          console.log('got new state:', gameState);
-          dispatch(updateGame(gameState));
-        }
-    });
+    startListeningForGameUpdates(gameKey);
   },
   unsubscribeFromUpdates: gameKey => {
-    db.ref(`games/${gameKey}`).off();
+    stopListeningForGameUpdates(gameKey);
   }
 });
 
