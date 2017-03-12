@@ -1,7 +1,7 @@
 import React from 'react';
 import css from './Tower.styl';
-import towerPlayer2 from '../../../../graphics/tower.svg';
-import towerPlayer2Active from '../../../../graphics/tower_active.svg';
+import towerPlayer2 from '../../../../resources/tower.svg';
+import towerPlayer2Active from '../../../../resources/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
 
 const towerElementPlayer2 = <InlineSVG src={towerPlayer2} />;

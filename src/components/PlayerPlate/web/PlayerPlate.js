@@ -1,8 +1,8 @@
 import React from 'react';
 import css from './PlayerPlate.styl';
 import { hashHistory } from 'react-router';
-import tower from '../../../../graphics/tower.svg';
-import towerActive from '../../../../graphics/tower_active.svg';
+import tower from '../../../../resources/tower.svg';
+import towerActive from '../../../../resources/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
 
 const towerElement = <InlineSVG src={tower} />;

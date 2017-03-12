@@ -4,7 +4,7 @@ import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import PlayerPlateContainer from '../../PlayerPlate/PlayerPlateContainer';
 import Dialog from '../../Dialog/Dialog';
 import css from './Game.styl';
-import closeButton from '../../../../graphics/close.png';
+import closeButton from '../../../../resources/close.png';
 
 export default class Game extends React.Component {
 
