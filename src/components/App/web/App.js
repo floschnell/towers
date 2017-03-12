@@ -1,5 +1,10 @@
 import React from 'react';
-import { Router, Route, Link, hashHistory } from 'react-router';
+import {
+    Router,
+    Route,
+    Link,
+    hashHistory
+} from 'react-router';
 import firebase from 'firebase';
 import db from '../../../database';
 
@@ -9,40 +14,32 @@ import LoginContainer from '../../Login/LoginContainer';
 import DashboardContainer from '../../Dashboard/DashboardContainer';
 import CreateGameContainer from '../../CreateGame/CreateGameContainer';
 import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
+import { PAGES } from '../../../models/Page';
 
 export default class App extends React.Component {
-  
-    componentWillMount() {
-        if (!this.props.user) {
-            hashHistory.push('/');
-        }
 
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                db.ref(`players/${user.uid}`).once('value').then(snapshot => {
-                    const dbUser = snapshot.val();
-                    dbUser.uid = user.uid;
-                    this.props.login(dbUser);
-                    console.log('you got logged in');
-                    hashHistory.push('/dashboard.html');
-                }).catch(err => {
-                    firebase.auth().signOut();
-                    console.log('login failed:', err);
-                });
-            } else {
-                this.props.login(null);
-                hashHistory.push('/');
-            }
-        });
+    componentWillMount() {
+        this.props.waitForLogin();
     }
 
-  render() {
-        return <Router history={hashHistory}>
-            <Route path="/main.html" component={GameContainer} />
-            <Route path="/dashboard.html" component={DashboardContainer} />
-            <Route path="/newGame.html" component={CreateGameContainer} />
-            <Route path="/createAccount.html" component={CreateAccountContainer}/>
-            <Route path="/" component={LoginContainer}/>
-        </Router>;
-  }
+    render() {
+        console.log('page is:', this.props.currentPage);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        switch (this.props.currentPage.getName()) {
+            case PAGES.LOGIN.getName():
+                return <LoginContainer />;
+            case PAGES.REGISTRATION.getName():
+                return <CreateAccountContainer />;
+            case PAGES.DASHBOARD.getName():
+                return <DashboardContainer />;
+            case PAGES.CREATE_GAME.getName():
+                return <CreateGameContainer />;
+            case PAGES.GAME.getName():
+                return <GameContainer surfaceWidth={width} surfaceHeight={height} />;
+            default:
+                return <LoginContainer />;
+        }
+    }
 }

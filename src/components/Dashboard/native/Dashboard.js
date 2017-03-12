@@ -17,7 +17,6 @@ export default class Login extends React.Component {
 
     constructor() {
         super();
-        this.updateHandler = null;
     }
 
     componentWillMount() {
@@ -59,7 +58,7 @@ export default class Login extends React.Component {
                 if (!this.props.isLoading) {
                     this.props.chooseGame(game);
                 }
-            }
+            };
             const myTurn = game.currentPlayer === playerUID;
             const turnDesc = myTurn ? '(your turn)' : '(waiting)';
 

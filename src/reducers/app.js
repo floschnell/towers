@@ -1,5 +1,6 @@
 import {ACTION_TYPES} from '../actions/index';
 import {getGameKey} from './game';
+import { PAGES } from '../models/Page';
 
 export default (state, action) => {
     
@@ -14,11 +15,16 @@ export default (state, action) => {
             currentGame: null,
             surfaceWidth: 0,
             surfaceHeight: 0,
-            surfaceMinSize: 0
+            surfaceMinSize: 0,
+            currentPage: PAGES.LOGIN
         };
     }
     
     switch (action.type) {
+        case ACTION_TYPES.GO_TO_PAGE:
+         return Object.assign(state, {
+             currentPage: action.page
+            });
 
         case ACTION_TYPES.START_LOADING:
            return Object.assign(state, {
@@ -37,10 +43,12 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.SET_PLAYER:
-            return Object.assign(state, {
+            const test = Object.assign(state, {
                 player: action.player,
                 user: action.user
             });
+            console.log('new app state:', test);
+            return test;
             
         case ACTION_TYPES.RESUME_GAME:
             return Object.assign(state, {

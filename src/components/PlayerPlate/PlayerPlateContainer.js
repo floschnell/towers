@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import PlayerPlate from './PlayerPlate';
+import PlayerPlate from './native/PlayerPlate';
 import {setPlayerName} from '../../actions/index';
 import db from '../../database';
 

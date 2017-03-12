@@ -1,31 +1,43 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
 import firebase from 'firebase';
-import { getOpponent } from '../../gamelogic';
+import { getOpponent } from '../../../gamelogic';
 import css from './Dashboard.styl';
 
 export default class Dashboard extends React.Component {
   
   constructor() {
     super();
-    this.updateHandler = null;
   }
 
   componentWillMount() {
-    this.updateHandler = this.props.updateGames(this.props.player.uid);
+    this.props.subscribeOnGameUpdates(this.props.player.uid);
   }
 
   componentWillUnmount() {
-    if (this.updateHandler && this.props.player) {
-      db.ref(`players/${this.props.player.uid}/games`).off('value', this.stopHandleUpdates);
-    }
+    this.props.unsubscribeFromGameUpdates();
   }
   
   render() {
 
+    const renderGamelist = () => {
+      const gameKeys = Object.keys(this.props.games);
+      if (gameKeys.length > 0) {
+        return <div><p>These are your currently running games, click on one to continue:</p>
+          <ul className="dashboard__list">{renderGames()}</ul>
+        </div>;
+      } else {
+        return <div><p>You currently do not have any games, start one!</p></div>;
+      }
+    };
+
     const renderGames = () => {
       return Object.keys(this.props.games).map(key => {
-        const chooseGame = this.props.chooseGame.bind(null, key);
+        const chooseGame = () => {
+            if (!this.props.isLoading) {
+                this.props.chooseGame(game);
+            }
+        };
         const game = this.props.games[key];
         const playerUID = this.props.player.uid;
         const opponentUID = getOpponent(playerUID, Object.keys(game.players));
@@ -39,18 +51,12 @@ export default class Dashboard extends React.Component {
     };
     
     const startNewGame = () => {
-      hashHistory.push('newGame.html');
+      this.props.startNewGame();
     };
-
-    const gameKeys = Object.keys(this.props.games);
-    const gameList = gameKeys.length > 0 ?
-      <div><p>These are your currently running games, click on one to continue:</p>
-        <ul className="dashboard__list">{renderGames()}</ul>
-      </div> : <div><p>You currently do not have any games, start one!</p></div>;
     
     return <div className="dashboard">
             <div className="dashboard__start-button" onClick={startNewGame}>Start new game</div>
-            {gameList}
+            {renderGamelist()}
           </div>;
   }
 }

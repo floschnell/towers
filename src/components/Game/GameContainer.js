@@ -1,8 +1,16 @@
 import { connect } from 'react-redux';
 import Game from './native/Game';
-import { updateGame, endGame, resizeGameSurface, startListeningForGameUpdates, stopListeningForGameUpdates } from '../../actions/index';
+import {
+  updateGame,
+  endGame,
+  resizeGameSurface,
+  startListeningForGameUpdates,
+  stopListeningForGameUpdates,
+  goToPage
+} from '../../actions/index';
 import { playerMoveDirection, getOpponent } from '../../gamelogic.js';
 import db from '../../database';
+import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => {
   const playerUIDs = Object.keys(state.game.players);
@@ -34,6 +42,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
   unsubscribeFromUpdates: gameKey => {
     stopListeningForGameUpdates(gameKey);
+  },
+  goToDashboard: () => {
+    dispatch(goToPage(PAGES.DASHBOARD));
   }
 });
 

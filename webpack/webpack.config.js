@@ -2,16 +2,15 @@ var webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
-  entry: './src/index.jsx',
+  entry: './index.web.js',
   output: {
-    publicPath: "/game/",
-    filename: './dist/towers.js',
+    publicPath: '/game/',
+    filename: './dist/towers.js'
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: [ '.js', '.jsx' ],
     modules: [ path.resolve('./src'), 'node_modules' ]
   },
-  devtool: 'eval',
   module: {
     rules: [
       {
@@ -35,7 +34,7 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           options: {
-            "presets": ['es2015', 'stage-1']
+            presets: ['es2015', 'stage-1']
           }
         }]
       },
@@ -45,17 +44,19 @@ module.exports = {
           'style-loader',
           'css-loader',
           'stylus-loader'
-        ],
+        ]
       },
       {
         test: /\.svg$/,
-        use: ['svg-inline-loader']
+        use: [
+          'svg-inline-loader'
+        ]
       },
       {
         test: /\.json$/,
-        use: {
-          loader: 'json-loader',
-        }
+        use: [
+          'json-loader'
+        ]
       }
     ]
   }, plugins: [

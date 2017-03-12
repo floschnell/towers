@@ -9,11 +9,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  updateGame: game => {
-    db.ref(`games/${game}`).on('value', snapshot => {
-      dispatch(updateGame(snapshot.val()));
-    })
-  }
+  
 });
 
 export default connect(

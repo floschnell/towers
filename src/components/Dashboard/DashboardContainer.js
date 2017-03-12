@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import Dashboard from './native/Dashboard';
 import db from '../../database.js';
-import {Actions} from 'react-native-router-flux'
+import { goToPage } from '../../actions/index';
 
 import {
     resumeGame,
@@ -12,6 +12,8 @@ import {
     stopListeningForGamelistUpdates,
     loadGame
 } from '../../actions/index';
+
+import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
     player: state.app.player,
@@ -29,6 +31,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }, 
     chooseGame: game => {
         dispatch(loadGame(game));
+    },
+    startNewGame: () => {
+        dispatch(goToPage(PAGES.CREATE_GAME));
     }
 });
 
