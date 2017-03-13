@@ -294,7 +294,7 @@ export const updateGame = game => ({
 export function searchForPlayers(searchStr) {
     return dispatch => {
         const currentUser = firebase.auth().currentUser;
-        const searchStart = searchStr;
+        const searchStart = searchStr.toLowerCase();
         const searchEnd = `${searchStart}\uf8ff`;
 
         db.ref('players')
