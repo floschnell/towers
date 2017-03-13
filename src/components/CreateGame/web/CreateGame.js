@@ -21,7 +21,7 @@ export default class CreateGame extends React.Component {
                     });
                 };
 
-                return <li key={uid} onClick={startGameOnClick}>{this.props.players[uid].name}</li>;
+                return <li key={opponentUID} onClick={startGameOnClick}>{this.props.players[opponentUID].name}</li>;
             })
         };
 
@@ -30,7 +30,7 @@ export default class CreateGame extends React.Component {
         };
 
         const navigateBack = event => {
-            hashHistory.push('dashboard.html');
+            this.props.goToDashboard();
         }
 
         return <div className="dashboard">

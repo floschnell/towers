@@ -13,7 +13,7 @@ export default class Field extends React.Component {
       height: fieldSize
     };
     
-    const onClick = this.props.onClick.bind(null, this.props.playerUid, this.props.currentGame);
+    const onClick = this.props.onClick.bind(null, this.props.playerUid, this.props.opponentUid, this.props.currentGame);
     
     return <TouchableWithoutFeedback onPress={onClick}><View style={styles}></View></TouchableWithoutFeedback>;
   }

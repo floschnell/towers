@@ -18,6 +18,7 @@ export default class Game extends React.Component {
   }
   
   componentWillMount() {
+    this.props.subscribeToUpdates(this.props.game);
     this.onResize();
   }
   
@@ -26,6 +27,7 @@ export default class Game extends React.Component {
   }
   
   componentWillUnmount() {
+    this.props.unsubscribeFromUpdates(this.props.game);
     window.removeEventListener('resize', this.resizeListener);
   }
   
@@ -41,7 +43,7 @@ export default class Game extends React.Component {
         action: event => console.log('play again...')
       },{
         text: 'End',
-        action: event => this.props.endGame(this.props.game, this.props.playerName)
+        action: event => this.props.endGame(this.props.game, this.props.playerUID)
       }]
       dialog = <Dialog zIndex="10" message="You have won!" buttons={dialogButtons} />
     } else if (this.props.lost) {
@@ -50,7 +52,7 @@ export default class Game extends React.Component {
         action: event => console.log('play again...')
       },{
         text: 'End',
-        action: event => this.props.endGame(this.props.game, this.props.playerName)
+        action: event => this.props.endGame(this.props.game, this.props.playerUID)
       }]
       dialog = <Dialog zIndex="10" message="You have lost!" buttons={dialogButtons} />
     }

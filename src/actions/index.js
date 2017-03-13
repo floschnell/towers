@@ -50,7 +50,6 @@ export function startListeningForGameUpdates(gameKey) {
             const gameState = snapshot.val();
 
             if (gameState !== null) {
-                console.log('got new state:', gameState);
                 dispatch(updateGame(gameState));
             }
         });
@@ -58,9 +57,11 @@ export function startListeningForGameUpdates(gameKey) {
 }
 
 export function stopListeningForGameUpdates(gameKey) {
-    if (gameSubscriptionRef) {
-        db.ref(`games/${gameKey}`).off('value', gameSubscriptionRef);
-    }
+    return dispatch => () => {
+        if (gameSubscriptionRef) {
+            db.ref(`games/${gameKey}`).off('value', gameSubscriptionRef);
+        }
+    };
 }
 
 export function loadGame(game) {
@@ -69,7 +70,6 @@ export function loadGame(game) {
         const gameKey = Game.getKey(game);
         const playerName = Game.getPlayer(game, playerUID).name;
         const opponentName = Game.getOpponent(game, playerUID).name;
-        console.log(playerName, opponentName);
 
         dispatch(startLoading(`Loading game ${playerName} vs ${opponentName}`));
         dispatch(resumeGame(gameKey));
@@ -91,23 +91,8 @@ export function startListeningForGamelistUpdates(playerUid) {
         const playerGamesRef = db.ref(`players/${playerUid}/games`);
         
         gamelistSubscriptionRef = playerGamesRef.on('value', snapshot => {
-            const games = snapshot.val() || [];
-            const gamePromises = games.map(game => {
-                return db.ref(`games/${game}`).once('value');
-            });
-            
-            Promise.all(gamePromises).then(games => {
-                const mapGameToDetails = {};
-
-                games.forEach(game => {
-                    if (game.exists()) {
-                        mapGameToDetails[game.key] = game.val();
-                    }
-                });
-                console.log('updateGames:', mapGameToDetails);
-
-                dispatch(updateGames(mapGameToDetails));
-            });
+            const games = snapshot.val() || {};
+            dispatch(updateGames(games));
         });
     }
 }
@@ -170,7 +155,18 @@ export const clickOnTower = (tower, playerUid, currentGame) => ({
     currentGame
 });
 
-export const clickOnField = (field, playerUid, currentGame) => ({
+export function clickOnField(field, playerUid, opponentUid, currentGame) {
+    return (dispatch, getState) => {
+        dispatch(clickedOnField(field, playerUid, currentGame));
+        db.ref(`games/${currentGame}`)
+        .update(getState().game)
+        .then(() => [playerUid, opponentUid].map(uid => 
+            db.ref(`players/${uid}/games/${currentGame}/currentPlayer`).set(opponentUid)
+        ));
+    };
+}
+
+export const clickedOnField = (field, playerUid, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_FIELD,
     field,
     playerUid,
@@ -250,8 +246,18 @@ export function startGame(playerUID, opponentUID, players) {
             const player = results[1];
             const game = results[2];
             const updatePlayerGames = gamesObj => {
-                gamesObj = gamesObj || [];
-                gamesObj.push(gameName);
+                gamesObj = gamesObj || {};
+                gamesObj[gameName] = {
+                    players: {
+                        [player.key]: {
+                            name: player.val().name
+                        },
+                        [opponent.key]: {
+                            name: opponent.val().name
+                        }
+                    },
+                    currentPlayer: newGame.currentPlayer
+                };
                 return gamesObj;
             };
 
@@ -331,7 +337,7 @@ export const resizeGameSurface = (dispatch, width, height) => {
 export function endGame(gameKey, player) {
     return dispatch => {
         const gameRef = db.ref(`games/${gameKey}`);
-        const playerRef = db.ref(`players/${player}`);
+        const playerGameRef = db.ref(`players/${player}/games/${gameKey}`);
         
         // do not receive updates on this game anymore
         gameRef.off();
@@ -341,15 +347,11 @@ export function endGame(gameKey, player) {
             const opponent = Object.keys(game.players).find(uid => uid !== player);
 
             // remove game from player
-            playerRef.transaction(player => {
-                if (player && player.games) {
-                    player.games = player.games.filter(playerGame => playerGame !== gameKey);
-                }
-                return player;
-            });
+            playerGameRef.remove();
 
-            return db.ref(`players/${opponent}/games`).once('value').then(val => {
-                if (val.exists() && val.val().some(gameID => gameID === gameKey)) {
+            // if opponent still has game
+            return db.ref(`players/${opponent}/games/${gameKey}`).once('value').then(val => {
+                if (val.exists()) {
                     if (game.currentPlayer === player) {
                         gameRef.child('currentPlayer').set(opponent);
                     }

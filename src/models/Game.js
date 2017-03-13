@@ -53,7 +53,12 @@ export default class Game {
      * @memberOf Game
      */
     static getOpponent(game, playerUID) {
-        const opponentUID = Object.keys(game.players).find(uid => uid !== playerUID);
+        const opponentUID = Game.getOpponentUID(game, playerUID);
+
         return game.players[opponentUID];
+    }
+
+    static getOpponentUID(game, playerUID) {
+        return Object.keys(game.players).find(uid => uid !== playerUID);
     }
 }

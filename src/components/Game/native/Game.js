@@ -15,6 +15,7 @@ export default class Game extends React.Component {
   componentWillMount() {
     this.props.subscribeToUpdates(this.props.game);
   }
+
   componentWillUnmount() {
     this.props.unsubscribeFromUpdates(this.props.game);
   }

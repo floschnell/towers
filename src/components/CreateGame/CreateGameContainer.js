@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import CreateGame from './native/CreateGame';
-import { searchForPlayers, startGame, updateGame } from '../../actions/index';
+import { searchForPlayers, startGame, updateGame, goToPage } from '../../actions/index';
+import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state) => ({
     players: state.app.players,
@@ -15,6 +16,9 @@ const mapDispatchToProps = (dispatch) => ({
     },
     searchForPlayers: searchStr => {
         dispatch(searchForPlayers(searchStr));
+    },
+    goToDashboard: () => {
+        dispatch(goToPage(PAGES.DASHBOARD));
     }
 });
 

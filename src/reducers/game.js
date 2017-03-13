@@ -134,12 +134,12 @@ export default (state, action) => {
                     } catch (e) {
                         console.log('move has failed, resetting ...', e);
                         newState.currentPlayer = currentPlayer;
-                        newState.currentColor = currentColor;
+                        if (currentColor) {
+                            newState.currentColor = currentColor;
+                        }
                         newState.selectedTower = towerToMove;
                         newState.towerPositions = copyTowers(state.towerPositions);
                     }
-
-                    setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
                 }
             }
             break;

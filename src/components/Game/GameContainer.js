@@ -31,17 +31,17 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  endGame: (game, player) => {
-    endGame(dispatch, game, player);
+  endGame: (gameKey, player) => {
+    dispatch(endGame(gameKey, player));
   },
   resizeGameSurface: (width, height) => {
     resizeGameSurface(dispatch, width, height);
   },
   subscribeToUpdates: gameKey => {
-    startListeningForGameUpdates(gameKey);
+    dispatch(startListeningForGameUpdates(gameKey));
   },
   unsubscribeFromUpdates: gameKey => {
-    stopListeningForGameUpdates(gameKey);
+    dispatch(stopListeningForGameUpdates(gameKey));
   },
   goToDashboard: () => {
     dispatch(goToPage(PAGES.DASHBOARD));
