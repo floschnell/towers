@@ -47,7 +47,7 @@ export default class CreateGame extends React.Component {
         const createActivityIndicator = () => {
             if (this.props.isLoading) {
                 return <View style={{zIndex: 2, flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'white', opacity: 0.5}}>
-                    <ActivityIndicator size={50} />
+                    <ActivityIndicator size="large" />
                 </View>;
             } else {
                 return null;

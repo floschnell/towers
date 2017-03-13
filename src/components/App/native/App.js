@@ -11,7 +11,8 @@ import {
     View,
     AsyncStorage,
     Dimensions,
-    Navigator
+    Navigator,
+    Platform
 } from 'react-native';
 
 import firebase from 'firebase';
@@ -29,7 +30,10 @@ export default class App extends React.Component {
 
     render() {
         const windowDimensions = Dimensions.get('window');
-        const navbarHeight = Navigator.NavigationBar.Styles.General.NavBarHeight;
+        const navbarHeight = Platform.select({
+            ios: 64,
+            android: 54
+        });
 
         return <Router>
                     <Scene key="root" style={{paddingTop: navbarHeight}}>

@@ -85,7 +85,7 @@ export default class Login extends React.Component {
         const createActivityIndicator = message => {
             if (this.props.isLoading) {
                 return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
-                    <ActivityIndicator size={50} />
+                    <ActivityIndicator size="large" />
                     <Text>{message}</Text>
                 </View>;
             } else {
