@@ -20,9 +20,9 @@ export class Page {
 }
 
 export const PAGES = {
-    LOGIN: new Page('Login'),
-    REGISTRATION: new Page('Registration'),
-    DASHBOARD: new Page('Dashboard'),
-    CREATE_GAME: new Page('CreateGame'),
-    GAME: new Page('Game')
+    LOGIN: new Page('login'),
+    REGISTRATION: new Page('register'),
+    DASHBOARD: new Page('dashboard'),
+    CREATE_GAME: new Page('createGame'),
+    GAME: new Page('game')
 };

@@ -3,6 +3,8 @@ import { createInitialBoard, createInitialTowerPositions, initialColors, getGame
 import firebase from 'firebase';
 import Game from '../models/Game';
 import { PAGES } from '../models/Page';
+import { goToPage } from './native/navigation';
+export * from './native/navigation';
 
 export const ACTION_TYPES = {
     GO_TO_PAGE: 'GO_TO_PAGE',
@@ -23,12 +25,6 @@ export const ACTION_TYPES = {
 
 let gamelistSubscriptionRef = null;
 let gameSubscriptionRef = null;
-
-export const goToPage = (page, options = {}) => ({
-    type: ACTION_TYPES.GO_TO_PAGE,
-    page,
-    options
-});
 
 export function login(email, password) {
     return dispatch => {
