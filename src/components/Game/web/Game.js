@@ -1,35 +1,39 @@
 import React from 'react';
-import BoardContainer from '../Board/BoardContainer';
-import TowerSetContainer from '../TowerSet/TowerSetContainer';
-import PlayerPlateContainer from '../PlayerPlate/PlayerPlateContainer';
-import Dialog from '../Dialog/Dialog';
-import { hashHistory } from 'react-router';
+import BoardContainer from '../../Board/BoardContainer';
+import TowerSetContainer from '../../TowerSet/TowerSetContainer';
+import PlayerPlateContainer from '../../PlayerPlate/PlayerPlateContainer';
+import Dialog from '../../Dialog/Dialog';
 import css from './Game.styl';
-import closeButton from '../../../graphics/close.png';
+import closeButton from '../../../../resources/close.png';
 
 export default class Game extends React.Component {
+
+  constructor() {
+    super();
+    this.resizeListener = this.onResize.bind(this);
+  }
   
   onResize(e) {
     this.props.resizeGameSurface(window.innerWidth, window.innerHeight);
   }
   
   componentWillMount() {
-    if (this.props.playerName === null) {
-      hashHistory.push('/');
-      this.render = () => false;
-    }
     this.onResize();
   }
   
   componentDidMount() {
-    window.addEventListener('resize', this.onResize.bind(this));
+    window.addEventListener('resize', this.resizeListener);
   }
   
-  componentWilUnmount() {
-    window.removeEventListener('resize');
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeListener);
   }
   
   render() {
+    const size = this.props.width < this.props.height ? this.props.width : this.props.height;
+    const playerOneTowers = this.props.towerPositions[this.props.playerUIDs[0]];
+    const playerTwoTowers = this.props.towerPositions[this.props.playerUIDs[1]];
+
     let dialog = '';
     if (this.props.won) {
       const dialogButtons = [{
@@ -92,7 +96,7 @@ export default class Game extends React.Component {
     });
 
     const goToDashboard = () => {
-      hashHistory.push('/dashboard.html');
+      this.props.goToDashboard();
     };
     const orientationMode = playerPlateHorizontalOrientation ? 'horizontal' : 'vertical';
     
@@ -100,8 +104,8 @@ export default class Game extends React.Component {
       <BoardContainer surfaceSize={gameSurfaceSize} />
       <div style={player1PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[0]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
       <div style={player2PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[1]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
-      <TowerSetContainer player={this.props.playerUIDs[0]} surfaceSize={gameSurfaceSize} />
-      <TowerSetContainer player={this.props.playerUIDs[1]} surfaceSize={gameSurfaceSize} />
+      <TowerSetContainer towers={playerOneTowers} size={gameSurfaceSize} />
+      <TowerSetContainer towers={playerTwoTowers} size={gameSurfaceSize} />
       <div className="close-button" onClick={goToDashboard}><img src={closeButton} /></div>
       {dialog}
     </div>;

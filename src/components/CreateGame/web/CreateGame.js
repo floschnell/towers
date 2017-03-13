@@ -6,23 +6,27 @@ export default class CreateGame extends React.Component {
 
     constructor() {
         super();
-        this.playerUid = null;
-    }
-
-    componentWillMount() {
-        this.playerUid = firebase.auth().currentUser.uid;
     }
   
     render() {
-
         const renderPlayers = () => {
-            return Object.keys(this.props.players).map(uid => {
-                return <li key={uid} onClick={this.props.startGame.bind(null, this.playerUid, uid)}>{this.props.players[uid].name}</li>;
+            return Object.keys(this.props.players).map(opponentUID => {
+                const playerUID = this.props.player.uid;
+                const player = this.props.player;
+                const opponent = this.props.players[opponentUID];
+                const startGameOnClick = () => {
+                    this.props.startGame(playerUID, opponentUID, {
+                        [playerUID]: player,
+                        [opponentUID]: opponent
+                    });
+                };
+
+                return <li key={uid} onClick={startGameOnClick}>{this.props.players[uid].name}</li>;
             })
         };
 
         const searchPlayers = () => {
-            this.props.updatePlayerResults(this.refs.searchStr.value);
+            this.props.searchForPlayers(this.refs.searchStr.value);
         };
 
         const navigateBack = event => {

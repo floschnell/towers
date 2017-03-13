@@ -1,12 +1,8 @@
 import React from 'react';
-import FieldContainer from '../Field/FieldContainer';
+import FieldContainer from '../../Field/FieldContainer';
 import css from './Board.styl';
 
 export default class Board extends React.Component {
-  
-  componentWillMount() {
-    this.props.updateGame(this.props.currentGame);
-  }
   
   render() {
     

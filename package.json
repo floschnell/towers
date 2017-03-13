@@ -4,10 +4,10 @@
   "description": "",
   "main": "./src/test.js",
   "scripts": {
-    "build": "./node_modules/.bin/webpack --progress",
-    "dev": "./node_modules/.bin/webpack-dev-server",
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "./node_modules/.bin/webpack --config webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./test/test.js"
+    "build": "./node_modules/.bin/webpack --config webpack/webpack.config.js --progress -p",
+    "dev": "./node_modules/.bin/webpack-dev-server --config webpack/webpack.config.js",
+    "start": "node serve.js",
+    "test": "./node_modules/.bin/webpack --config webpack/webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./dist/test.js"
   },
   "repository": {
     "type": "git",
@@ -46,11 +46,17 @@
     "webpack": "^2.1.0-beta.7"
   },
   "devDependencies": {
+    "babel-preset-stage-1": "^6.22.0",
     "chai": "^3.5.0",
+    "file-loader": "^0.10.1",
     "mocha": "^2.5.3",
     "mocha-better-spec-reporter": "^3.0.2",
+    "react-inline-svg": "^1.1.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.5.0",
+    "svg-inline-loader": "^0.7.1",
+    "svg-inline-react": "^2.0.0",
+    "url-loader": "^0.5.8",
     "webpack-dev-server": "^2.4.1"
   }
 }

@@ -4,7 +4,7 @@ var path = require('path');
 module.exports = {
   entry: './tests/index.js',
   output: {
-    filename: './test/test.js',
+    filename: './dist/test.js',
   },
   resolve: {
     extensions: ['.js', '.jsx'],

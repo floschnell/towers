@@ -1,10 +1,11 @@
 import db from '../database';
 import { createInitialBoard, createInitialTowerPositions, initialColors, getGameKey } from '../reducers/game';
-import {Actions, ActionConst} from 'react-native-router-flux';
 import firebase from 'firebase';
 import Game from '../models/Game';
+import { PAGES } from '../models/Page';
 
 export const ACTION_TYPES = {
+    GO_TO_PAGE: 'GO_TO_PAGE',
     START_LOADING: 'START_LOADING',
     END_LOADING: 'END_LOADING',
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
@@ -16,12 +17,18 @@ export const ACTION_TYPES = {
     UPDATE_GAME: 'UPDATE_GAME',
     START_SEARCH_FOR_PLAYERS: 'START_SEARCH_FOR_PLAYERS',
     UPDATE_PLAYERS: 'UPDATE_PLAYERS',
-    END_GAME: 'END_GAME',
+    GAME_ENDED: 'GAME_ENDED',
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
 };
 
-const gamelistSubscriptionRef = null;
-const gameSubscriptionRef = null;
+let gamelistSubscriptionRef = null;
+let gameSubscriptionRef = null;
+
+export const goToPage = (page, options = {}) => ({
+    type: ACTION_TYPES.GO_TO_PAGE,
+    page,
+    options
+});
 
 export function login(email, password) {
     return dispatch => {
@@ -76,7 +83,7 @@ export function loadGame(game) {
             console.log('got new state:', gameState);
             dispatch(updateGame(gameState));
             dispatch(endLoading());
-            Actions.game({title: `${playerName} vs ${opponentName}`});
+            dispatch(goToPage(PAGES.GAME.withTitle(`${playerName} vs ${opponentName}`)));
         }).catch(e => {
             dispatch(endLoading());
         });
@@ -206,9 +213,10 @@ export function waitForLogin() {
                     .then(snapshot => {
                     const dbUser = snapshot.val();
                     dbUser.uid = user.uid;
+                    console.log('setting user: ', dbUser);
                     dispatch(setPlayer(dbUser, user));
                     dispatch(endLoading());
-                    Actions.dashboard();
+                    dispatch(goToPage(PAGES.DASHBOARD))
                     console.log('you got logged in');
                 }).catch(err => {
                     firebase.auth().signOut();
@@ -265,11 +273,9 @@ export function startGame(playerUID, opponentUID, players) {
                 db.ref(`players/${playerUID}/games`).transaction(updatePlayerGames),
                 db.ref(`players/${opponentUID}/games`).transaction(updatePlayerGames)
             ])).then(() => {
-
                 dispatch(gameStarted(newGame));
                 dispatch(endLoading());
-
-                Actions.game({title: players[playerUID].name + ' vs ' + players[opponentUID].name, type: ActionConst.REPLACE});
+                dispatch(goToPage(PAGES.GAME.withTitle(`${players[playerUID].name} vs ${players[opponentUID].name}`)));
             });
         }).catch(err => {
             dispatch(endLoading());
@@ -359,15 +365,15 @@ export function endGame(gameKey, player) {
             });
         }).then(() => {
             dispatch(gameEnded(gameKey));
-            Actions.pop();
         }).catch(e => {
             console.error('an error occured while ending the game:', e);
-            Actions.pop();
-        });
+        }).then(() =>
+            dispatch(goToPage(PAGES.DASHBOARD))
+        );
     };
 }
 
 export const gameEnded = (gameKey, player) => ({
-    type: ACTION_TYPES.END_GAME,
+    type: ACTION_TYPES.GAME_ENDED,
     gameKey
 });

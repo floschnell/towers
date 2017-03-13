@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import CreateAccount from './native/CreateAccount';
-import { createAccount } from '../../actions/index';
+import { createAccount, goToPage } from '../../actions/index';
+import { PAGES } from '../../models/Page';
 import db from '../../database';
 import firebase from 'firebase';
 
@@ -17,13 +18,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         
         if (username.length < 3) {
             alert('Username is too short');
+            return;
         }
         
         if (!/[\w]{0,}[\w\s]*/.test(username)) {
-            alert('Username is too short');
+            alert('Username is not valid!');
+            return;
         }
 
         dispatch(createAccount(username, email, password));
+    },
+    goBack: () => {
+        dispatch(goToPage(PAGES.LOGIN));
     }
 });
 

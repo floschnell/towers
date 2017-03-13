@@ -1,14 +1,15 @@
 import React from 'react';
-import TowerContainer from '../Tower/TowerContainer';
+import TowerContainer from '../../Tower/TowerContainer';
 
 export default class TowerSet extends React.Component {
     
     render() {
-        
-        const towers = this.props.towers.map(tower =>
-            <TowerContainer key={`${tower.belongsToPlayer}-${tower.color}`} player={tower.belongsToPlayer} color={tower.color} surfaceSize={this.props.surfaceSize} />
-        );
-        
+        const towers = this.props.towers.map(tower => {
+            const fieldSize = this.props.size / 8;
+
+            return <TowerContainer key={`${tower.belongsToPlayer}-${tower.color}`} tower={tower} x={tower.x} y={tower.y} size={fieldSize} />;
+        });
+
         return <div>{towers}</div>;
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import css from './Tower.styl';
-import towerPlayer2 from '../../../graphics/tower.svg';
-import towerPlayer2Active from '../../../graphics/tower_active.svg';
+import towerPlayer2 from '../../../../resources/tower.svg';
+import towerPlayer2Active from '../../../../resources/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
 
 const towerElementPlayer2 = <InlineSVG src={towerPlayer2} />;
@@ -9,16 +9,14 @@ const towerElementPlayer2Active = <InlineSVG src={towerPlayer2Active} />;
 
 export default class Tower extends React.Component {
     render() {
-        
         const tower = this.props.tower;
-        const fieldSize = (this.props.surfaceSize / 8);
         
         const styles = {
             position: 'absolute',
-            left: tower.x * fieldSize,
-            top: tower.y * fieldSize,
-            width: fieldSize,
-            height: fieldSize
+            left: this.props.x * this.props.size,
+            top: this.props.y * this.props.size,
+            width: this.props.size,
+            height: this.props.size
         };
         
         const onClick = event => {
@@ -35,10 +33,3 @@ export default class Tower extends React.Component {
         }
     }
 }
-
-Tower.propTypes = {
-  x: React.PropTypes.number,
-  y: React.PropTypes.number,
-  tower: React.PropTypes.object,
-  isActive: React.PropTypes.bool
-};

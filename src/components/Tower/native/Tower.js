@@ -5,7 +5,6 @@ export default class Tower extends React.Component {
 
     render() {
         const tower = this.props.tower;
-        const fieldSize = (this.props.surfaceSize / 8);
 
         const styles = {
             position: 'absolute',
