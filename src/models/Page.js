@@ -7,6 +7,7 @@ export class Page {
 
     withTitle(title) {
         this._title = title;
+        return this;
     }
 
     getTitle() {

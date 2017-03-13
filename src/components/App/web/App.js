@@ -23,7 +23,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        console.log('page is:', this.props.currentPage);
+        console.log('page is:', this.props.currentPage.getName());
         const width = window.innerWidth;
         const height = window.innerHeight;
 

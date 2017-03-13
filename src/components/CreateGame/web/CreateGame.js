@@ -26,7 +26,7 @@ export default class CreateGame extends React.Component {
         };
 
         const searchPlayers = () => {
-            this.props.updatePlayerResults(this.refs.searchStr.value);
+            this.props.searchForPlayers(this.refs.searchStr.value);
         };
 
         const navigateBack = event => {

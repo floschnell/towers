@@ -22,11 +22,11 @@ export default class Game extends React.Component {
   }
   
   componentDidMount() {
-    window.addEventListener('resize', resizeListener);
+    window.addEventListener('resize', this.resizeListener);
   }
   
   componentWillUnmount() {
-    window.removeEventListener('resize', resizeListener);
+    window.removeEventListener('resize', this.resizeListener);
   }
   
   render() {
