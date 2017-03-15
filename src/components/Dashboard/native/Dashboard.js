@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import firebase from 'firebase';
 import { getOpponent } from '../../../gamelogic';
-import {Actions} from 'react-native-router-flux'
 
 export default class Login extends React.Component {
 
@@ -95,7 +94,7 @@ export default class Login extends React.Component {
 
         return <View style={{ flex: 1 }}>
             <View style={{ padding: 5 }}>
-                <Button onPress={() => Actions.createGame()} title="Start New Game" color="red" ></Button>
+                <Button onPress={() => this.props.startNewGame()} title="Start New Game" color="red" ></Button>
             </View>
             {renderGamelist()}
             {createActivityIndicator(this.props.loadingMessage)}

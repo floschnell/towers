@@ -16,14 +16,32 @@ export default (state, action) => {
             surfaceWidth: 0,
             surfaceHeight: 0,
             surfaceMinSize: 0,
-            currentPage: PAGES.LOGIN
+            pageStack: [PAGES.LOGIN]
         };
     }
     
     switch (action.type) {
-        case ACTION_TYPES.GO_TO_PAGE:
-         return Object.assign(state, {
-             currentPage: action.page
+        case ACTION_TYPES.PUSH_PAGE:
+            console.log('setting page stack to: ', state.pageStack.concat(action.page));
+            return Object.assign(state, {
+                pageStack: state.pageStack.concat(action.page)
+            });
+
+        case ACTION_TYPES.POP_PAGE:
+            console.log('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1));
+            return Object.assign(state, {
+                pageStack: state.pageStack.slice(0, state.pageStack.length - 1)
+            });
+
+        case ACTION_TYPES.REPLACE_PAGE:
+            console.log('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page));
+            return Object.assign(state, {
+                pageStack: state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page)
+            });
+
+        case ACTION_TYPES.INIT_PAGE:
+            return Object.assign(state, {
+                pageStack: [action.page]
             });
 
         case ACTION_TYPES.START_LOADING:

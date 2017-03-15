@@ -25,12 +25,12 @@ export default class Login extends React.Component {
     }
 
     render() {
-        const onLogin = e => {
+        const onLogin = () => {
             this.props.finalizeLogin(this.state.username, this.state.password);
         };
 
         const onCreateAccount = () => {
-            Actions.register({title: 'Create Account'});
+            this.props.createAccount();
         };
 
         const createActivityIndicator = message => {

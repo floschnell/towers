@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import Dashboard from './native/Dashboard';
 import db from '../../database.js';
-import { goToPage } from '../../actions/index';
+import { pushPage } from '../../actions/index';
 
 import {
     resumeGame,
@@ -33,7 +33,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(loadGame(game));
     },
     startNewGame: () => {
-        dispatch(goToPage(PAGES.CREATE_GAME));
+        dispatch(pushPage(PAGES.CREATE_GAME));
     }
 });
 

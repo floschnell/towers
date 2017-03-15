@@ -3,11 +3,12 @@ import { createInitialBoard, createInitialTowerPositions, initialColors, getGame
 import firebase from 'firebase';
 import Game from '../models/Game';
 import { PAGES } from '../models/Page';
-import { goToPage } from './native/navigation';
-export * from './native/navigation';
 
 export const ACTION_TYPES = {
-    GO_TO_PAGE: 'GO_TO_PAGE',
+    PUSH_PAGE: 'PUSH_PAGE',
+    POP_PAGE: 'POP_PAGE',
+    REPLACE_PAGE: 'REPLACE_PAGE',
+    INIT_PAGE: 'INIT_PAGE',
     START_LOADING: 'START_LOADING',
     END_LOADING: 'END_LOADING',
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
@@ -25,6 +26,58 @@ export const ACTION_TYPES = {
 
 let gamelistSubscriptionRef = null;
 let gameSubscriptionRef = null;
+
+/**
+ * @param {Page} page 
+ */
+export function pushPage(page) {
+    return {
+        type: ACTION_TYPES.PUSH_PAGE,
+        page
+    };
+}
+
+/**
+ * @param {Page} page 
+ */
+export function replacePage(page) {
+    return {
+        type: ACTION_TYPES.REPLACE_PAGE,
+        page
+    };
+}
+
+/**
+ */
+export function popPage() {
+    return {
+        type: ACTION_TYPES.POP_PAGE
+    };
+}
+
+/**
+ * @param {Page} page 
+ */
+export function initializeWithPage(page) {
+    return {
+        type: ACTION_TYPES.INIT_PAGE,
+        page
+    };
+}
+
+export function logout() {
+    return dispatch => {
+        dispatch(startLoading('Logging out ...'));
+        firebase.auth().signOut().then(() => {
+            dispatch(setPlayer(null, null));
+            dispatch(initializeWithPage(PAGES.LOGIN));
+        }).catch(e => {
+            console.error('Could not log out user, because: ', e);
+        }).then(() => {
+            dispatch(endLoading());
+        });
+    };
+}
 
 export function login(email, password) {
     return dispatch => {
@@ -79,7 +132,7 @@ export function loadGame(game) {
             console.log('got new state:', gameState);
             dispatch(updateGame(gameState));
             dispatch(endLoading());
-            dispatch(goToPage(PAGES.GAME.withTitle(`${playerName} vs ${opponentName}`)));
+            dispatch(pushPage(PAGES.GAME.withTitle(`${playerName} vs ${opponentName}`)));
         }).catch(e => {
             dispatch(endLoading());
         });
@@ -208,7 +261,7 @@ export function waitForLogin() {
                     console.log('setting user: ', dbUser);
                     dispatch(setPlayer(dbUser, user));
                     dispatch(endLoading());
-                    dispatch(goToPage(PAGES.DASHBOARD))
+                    dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${dbUser.name}`)))
                     console.log('you got logged in');
                 }).catch(err => {
                     firebase.auth().signOut();
@@ -277,7 +330,7 @@ export function startGame(playerUID, opponentUID, players) {
             ])).then(() => {
                 dispatch(gameStarted(newGame));
                 dispatch(endLoading());
-                dispatch(goToPage(PAGES.GAME.withTitle(`${players[playerUID].name} vs ${players[opponentUID].name}`)));
+                dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerUID].name} vs ${players[opponentUID].name}`)));
             });
         }).catch(err => {
             dispatch(endLoading());
@@ -366,7 +419,7 @@ export function endGame(gameKey, player) {
         }).catch(e => {
             console.error('an error occured while ending the game:', e);
         }).then(() =>
-            dispatch(goToPage(PAGES.DASHBOARD))
+            dispatch(popPage())
         );
     };
 }

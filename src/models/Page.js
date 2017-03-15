@@ -17,6 +17,13 @@ export class Page {
     getName() {
         return this._name;
     }
+
+    /**
+     * @param {Page} page 
+     */
+    equals(page) {
+        return page && this._name === page.getName();
+    }
 }
 
 export const PAGES = {

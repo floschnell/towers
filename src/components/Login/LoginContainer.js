@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import Login from './native/Login';
 import firebase from 'firebase';
 import db from '../../database';
-import { login, goToPage } from '../../actions/index';
+import { login, pushPage } from '../../actions/index';
 import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(login(email, password));
     },
     createAccount: () => {
-        dispatch(goToPage(PAGES.REGISTRATION));
+        dispatch(pushPage(PAGES.REGISTRATION));
     }
 });
 
