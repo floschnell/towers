@@ -23,6 +23,7 @@ import GameContainer from '../../Game/GameContainer';
 import CreateGameContainer from '../../CreateGame/CreateGameContainer';
 import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 import NavigationBar from 'react-native-navigation-bar';
+import PushController from '../../PushController/PushControllerContainer';
 import { PAGES } from '../../../models/Page';
 
 export default class App extends React.Component {
@@ -93,15 +94,23 @@ export default class App extends React.Component {
         }
     }
 
-    renderNavigationBar() {
-        const backButton = this.props.openPages > 1 ? 'back' : null;
+    renderPushController() {
+        const loggedIn = (this.props.player !== null);
 
+        if (loggedIn) {
+            return <PushController />;
+        } else {
+            return null;
+        }
+    }
+
+    renderNavigationBar() {
         return <NavigationBar 
             title={this.props.currentPage.getTitle()}
             height={44}
             titleColor={'#fff'}
             backgroundColor={'#149be0'}
-            leftButtonTitle={backButton}
+            leftButtonTitle={this.props.currentPage.getBackButton()}
             leftButtonTitleColor={'#fff'}
             onLeftButtonPress={this.onBack.bind(this)}
         />
@@ -109,6 +118,7 @@ export default class App extends React.Component {
 
     render() {
         return <View style={{flex: 1}}>
+            {this.renderPushController()}
             {this.renderNavigationBar()}
             <View style={{flex: 1, marginTop: 44}}>
                 {this.renderPage()}

@@ -3,6 +3,7 @@ export class Page {
     constructor(name) {
         this._name = name;
         this._title = '';
+        this._backButton = null;
     }
 
     withTitle(title) {
@@ -10,8 +11,17 @@ export class Page {
         return this;
     }
 
+    withBackButton(button) {
+        this._backButton = button;
+        return this;
+    }
+
     getTitle() {
         return this._title;
+    }
+
+    getBackButton() {
+        return this._backButton;
     }
 
     getName() {
@@ -27,9 +37,9 @@ export class Page {
 }
 
 export const PAGES = {
-    LOGIN: new Page('login'),
-    REGISTRATION: new Page('register'),
-    DASHBOARD: new Page('dashboard'),
-    CREATE_GAME: new Page('createGame'),
-    GAME: new Page('game')
+    LOGIN: new Page('login').withTitle('Welcome to Towers'),
+    REGISTRATION: new Page('register').withBackButton('back'),
+    DASHBOARD: new Page('dashboard').withBackButton('logout'),
+    CREATE_GAME: new Page('createGame').withBackButton('back'),
+    GAME: new Page('game').withBackButton('back')
 };

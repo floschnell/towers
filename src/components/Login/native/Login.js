@@ -26,10 +26,12 @@ export default class Login extends React.Component {
 
     render() {
         const onLogin = () => {
+            dismissKeyboard();
             this.props.finalizeLogin(this.state.username, this.state.password);
         };
 
         const onCreateAccount = () => {
+            dismissKeyboard();
             this.props.createAccount();
         };
 
@@ -66,7 +68,7 @@ export default class Login extends React.Component {
             <View style={styles.container}>
                 <Text>Please log in to continue:</Text>
                 <View style={styles.fieldContainer}>
-                    <Text>Username: </Text>
+                    <Text>E-Mail Address: </Text>
                     <TextInput
                         style={styles.inputField}
                         onChangeText={(username) => this.setState({username})}
@@ -82,7 +84,7 @@ export default class Login extends React.Component {
                         secureTextEntry={true}
                     />
                 </View>
-                <Button onPress={onLogin} title="Log In" color="#841584" accessibilityLabel="Learn more about this purple button" />
+                <Button onPress={onLogin} title="Log In" color="#841584" />
                 <Text style={{textDecorationStyle: 'solid', color: 'blue', marginTop: 10}} onPress={onCreateAccount}>Not registered yet, click here</Text>
             </View>
             {createActivityIndicator(this.props.loadingMessage)}

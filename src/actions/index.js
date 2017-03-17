@@ -5,6 +5,7 @@ import Game from '../models/Game';
 import { PAGES } from '../models/Page';
 
 export const ACTION_TYPES = {
+    UPDATE_TOKEN: 'UPDATE_TOKEN',
     PUSH_PAGE: 'PUSH_PAGE',
     POP_PAGE: 'POP_PAGE',
     REPLACE_PAGE: 'REPLACE_PAGE',
@@ -26,6 +27,22 @@ export const ACTION_TYPES = {
 
 let gamelistSubscriptionRef = null;
 let gameSubscriptionRef = null;
+
+export function updateToken(token) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        dispatch(setToken(token));
+        if (state.app.player) {
+            db.ref(`players/${state.app.player.uid}/token`).set(token);
+        }
+    };
+}
+
+const setToken = token => ({
+    type: ACTION_TYPES.UPDATE_TOKEN,
+    token
+});
 
 /**
  * @param {Page} page 
@@ -248,7 +265,7 @@ export const gameStarted = game => ({
 });
 
 export function waitForLogin() {
-    return dispatch => {
+    return (dispatch, getState) => {
         firebase.auth().onAuthStateChanged(user => {
             console.log('auth change: ', user);
             if (user) {
@@ -258,11 +275,19 @@ export function waitForLogin() {
                     .then(snapshot => {
                     const dbUser = snapshot.val();
                     dbUser.uid = user.uid;
+                    const state = getState();
+
                     console.log('setting user: ', dbUser);
                     dispatch(setPlayer(dbUser, user));
                     dispatch(endLoading());
                     dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${dbUser.name}`)))
                     console.log('you got logged in');
+
+                    if (state.app.token) {
+                        db.ref(`players/${user.uid}/token`).set(state.app.token).then(() => {
+                            console.debug('set app token on player.');
+                        });
+                    }
                 }).catch(err => {
                     firebase.auth().signOut();
                     console.log('login failed:', err);

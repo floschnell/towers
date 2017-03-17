@@ -6,6 +6,7 @@ export default (state, action) => {
     
     if (typeof state === 'undefined') {
         return {
+            token: null,
             isLoading: false,
             loadingMessage: '',
             players: [],
@@ -21,6 +22,11 @@ export default (state, action) => {
     }
     
     switch (action.type) {
+        case ACTION_TYPES.UPDATE_TOKEN:
+            return Object.assign(state, {
+                token: action.token
+            });
+
         case ACTION_TYPES.PUSH_PAGE:
             console.log('setting page stack to: ', state.pageStack.concat(action.page));
             return Object.assign(state, {
