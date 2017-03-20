@@ -51,8 +51,9 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  listenForGameUpdates: () => {
-    dispatch(startListeningForGameUpdates());
+  listenForGameUpdates: (gameKey) => {
+    console.log('listening for updates on ', gameKey)
+    dispatch(startListeningForGameUpdates(gameKey));
   },
   suspendGame: gameKey => {
     dispatch(suspendGame(gameKey));

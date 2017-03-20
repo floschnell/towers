@@ -170,7 +170,6 @@ export function loadGameFromKey(gameKey) {
                     dispatch(updateGame(game));
                     dispatch(endLoading());
                     dispatch(pushPage(gamePage));
-                    dispatch(startListeningForGameUpdates(gameKey));
                 }
         })
     };
@@ -326,7 +325,7 @@ export function waitForLogin() {
 
 export function startGame(playerUID, opponentUID, players) {
     return dispatch => {
-        dispatch(startLoading());
+        dispatch(startLoading(`starting game against ${players[opponentUID].name}`));
 
         const playersCopy = {};
         for (uid in players) {
