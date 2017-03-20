@@ -19,8 +19,7 @@ export default class PushController extends Component {
 
         FCM.getInitialNotification().then(notif => {
             if (notif.game) {
-                console.log('going to game ...');
-                this.props.goToGame(game);
+                // dunno
             }
         });
 
@@ -30,7 +29,11 @@ export default class PushController extends Component {
                 return;
             }
             if (notif.opened_from_tray) {
-                return;
+                console.log("opened from tray");
+                if (notif.game) {
+                    console.log("has game");
+                    this.props.goToGame(notif.game);
+                }
             }
             this.showLocalNotification(notif);
         });

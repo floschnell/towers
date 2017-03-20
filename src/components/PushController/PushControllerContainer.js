@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import PushController from './PushController';
-import { updateToken, loadGame } from '../../actions/index';
+import { updateToken, loadGameFromKey, popPageUntil } from '../../actions/index';
+import db from '../../database';
+import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
 });
@@ -10,7 +12,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(updateToken(token));
     },
     goToGame: gameKey => {
-        dispatch(loadGame(gameKey));
+        dispatch(popPageUntil(PAGES.DASHBOARD));
+        dispatch(loadGameFromKey(gameKey));
     }
 });
 

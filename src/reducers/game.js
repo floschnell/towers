@@ -1,6 +1,7 @@
 import {ACTION_TYPES} from '../actions/index';
 import db from '../database';
 import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
+import Game from '../models/Game';
 
 export const getGameKey = game => {
     const playerUIDs = Object.keys(game.players);
@@ -116,7 +117,7 @@ export default (state, action) => {
 
                     try {
                         newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
-                        const nextPlayer = Object.keys(state.players).find(uid => uid !== currentPlayer);
+                        const nextPlayer = Game.getOpponentUID(state, currentPlayer);
                         const nextColor = targetField.color;
 
                         if (GameLogic.canMove(newState.towerPositions, nextPlayer, nextColor)) {

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import App from './native/App.js';
 import db from '../../database.js';
-import { setPlayer, waitForLogin, logout, popPage } from '../../actions/index';
+import { setPlayer, waitForLogin, logout, popPage, resizeGameSurface } from '../../actions/index';
 import firebase from 'firebase';
 
 const mapStateToProps = (state) => ({
@@ -9,7 +9,10 @@ const mapStateToProps = (state) => ({
     user: state.app.user,
     game: state.app.currentGame,
     currentPage: state.app.pageStack[state.app.pageStack.length - 1],
-    openPages: state.app.pageStack.length
+    openPages: state.app.pageStack.length,
+    screenWidth: state.app.surfaceWidth,
+    isLoading: state.app.isLoading,
+    loadingMessage: state.app.loadingMessage
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -19,6 +22,9 @@ const mapDispatchToProps = (dispatch) => ({
     },
     navigateBack: () => {
         dispatch(popPage());
+    },
+    resizeGameSurface: (width, height) => {
+        dispatch(resizeGameSurface(width, height));
     }
 });
 

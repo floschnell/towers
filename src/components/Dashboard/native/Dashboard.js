@@ -46,22 +46,22 @@ export default class Login extends React.Component {
             }
         });
 
-        const renderGames = () => Object.keys(this.props.games).map(key => {
+        const renderGames = () => Object.keys(this.props.games).map(gameKey => {
             console.log('games:', this.props.games);
-            const game = this.props.games[key];
+            const game = this.props.games[gameKey];
             const playerUIDs = Object.keys(game.players);
             const playerUID = this.props.player.uid;
             const opponentUID = getOpponent(playerUID, playerUIDs);
             const opponentName = game.players[opponentUID].name;
             const chooseGame = () => {
                 if (!this.props.isLoading) {
-                    this.props.chooseGame(game);
+                    this.props.chooseGame(gameKey);
                 }
             };
             const myTurn = game.currentPlayer === playerUID;
             const turnDesc = myTurn ? '(your turn)' : '(waiting)';
 
-            return <View key={key+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={key} onPress={chooseGame} title={`You vs. ${opponentName} ${turnDesc}`}></Button></View>
+            return <View key={gameKey+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={`button-${gameKey}`} onPress={chooseGame} title={`You vs. ${opponentName} ${turnDesc}`}></Button></View>
         });
 
         const renderGamelist = () => {
@@ -81,23 +81,11 @@ export default class Login extends React.Component {
             }
         }
 
-        const createActivityIndicator = message => {
-            if (this.props.isLoading) {
-                return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
-                    <ActivityIndicator size="large" />
-                    <Text>{message}</Text>
-                </View>;
-            } else {
-                return null;
-            }
-        };
-
         return <View style={{ flex: 1 }}>
             <View style={{ padding: 5 }}>
                 <Button onPress={() => this.props.startNewGame()} title="Start New Game" color="red" ></Button>
             </View>
             {renderGamelist()}
-            {createActivityIndicator(this.props.loadingMessage)}
         </View>;
     }
 };

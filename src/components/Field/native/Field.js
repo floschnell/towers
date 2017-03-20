@@ -9,6 +9,7 @@ export default class Field extends React.Component {
 
     const styles = {
       backgroundColor: this.getColor(this.props.color),
+      opacity: 0.9,
       width: fieldSize,
       height: fieldSize
     };

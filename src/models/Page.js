@@ -4,6 +4,7 @@ export class Page {
         this._name = name;
         this._title = '';
         this._backButton = null;
+        this._backButtonAction = null;
     }
 
     withTitle(title) {
@@ -16,12 +17,21 @@ export class Page {
         return this;
     }
 
+    withBackButtonAction(action) {
+        this._backButtonAction = action;
+        return this;
+    }
+
     getTitle() {
         return this._title;
     }
 
     getBackButton() {
         return this._backButton;
+    }
+
+    getBackButtonAction() {
+        return this._backButtonAction;
     }
 
     getName() {

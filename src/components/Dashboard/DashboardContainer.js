@@ -10,7 +10,7 @@ import {
     endLoading,
     startListeningForGamelistUpdates,
     stopListeningForGamelistUpdates,
-    loadGame
+    loadGameFromKey
 } from '../../actions/index';
 
 import { PAGES } from '../../models/Page';
@@ -29,8 +29,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     subscribeOnGameUpdates: playerUid => {
         dispatch(startListeningForGamelistUpdates(playerUid));
     }, 
-    chooseGame: game => {
-        dispatch(loadGame(game));
+    chooseGame: gameKey => {
+        dispatch(loadGameFromKey(gameKey));
     },
     startNewGame: () => {
         dispatch(pushPage(PAGES.CREATE_GAME));

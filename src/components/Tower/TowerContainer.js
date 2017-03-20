@@ -8,7 +8,11 @@ const mapStateToProps = (state, ownProps) => {
   return {
     tower,
     isActive: (tower.color === state.game.currentColor || typeof state.game.currentColor === 'undefined') && tower.belongsToPlayer === state.game.currentPlayer,
-    isSelected: (tower.color === state.game.currentColor || (typeof state.game.currentColor === 'undefined' && state.game.selectedField && state.game.selectedField.x === tower.x && state.game.selectedField.y === tower.y)) && tower.belongsToPlayer === state.game.currentPlayer,
+    isSelected: (tower.color === state.game.currentColor || typeof state.game.currentColor === 'undefined')
+                && ((state.game.selectedTower
+                && state.game.selectedTower.x === tower.x
+                && state.game.selectedTower.y === tower.y) || !state.game.selectedTower)
+                && tower.belongsToPlayer === state.game.currentPlayer,
     playerUid: state.app.player.uid,
     belongsToMe: state.app.player.uid === tower.belongsToPlayer
   };

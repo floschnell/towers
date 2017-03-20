@@ -35,17 +35,6 @@ export default class Login extends React.Component {
             this.props.createAccount();
         };
 
-        const createActivityIndicator = message => {
-            if (this.props.isLoading) {
-                return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
-                    <ActivityIndicator size="large" />
-                    <Text>{message}</Text>
-                </View>;
-            } else {
-                return null;
-            }
-        };
-
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -87,7 +76,6 @@ export default class Login extends React.Component {
                 <Button onPress={onLogin} title="Log In" color="#841584" />
                 <Text style={{textDecorationStyle: 'solid', color: 'blue', marginTop: 10}} onPress={onCreateAccount}>Not registered yet, click here</Text>
             </View>
-            {createActivityIndicator(this.props.loadingMessage)}
         </View>;
     }
 };

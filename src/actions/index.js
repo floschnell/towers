@@ -8,6 +8,7 @@ export const ACTION_TYPES = {
     UPDATE_TOKEN: 'UPDATE_TOKEN',
     PUSH_PAGE: 'PUSH_PAGE',
     POP_PAGE: 'POP_PAGE',
+    POP_UNTIL_PAGE: 'POP_UNTIL_PAGE',
     REPLACE_PAGE: 'REPLACE_PAGE',
     INIT_PAGE: 'INIT_PAGE',
     START_LOADING: 'START_LOADING',
@@ -73,6 +74,15 @@ export function popPage() {
 }
 
 /**
+ */
+export function popPageUntil(page) {
+    return {
+        type: ACTION_TYPES.POP_UNTIL_PAGE,
+        page
+    };
+}
+
+/**
  * @param {Page} page 
  */
 export function initializeWithPage(page) {
@@ -116,7 +126,7 @@ export function login(email, password) {
 
 export function startListeningForGameUpdates(gameKey) {
     return dispatch => {
-        gameSubscriptionRef = db.ref(`games/${gameKey}`).on('value', snapshot => {
+        db.ref(`games/${gameKey}`).on('value', snapshot => {
             const gameState = snapshot.val();
 
             if (gameState !== null) {
@@ -126,34 +136,48 @@ export function startListeningForGameUpdates(gameKey) {
     };
 }
 
-export function stopListeningForGameUpdates(gameKey) {
-    return dispatch => () => {
-        if (gameSubscriptionRef) {
-            db.ref(`games/${gameKey}`).off('value', gameSubscriptionRef);
-        }
+export function suspendGame() {
+    return (dispatch, getState) => {
+        const currentState = getState();
+        const currentGame = currentState.app.currentGame;
+
+        console.log(`suspending game: ${currentGame}`);
+        db.ref(`games/${currentGame}`).off();
+        dispatch(resumeGame(null));
+        dispatch(popPageUntil(PAGES.DASHBOARD));
     };
 }
 
-export function loadGame(game) {
-    return dispatch => {
-        const playerUID = firebase.auth().currentUser.uid;
-        const gameKey = Game.getKey(game);
-        const playerName = Game.getPlayer(game, playerUID).name;
-        const opponentName = Game.getOpponent(game, playerUID).name;
+export function stopListeningForGameUpdates(gameKey) {
+    return dispatch => () => {
+        db.ref(`games/${gameKey}`).off();
+    };
+}
 
-        dispatch(startLoading(`Loading game ${playerName} vs ${opponentName}`));
-        dispatch(resumeGame(gameKey));
-        console.log('choose game:', gameKey);
-        db.ref(`games/${gameKey}`).once('value').then(snapshot => {
-            const gameState = snapshot.val();
-            console.log('got new state:', gameState);
-            dispatch(updateGame(gameState));
-            dispatch(endLoading());
-            dispatch(pushPage(PAGES.GAME.withTitle(`${playerName} vs ${opponentName}`)));
-        }).catch(e => {
-            dispatch(endLoading());
-        });
-    }
+export function loadGameFromKey(gameKey) {
+    return (dispatch, getState) => {
+        const currentState = getState();
+
+        dispatch(startLoading(`Resuming game ...`));
+        db.ref(`games/${gameKey}`)
+            .once('value')
+            .then(gameSnapshot => {
+                if (gameSnapshot.exists()) {
+                    const game = gameSnapshot.val();
+                    const player = Game.getPlayer(game, currentState.app.player.uid);
+                    const opponent = Game.getOpponent(game, currentState.app.player.uid);
+                    const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`).withBackButtonAction(() => {
+                        dispatch(suspendGame());
+                    });
+
+                    dispatch(resumeGame(gameKey));
+                    dispatch(updateGame(game));
+                    dispatch(endLoading());
+                    dispatch(pushPage(gamePage));
+                    dispatch(startListeningForGameUpdates(gameKey));
+                }
+        })
+    };
 }
 
 export function startListeningForGamelistUpdates(playerUid) {
@@ -227,12 +251,17 @@ export const clickOnTower = (tower, playerUid, currentGame) => ({
 
 export function clickOnField(field, playerUid, opponentUid, currentGame) {
     return (dispatch, getState) => {
+        const oldState = getState();
         dispatch(clickedOnField(field, playerUid, currentGame));
-        db.ref(`games/${currentGame}`)
-        .update(getState().game)
-        .then(() => [playerUid, opponentUid].map(uid => 
-            db.ref(`players/${uid}/games/${currentGame}/currentPlayer`).set(opponentUid)
-        ));
+        const newState = getState();
+
+        if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
+            db.ref(`games/${currentGame}`)
+            .update(newState.game)
+            .then(() => [playerUid, opponentUid].map(uid => 
+                db.ref(`players/${uid}/games/${currentGame}/currentPlayer`).set(newState.game.currentPlayer)
+            ));
+        }
     };
 }
 
@@ -303,9 +332,19 @@ export function startGame(playerUID, opponentUID, players) {
     return dispatch => {
         dispatch(startLoading());
 
+        const playersCopy = {};
+        for (uid in players) {
+            Object.assign(playersCopy, {
+                [uid]: {
+                    name: players[uid].name
+                }
+            });
+        }
+        console.log('playerscopy: ', playersCopy);
+
         const newGame = {
-            players,
-            currentPlayer: Object.keys(players)[0],
+            players: playersCopy,
+            currentPlayer: playerUID,
             moves: [],
             board: createInitialBoard(initialColors),
             towerPositions: createInitialTowerPositions(Object.keys(players))
@@ -404,13 +443,11 @@ export const updatePlayers = (searchStr, players) => ({
     players
 });
 
-export const resizeGameSurface = (dispatch, width, height) => {
-    dispatch({
-        type: ACTION_TYPES.RESIZE_GAME_SURFACE,
-        surfaceWidth: width,
-        surfaceHeight: height
-    });
-};
+export const resizeGameSurface = (width, height) => ({
+    type: ACTION_TYPES.RESIZE_GAME_SURFACE,
+    surfaceWidth: width,
+    surfaceHeight: height
+});
 
 export function endGame(gameKey, player) {
     return dispatch => {

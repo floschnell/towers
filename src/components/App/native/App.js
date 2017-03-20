@@ -13,7 +13,9 @@ import {
     Dimensions,
     Platform,
     Alert,
-    BackAndroid
+    BackAndroid,
+    StatusBar,
+    ActivityIndicator
 } from 'react-native';
 
 import firebase from 'firebase';
@@ -22,7 +24,7 @@ import DashboardContainer from '../../Dashboard/DashboardContainer';
 import GameContainer from '../../Game/GameContainer';
 import CreateGameContainer from '../../CreateGame/CreateGameContainer';
 import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
-import NavigationBar from 'react-native-navigation-bar';
+import NavigationBar from '../../NavigationBar/native/NavigationBar';
 import PushController from '../../PushController/PushControllerContainer';
 import { PAGES } from '../../../models/Page';
 
@@ -48,19 +50,23 @@ export default class App extends React.Component {
             },
             {
                 text: 'Yes', onPress: () => {
-                    
+                    BackAndroid.exitApp();
                 }
             }
         ], { cancelable: false } );
     }
 
     onBack() {
-        if (this.props.currentPage.getName() === PAGES.DASHBOARD.getName()) {
-            this.onLogOut();
-        } else if (this.props.currentPage.getName() === PAGES.LOGIN.getName()) {
-            this.onExit();
+        if (this.props.currentPage.getBackButtonAction()) {
+            this.props.currentPage.getBackButtonAction()();
         } else {
-            this.props.navigateBack();
+            if (this.props.currentPage.getName() === PAGES.DASHBOARD.getName()) {
+                this.onLogOut();
+            } else if (this.props.currentPage.getName() === PAGES.LOGIN.getName()) {
+                this.onExit();
+            } else {
+                this.props.navigateBack();
+            }
         }
         return true;
     }
@@ -83,7 +89,7 @@ export default class App extends React.Component {
         } else if (PAGES.GAME.equals(this.props.currentPage) && loggedIn) {
             const windowDimensions = Dimensions.get('window');
 
-            return <GameContainer width={windowDimensions.width} height={windowDimensions.height} />;
+            return <GameContainer />;
 
         } else if (PAGES.CREATE_GAME.equals(this.props.currentPage) && loggedIn) {
             return <CreateGameContainer />;
@@ -116,12 +122,30 @@ export default class App extends React.Component {
         />
     }
 
+    onLayout() {
+        const windowDimensions = Dimensions.get('window');
+
+        this.props.resizeGameSurface(windowDimensions.width, windowDimensions.height - 44 - StatusBar.currentHeight);
+    };
+
+    renderActivityIndicator() {
+        if (this.props.isLoading) {
+            return <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+                <ActivityIndicator size="large" />
+                <Text>{this.props.loadingMessage}</Text>
+            </View>;
+        } else {
+            return null;
+        }
+    }
+
     render() {
-        return <View style={{flex: 1}}>
+        return <View style={{flex: 1}} onLayout={this.onLayout.bind(this)}>
             {this.renderPushController()}
             {this.renderNavigationBar()}
-            <View style={{flex: 1, marginTop: 44}}>
+            <View style={{flex: 1}}>
                 {this.renderPage()}
+                {this.renderActivityIndicator()}
             </View>
         </View>;
     }

@@ -39,6 +39,18 @@ export default (state, action) => {
                 pageStack: state.pageStack.slice(0, state.pageStack.length - 1)
             });
 
+        case ACTION_TYPES.POP_UNTIL_PAGE:
+            const newStack = [];
+            for (page of state.pageStack) {
+                newStack.push(page);
+                if (action.page.equals(page)) {
+                    break;
+                }
+            }
+            return Object.assign(state, {
+                pageStack: newStack
+            });
+
         case ACTION_TYPES.REPLACE_PAGE:
             console.log('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page));
             return Object.assign(state, {
