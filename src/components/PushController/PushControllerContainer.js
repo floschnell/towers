@@ -5,6 +5,7 @@ import db from '../../database';
 import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
+    game: state.app.currentGame
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

@@ -57,16 +57,12 @@ export default class App extends React.Component {
     }
 
     onBack() {
-        if (this.props.currentPage.getBackButtonAction()) {
-            this.props.currentPage.getBackButtonAction()();
+        if (this.props.currentPage.getName() === PAGES.DASHBOARD.getName()) {
+            this.onLogOut();
+        } else if (this.props.currentPage.getName() === PAGES.LOGIN.getName()) {
+            this.onExit();
         } else {
-            if (this.props.currentPage.getName() === PAGES.DASHBOARD.getName()) {
-                this.onLogOut();
-            } else if (this.props.currentPage.getName() === PAGES.LOGIN.getName()) {
-                this.onExit();
-            } else {
-                this.props.navigateBack();
-            }
+            this.props.navigateBack();
         }
         return true;
     }

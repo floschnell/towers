@@ -4,7 +4,7 @@ export class Page {
         this._name = name;
         this._title = '';
         this._backButton = null;
-        this._backButtonAction = null;
+        this._removeAction = null;
     }
 
     withTitle(title) {
@@ -17,8 +17,8 @@ export class Page {
         return this;
     }
 
-    withBackButtonAction(action) {
-        this._backButtonAction = action;
+    whenRemoved(removeAction) {
+        this._removeAction = removeAction;
         return this;
     }
 
@@ -30,8 +30,8 @@ export class Page {
         return this._backButton;
     }
 
-    getBackButtonAction() {
-        return this._backButtonAction;
+    getRemoveAction() {
+        return this._removeAction;
     }
 
     getName() {

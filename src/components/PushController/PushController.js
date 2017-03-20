@@ -26,16 +26,26 @@ export default class PushController extends Component {
         this.notificationListner = FCM.on(FCMEvent.Notification, notif => {
             console.log("Notification", notif);
             if (notif.local_notification) {
+                if (notif.opened_from_tray && notif.game) {
+                    console.log("has game");
+                    this.props.goToGame(notif.game);
+                }
                 return;
             }
+
             if (notif.opened_from_tray) {
                 console.log("opened from tray");
                 if (notif.game) {
                     console.log("has game");
                     this.props.goToGame(notif.game);
                 }
+                return;
             }
-            this.showLocalNotification(notif);
+
+            if (!notif.game || notif.game !== this.props.game) {
+                console.log('display local notif:', notif);
+                this.showLocalNotification(notif);
+            }
         });
 
         this.refreshTokenListener = FCM.on(FCMEvent.RefreshToken, token => {
@@ -51,7 +61,8 @@ export default class PushController extends Component {
             priority: "high",
             click_action: notif.fcm.click_action,
             show_in_foreground: true,
-            lights: true
+            lights: true,
+            game: notif.game
         });
     }
 

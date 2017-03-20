@@ -5,7 +5,6 @@ import {
   endGame,
   resizeGameSurface,
   startListeningForGameUpdates,
-  stopListeningForGameUpdates,
   goToPage,
   suspendGame
 } from '../../actions/index';
@@ -52,14 +51,17 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+  listenForGameUpdates: () => {
+    dispatch(startListeningForGameUpdates());
+  },
+  suspendGame: gameKey => {
+    dispatch(suspendGame(gameKey));
+  },
   endGame: (gameKey, player) => {
     dispatch(endGame(gameKey, player));
   },
   resizeGameSurface: (width, height) => {
     resizeGameSurface(dispatch, width, height);
-  },
-  goToDashboard: () => {
-    dispatch(suspendGame());
   }
 });
 

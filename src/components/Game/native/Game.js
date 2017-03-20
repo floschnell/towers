@@ -12,6 +12,14 @@ import Arrow from '../../Arrow/native/Arrow';
 
 export default class Game extends React.Component {
 
+  componentWillMount() {
+    this.props.listenForGameUpdates(this.props.game);
+  }
+
+  componentWillUnmount() {
+    this.props.suspendGame(this.props.game);
+  }
+
   render() {
     const playerOneTowers = this.props.towerPositions[this.props.playerUIDs[0]];
     const playerTwoTowers = this.props.towerPositions[this.props.playerUIDs[1]];
@@ -47,12 +55,14 @@ export default class Game extends React.Component {
 
     const renderPlayer = () => 
       <View style={{flexGrow: 1, backgroundColor: 'black', justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{ color: 'white', fontSize: 22, textDecorationLine: this.props.myTurn ? 'underline': undefined }}>{this.props.player.name}</Text>
+        <Text style={{ color: 'white', fontSize: 22 }}>{this.props.player.name}</Text>
+        <Text style={{ color: 'white', fontSize: 14 }}>{this.props.myTurn ? 'about to move': 'is waiting ...'}</Text>
       </View>;
 
     const renderOpponent = () =>
       <View style={{flexGrow: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{ color: 'black', fontSize: 22, textDecorationLine: !this.props.myTurn ? 'underline': undefined }}>{this.props.opponent.name}</Text>
+        <Text style={{ color: 'black', fontSize: 22 }}>{this.props.opponent.name}</Text>
+        <Text style={{ color: 'black', fontSize: 14 }}>{this.props.myTurn ? 'is waiting ...': 'about to move'}</Text>
       </View>;
 
     const visualizeLastMoves = () => this.props.lastMoves.map(move =>

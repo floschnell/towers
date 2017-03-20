@@ -136,15 +136,11 @@ export function startListeningForGameUpdates(gameKey) {
     };
 }
 
-export function suspendGame() {
-    return (dispatch, getState) => {
-        const currentState = getState();
-        const currentGame = currentState.app.currentGame;
-
-        console.log(`suspending game: ${currentGame}`);
-        db.ref(`games/${currentGame}`).off();
+export function suspendGame(gameKey) {
+    return (dispatch) => {
+        console.log(`suspending game: ${gameKey}`);
+        db.ref(`games/${gameKey}`).off();
         dispatch(resumeGame(null));
-        dispatch(popPageUntil(PAGES.DASHBOARD));
     };
 }
 
@@ -166,8 +162,8 @@ export function loadGameFromKey(gameKey) {
                     const game = gameSnapshot.val();
                     const player = Game.getPlayer(game, currentState.app.player.uid);
                     const opponent = Game.getOpponent(game, currentState.app.player.uid);
-                    const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`).withBackButtonAction(() => {
-                        dispatch(suspendGame());
+                    const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`).whenRemoved(() => {
+                        dispatch(suspendGame(gamekey));
                     });
 
                     dispatch(resumeGame(gameKey));
@@ -398,7 +394,7 @@ export function startGame(playerUID, opponentUID, players) {
             });
         }).catch(err => {
             dispatch(endLoading());
-            console.log('Could not start game becouse:', err);
+            console.log('Could not start game because:', err);
         });
     };
 };
