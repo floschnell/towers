@@ -20,11 +20,11 @@ export default class Login extends React.Component {
 
     componentWillMount() {
         Keyboard.dismiss();
-        this.props.subscribeOnGameUpdates(this.props.player.uid);
+        this.props.subscribeOnGameUpdates(this.props.player.id);
     }
 
     componentWillUnmount() {
-        this.props.unsubscribeFromGameUpdates();
+        this.props.unsubscribeFromGameUpdates(this.props.player.id);
     }
 
     render() {

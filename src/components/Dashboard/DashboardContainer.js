@@ -23,17 +23,17 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    unsubscribeFromGameUpdates: playerUid => {
-        dispatch(stopListeningForGamelistUpdates(playerUid))
+    unsubscribeFromGameUpdates: playerID => {
+        dispatch(stopListeningForGamelistUpdates(playerID))
     },
-    subscribeOnGameUpdates: playerUid => {
-        dispatch(startListeningForGamelistUpdates(playerUid));
+    subscribeOnGameUpdates: playerID => {
+        dispatch(startListeningForGamelistUpdates(playerID));
     }, 
     chooseGame: gameKey => {
         dispatch(loadGameFromKey(gameKey));
     },
     startNewGame: () => {
-        dispatch(pushPage(PAGES.CREATE_GAME));
+        dispatch(pushPage(PAGES.CREATE_GAME.withTitle('Start New Game')));
     }
 });
 

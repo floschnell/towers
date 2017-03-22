@@ -8,4 +8,4 @@ const config = {
   };
 Firebase.initializeApp(config);
 
-export default Firebase.database();
+export default Firebase.database().ref('v1');

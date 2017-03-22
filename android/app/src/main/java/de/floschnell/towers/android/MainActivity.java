@@ -1,4 +1,4 @@
-package de.towers.android;
+package de.floschnell.towers.android;
 
 import com.facebook.react.ReactActivity;
 

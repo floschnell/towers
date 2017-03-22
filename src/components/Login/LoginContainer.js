@@ -11,8 +11,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    finalizeLogin: (email, password) => {
-        dispatch(login(email, password));
+    finalizeLogin: (id, password) => {
+        dispatch(login(id, password));
     },
     createAccount: () => {
         dispatch(pushPage(PAGES.REGISTRATION));

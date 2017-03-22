@@ -10,9 +10,9 @@ const mapStateToProps = (state) => ({
     isLoading: state.app.isLoading
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    startGame: (playerUID, opponentUID, players) => {
-        dispatch(startGame(playerUID, opponentUID, players))
+const mapDispatchToProps = dispatch => ({
+    startGame: (playerID, opponentID, players) => {
+        dispatch(startGame(playerID, opponentID, players))
     },
     searchForPlayers: searchStr => {
         dispatch(searchForPlayers(searchStr));

@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:80269606755:android:cf849a66dd3a3b1e",
+        "mobilesdk_app_id": "1:80269606755:android:e7fd85e95ec1358c",
         "android_client_info": {
-          "package_name": "de.towers.android"
+          "package_name": "de.floschnell.towers.android"
         }
       },
       "oauth_client": [

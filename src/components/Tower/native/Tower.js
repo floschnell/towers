@@ -41,7 +41,7 @@ export default class Tower extends React.Component {
         styles.transform = transforms;
 
         const onClick = event => {
-            this.props.clickOnTower(tower, this.props.playerUid);
+            this.props.clickOnTower(tower, this.props.playerID);
         }
 
         return <TouchableWithoutFeedback onPress={onClick.bind(this)}>

@@ -21,11 +21,11 @@ export default class Game extends React.Component {
   }
 
   render() {
-    const playerOneTowers = this.props.towerPositions[this.props.playerUIDs[0]];
-    const playerTwoTowers = this.props.towerPositions[this.props.playerUIDs[1]];
+    const playerOneTowers = this.props.towerPositions[this.props.playerIDs[0]];
+    const playerTwoTowers = this.props.towerPositions[this.props.playerIDs[1]];
     const gameHasEnded = this.props.won || this.props.lost;
     const endGame = () => {
-      this.props.endGame(this.props.game, this.props.playerUID);
+      this.props.endGame(this.props.game, this.props.playerID);
     };
 
     const renderEndOfGame = () => {

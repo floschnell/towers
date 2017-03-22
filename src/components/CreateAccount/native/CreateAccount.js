@@ -16,12 +16,6 @@ export default class CreateAccount extends React.Component {
     render() {
 
         const styles = StyleSheet.create({
-            container: {
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#F5FCFF',
-            },
             fieldContainer: {
                 margin: 5,
                 flexDirection: 'row',
@@ -47,12 +41,21 @@ export default class CreateAccount extends React.Component {
             this.props.createAccount(this.state.username, this.state.mail, this.state.password, this.state.repeatPassword);
         };
 
+        const changeUsername = username => {
+            this.setState({username});
+            this.props.checkUsername(username);
+        };
+
         return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <View style={styles.fieldContainer}>
                 <Text>Username: </Text>
                 <TextInput
-                    style={styles.inputField}
-                    onChangeText={username => this.setState({username})}
+                    style={{
+                        height: 40,
+                        width: 150,
+                        color: this.props.usernameValid ? 'green' : 'red'
+                    }}
+                    onChangeText={changeUsername.bind(this)}
                     value={this.state.username}
                 />
             </View>

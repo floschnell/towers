@@ -13,9 +13,9 @@ import db from '../../database';
 import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => {
-  const playerUIDs = Object.keys(state.game.players);
-  const thisPlayerUID = state.app.player.uid;
-  const opponentPlayerUID = getOpponent(thisPlayerUID, playerUIDs);
+  const playerIDs = Object.keys(state.game.players);
+  const playerID = state.app.player.id;
+  const opponentID = getOpponent(playerID, playerIDs);
   const targetRow = (playerA, playerB) => playerMoveDirection(playerA, [playerA, playerB]) === 1 ? 7 : 0;
   const size = state.app.surfaceWidth < state.app.surfaceHeight ? state.app.surfaceWidth : state.app.surfaceHeight;
 
@@ -33,20 +33,20 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   return { 
-    won: state.game.towerPositions[thisPlayerUID].some(tower => tower.y === targetRow(thisPlayerUID, opponentPlayerUID)),
-    lost: state.game.towerPositions[opponentPlayerUID].some(tower => tower.y === targetRow(opponentPlayerUID, thisPlayerUID)),
+    won: state.game.towerPositions[playerID].some(tower => tower.y === targetRow(playerID, opponentID)),
+    lost: state.game.towerPositions[opponentID].some(tower => tower.y === targetRow(opponentID, playerID)),
     game: state.app.currentGame,
-    playerUID: thisPlayerUID,
-    player: state.game.players[thisPlayerUID],
-    opponent: state.game.players[opponentPlayerUID],
-    playerUIDs: Object.keys(state.game.players),
+    playerID,
+    player: state.game.players[playerID],
+    opponent: state.game.players[opponentID],
+    playerIDs: Object.keys(state.game.players),
     towerPositions: state.game.towerPositions,
-    rotateBoard: thisPlayerUID < opponentPlayerUID,
-    myTurn: state.game.currentPlayer === thisPlayerUID,
+    rotateBoard: playerID < opponentID,
+    myTurn: state.game.currentPlayer === playerID,
     size,
     lastMoves,
     fieldSize: size / 8,
-    lastMoveByMe: lastMoves.length > 0 && thisPlayerUID === player
+    lastMoveByMe: lastMoves.length > 0 && playerID === player
   }
 };
 

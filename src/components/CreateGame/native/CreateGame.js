@@ -22,20 +22,22 @@ export default class CreateGame extends React.Component {
   
     render() {
         const renderPlayers = () => {
-            return Object.keys(this.props.players).map(opponentUID => {
-                const playerUID = this.props.player.uid;
+            return Object.keys(this.props.players).map(opponentID => {
+                const playerID = this.props.player.id;
                 const player = this.props.player;
-                const opponent = this.props.players[opponentUID];
+                const opponent = this.props.players[opponentID];
                 const startGameOnClick = () => {
-                    this.props.startGame(playerUID, opponentUID, {
-                        [playerUID]: player,
-                        [opponentUID]: opponent
+                    this.props.startGame(playerID, opponentID, {
+                        [playerID]: player,
+                        [opponentID]: opponent
                     });
                 };
 
-                return <View key={`${opponentUID}-view`} style={{margin: 5}}>
-                    <Button key={opponentUID} title={opponent.name} onPress={startGameOnClick} ></Button>
-                </View>;
+                if (playerID !== opponentID) {
+                    return <View key={`${opponentID}-view`} style={{margin: 5}}>
+                        <Button key={opponentID} title={opponent.name} onPress={startGameOnClick} ></Button>
+                    </View>;
+                }
             })
         };
 

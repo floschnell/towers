@@ -39,8 +39,7 @@ export default class Login extends React.Component {
             container: {
                 flex: 1,
                 justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#F5FCFF',
+                alignItems: 'center'
             },
             fieldContainer: {
                 margin: 5,
@@ -57,7 +56,7 @@ export default class Login extends React.Component {
             <View style={styles.container}>
                 <Text>Please log in to continue:</Text>
                 <View style={styles.fieldContainer}>
-                    <Text>E-Mail Address: </Text>
+                    <Text>Username: </Text>
                     <TextInput
                         style={styles.inputField}
                         onChangeText={(username) => this.setState({username})}
@@ -74,7 +73,7 @@ export default class Login extends React.Component {
                     />
                 </View>
                 <Button onPress={onLogin} title="Log In" color="#841584" />
-                <Text style={{textDecorationStyle: 'solid', color: 'blue', marginTop: 10}} onPress={onCreateAccount}>Not registered yet, click here</Text>
+                <Text style={{textDecorationStyle: 'solid', color: 'blue', marginTop: 25, textDecorationLine: 'underline'}} onPress={onCreateAccount}>Not registered yet? Create an account.</Text>
             </View>
         </View>;
     }

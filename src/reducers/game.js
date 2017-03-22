@@ -1,5 +1,4 @@
 import {ACTION_TYPES} from '../actions/index';
-import db from '../database';
 import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
 import Game from '../models/Game';
 
@@ -87,8 +86,8 @@ export default (state, action) => {
     switch (action.type) {
         
         case ACTION_TYPES.CLICK_ON_TOWER:
-        console.log(currentPlayer, action.playerUid);
-            if (currentPlayer === action.playerUid) {
+        console.log(currentPlayer, action.playerID);
+            if (currentPlayer === action.playerID) {
                 const towerOnField = action.tower;
                 if (typeof state.currentColor === 'undefined' || state.currentColor === null || towerOnField.color === state.currentColor) {
                     newState.selectedTower = action.tower;
@@ -97,7 +96,7 @@ export default (state, action) => {
             break;
         
         case ACTION_TYPES.CLICK_ON_FIELD:
-            if (currentPlayer === action.playerUid) {
+            if (currentPlayer === action.playerID) {
                 let towerToMove = null;
                 const targetField = action.field;
 
@@ -147,29 +146,44 @@ export default (state, action) => {
             
         case ACTION_TYPES.UPDATE_GAME:
             try {
+                const updatedState = Object.assign(newState, action.game);
                 const initialTowers = createInitialTowerPositions(Object.keys(action.game.players));
                 const moves = action.game.moves;
 
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
 
-                    if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
-                        throw 'Game state is invalid!';
-                    }
+                    Object.assign(updatedState, {
+                        towerPositions: finalTowers
+                    });
+                    return updatedState;
+                } else {
+                    Object.assign(updatedState, {
+                        towerPositions: initialTowers
+                    });
+                    return updatedState;
                 }
-
-                console.log('new game loaded!');
-                return Object.assign({}, action.game);
             } catch (e) {
                 alert(e);
                 console.error('Game could not be loaded! ', e);
             }
             return state;
+
+        case ACTION_TYPES.RESUME_GAME:
+            return Object.assign(newState, {
+                currentColor: undefined,
+                board: createInitialBoard(initialColors)
+            });
             
         case ACTION_TYPES.START_GAME:
             console.log('created game:', action.game);
-            return Object.assign({}, action.game);
-            
+            const newGameState = Object.assign({}, action.game);
+
+            return Object.assign(newGameState, {
+                board: createInitialBoard(initialColors),
+                towerPositions: createInitialTowerPositions(Object.keys(action.game.players))
+            });
+
         default:
 
     }

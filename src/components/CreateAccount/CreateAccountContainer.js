@@ -1,12 +1,13 @@
 import { connect } from 'react-redux';
 import CreateAccount from './native/CreateAccount';
-import { createAccount, goToPage } from '../../actions/index';
+import { createAccount, goToPage, checkUsername } from '../../actions/index';
 import { PAGES } from '../../models/Page';
 import db from '../../database';
 import firebase from 'firebase';
 
 const mapStateToProps = (state, ownProps) => ({
-    isLoading: state.app.isLoading
+    isLoading: state.app.isLoading,
+    usernameValid: state.app.usernameValid
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -27,6 +28,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
 
         dispatch(createAccount(username, email, password));
+    },
+    checkUsername: username => {
+        dispatch(checkUsername(username));
     },
     goBack: () => {
         dispatch(goToPage(PAGES.LOGIN));

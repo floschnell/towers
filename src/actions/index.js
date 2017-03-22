@@ -15,6 +15,7 @@ export const ACTION_TYPES = {
     END_LOADING: 'END_LOADING',
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
+    USERNAME_CHECKED: 'USERNAME_CHECKED',
     SET_PLAYER: 'SET_PLAYER',
     UPDATE_GAMES: 'UPDATE_GAMES',
     RESUME_GAME: 'RESUME_GAME',
@@ -29,14 +30,23 @@ export const ACTION_TYPES = {
 let gamelistSubscriptionRef = null;
 let gameSubscriptionRef = null;
 
+export function checkUsername(playerName) {
+    return dispatch => {
+        const playerID = playerName.toLowerCase();
+
+        db.child(`players/${playerID}`)
+        .once('value')
+        .then(playerSnapshot => {
+                dispatch(usernameChecked(!playerSnapshot.exists()));
+        });
+    };  
+}
+
 export function updateToken(token) {
     return (dispatch, getState) => {
         const state = getState();
 
         dispatch(setToken(token));
-        if (state.app.player) {
-            db.ref(`players/${state.app.player.uid}/token`).set(token);
-        }
     };
 }
 
@@ -44,6 +54,13 @@ const setToken = token => ({
     type: ACTION_TYPES.UPDATE_TOKEN,
     token
 });
+
+export function usernameChecked(result) {
+    return {
+        type: ACTION_TYPES.USERNAME_CHECKED,
+        result
+    };
+}
 
 /**
  * @param {Page} page 
@@ -106,19 +123,24 @@ export function logout() {
     };
 }
 
-export function login(email, password) {
+export function login(id, password) {
     return dispatch => {
         dispatch(startLoading('Authenticating ...'));
 
-        firebase.auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(user => {
-            dispatch(endLoading());
+        db.child(`players/${id.toLowerCase()}`).once('value').then(playerSnapshot => {
+            if (!playerSnapshot.exists()) {
+                throw 'This player does not exist!';
+            }
+
+            firebase.auth()
+            .signInWithEmailAndPassword(playerSnapshot.val().mail, password)
+            .then(user => {
+                dispatch(endLoading());
+            }).catch(error => {
+                throw error.message;
+            });
         }).catch(error => {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            alert(errorMessage);
+            alert(error);
             dispatch(endLoading());
         });
     };
@@ -126,7 +148,8 @@ export function login(email, password) {
 
 export function startListeningForGameUpdates(gameKey) {
     return dispatch => {
-        db.ref(`games/${gameKey}`).on('value', snapshot => {
+        db.child(`games/${gameKey}`)
+          .on('value', snapshot => {
             const gameState = snapshot.val();
 
             if (gameState !== null) {
@@ -139,14 +162,14 @@ export function startListeningForGameUpdates(gameKey) {
 export function suspendGame(gameKey) {
     return (dispatch) => {
         console.log(`suspending game: ${gameKey}`);
-        db.ref(`games/${gameKey}`).off();
+        db.child(`games/${gameKey}`).off();
         dispatch(resumeGame(null));
     };
 }
 
 export function stopListeningForGameUpdates(gameKey) {
     return dispatch => () => {
-        db.ref(`games/${gameKey}`).off();
+        db.child(`games/${gameKey}`).off();
     };
 }
 
@@ -155,13 +178,13 @@ export function loadGameFromKey(gameKey) {
         const currentState = getState();
 
         dispatch(startLoading(`Resuming game ...`));
-        db.ref(`games/${gameKey}`)
+        db.child(`games/${gameKey}`)
             .once('value')
             .then(gameSnapshot => {
                 if (gameSnapshot.exists()) {
                     const game = gameSnapshot.val();
-                    const player = Game.getPlayer(game, currentState.app.player.uid);
-                    const opponent = Game.getOpponent(game, currentState.app.player.uid);
+                    const player = Game.getPlayer(game, currentState.app.player.id);
+                    const opponent = Game.getOpponent(game, currentState.app.player.id);
                     const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`).whenRemoved(() => {
                         dispatch(suspendGame(gamekey));
                     });
@@ -175,52 +198,62 @@ export function loadGameFromKey(gameKey) {
     };
 }
 
-export function startListeningForGamelistUpdates(playerUid) {
+export function startListeningForGamelistUpdates(playerID) {
     return dispatch => {
-        const playerGamesRef = db.ref(`players/${playerUid}/games`);
+        const playerGamesRef = db.child(`players/${playerID}/games`);
         
-        gamelistSubscriptionRef = playerGamesRef.on('value', snapshot => {
+        playerGamesRef.on('value', snapshot => {
             const games = snapshot.val() || {};
             dispatch(updateGames(games));
         });
     }
 }
 
-export function stopListeningForGamelistUpdates(playerUid) {
+export function stopListeningForGamelistUpdates(playerID) {
     return dispatch => {
-        if (gamelistSubscriptionRef) {
-            const playerGamesRef = db.ref(`players/${playerUid}/games`);
+        const playerGamesRef = db.child(`players/${playerID}/games`);
 
-            playerGamesRef.off('value', gamelistSubscriptionRef);
-        }
+        playerGamesRef.off('value');
     };
 }
 
 export function createAccount(username, email, password) {
      return dispatch => {
+        const playerID = username.toLowerCase()
         const playerObj = {
             name: username,
-            searchName: username.toLowerCase()
+            mail: email
         };
 
         dispatch(startLoading());
-        firebase.auth().createUserWithEmailAndPassword(email, password).then(result => {
-            const playerRef = db.ref(`players/${result.uid}`);
-            
-            return playerRef.set(playerObj);
-        }).then(() => {
-            const user = firebase.auth().currentUser;
-            playerObj.uid = user.uid;
 
-            dispatch(setPlayer(playerObj, user));
-            dispatch(endLoading());
-        }).catch(error => {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            alert(`Unknown error: ${errorCode} ${errorMessage}`);
-            dispatch(endLoading());
-        });
+        db.child(`players/${playerID}`)
+            .once('value')
+            .then(snapshot => {
+                return !snapshot.exists();
+            }).then(valid => {
+                if (valid) {
+                    return firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .then(user => {
+                        const playerRef = db.child(`players/${playerID}`);
+                        playerObj.uid = user.uid;
+                        
+                        return playerRef.set(playerObj);
+                    }).then(playerSnapshot => {
+                        dispatch(setPlayer(playerObj));
+                    })
+                } else {
+                    alert('Username is already taken.');
+                    return Promise.resolve();
+                }
+            }).catch(error => {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                alert(`Unknown error: ${errorCode} ${errorMessage}`);
+            }).then(() => {
+                dispatch(endLoading());
+            });
     };
 }
 
@@ -237,40 +270,46 @@ export function endLoading() {
     };
 }
 
-export const clickOnTower = (tower, playerUid, currentGame) => ({
+export const clickOnTower = (tower, playerID, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_TOWER,
     tower,
-    playerUid,
+    playerID,
     currentGame
 });
 
-export function clickOnField(field, playerUid, opponentUid, currentGame) {
+export function clickOnField(field, playerID, opponentID, currentGame) {
     return (dispatch, getState) => {
         const oldState = getState();
-        dispatch(clickedOnField(field, playerUid, currentGame));
+        dispatch(clickedOnField(field, playerID, currentGame));
         const newState = getState();
 
         if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
-            db.ref(`games/${currentGame}`)
-            .update(newState.game)
-            .then(() => [playerUid, opponentUid].map(uid => 
-                db.ref(`players/${uid}/games/${currentGame}/currentPlayer`).set(newState.game.currentPlayer)
+            const game = {
+                currentColor: newState.game.currentColor,
+                currentPlayer: newState.game.currentPlayer,
+                players: newState.game.players,
+                moves: newState.game.moves
+            };
+
+            db.child(`games/${currentGame}`)
+            .update(game)
+            .then(() => [playerID, opponentID].map(id => 
+                db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
             ));
         }
     };
 }
 
-export const clickedOnField = (field, playerUid, currentGame) => ({
+export const clickedOnField = (field, playerID, currentGame) => ({
     type: ACTION_TYPES.CLICK_ON_FIELD,
     field,
-    playerUid,
+    playerID,
     currentGame
 });
 
-export const setPlayer = (player, user) => ({
+export const setPlayer = player => ({
     type: ACTION_TYPES.SET_PLAYER,
-    player,
-    user
+    player
 });
 
 export const updateGames = games => ({
@@ -290,31 +329,40 @@ export const gameStarted = game => ({
 
 export function waitForLogin() {
     return (dispatch, getState) => {
+        const state = getState();
+
         firebase.auth().onAuthStateChanged(user => {
-            console.log('auth change: ', user);
+            console.debug('auth change: ', user);
             if (user) {
                 dispatch(startLoading('We are logging you back in ...'));
-                db.ref(`players/${user.uid}`)
-                    .once('value')
-                    .then(snapshot => {
-                    const dbUser = snapshot.val();
-                    dbUser.uid = user.uid;
-                    const state = getState();
+                db.child('players').orderByChild('uid').equalTo(user.uid).once('value').then(playerSnapshot => {
+                    if (!playerSnapshot.exists()) {
+                        throw 'Player does not exist!';
+                    }
 
-                    console.log('setting user: ', dbUser);
-                    dispatch(setPlayer(dbUser, user));
+                    const matchingPlayers = Object.keys(playerSnapshot.val());
+                    if (matchingPlayers.length > 1) {
+                        throw 'There exists more than one player with that UID!';
+                    }
+                    const playerID = matchingPlayers[0];
+                    const player = Object.assign(playerSnapshot.val()[playerID], {
+                        id: playerID
+                    });
+                    console.debug('setting user: ', player);
+                    dispatch(setPlayer(player));
                     dispatch(endLoading());
-                    dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${dbUser.name}`)))
-                    console.log('you got logged in');
+                    dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)))
+                    console.debug('you got logged in');
 
                     if (state.app.token) {
-                        db.ref(`players/${user.uid}/token`).set(state.app.token).then(() => {
+                        db.child(`players/${playerID}/token`).set(state.app.token).then(() => {
                             console.debug('set app token on player.');
                         });
                     }
-                }).catch(err => {
+                }).catch(e => {
+                    dispatch(endLoading());
                     firebase.auth().signOut();
-                    console.log('login failed:', err);
+                    alert('Could not log you in because: ' + e);
                 });
             } else {
                 dispatch(setPlayer(null))
@@ -323,31 +371,30 @@ export function waitForLogin() {
     }
 }
 
-export function startGame(playerUID, opponentUID, players) {
+export function startGame(playerID, opponentID, players) {
     return dispatch => {
-        dispatch(startLoading(`starting game against ${players[opponentUID].name}`));
+
+        dispatch(startLoading(`starting game against ${players[opponentID].name}`));
 
         const playersCopy = {};
-        for (uid in players) {
+        for (id in players) {
             Object.assign(playersCopy, {
-                [uid]: {
-                    name: players[uid].name
+                [id]: {
+                    name: players[id].name
                 }
             });
         }
-        console.log('playerscopy: ', playersCopy);
+        console.debug('playerscopy: ', playersCopy);
 
         const newGame = {
             players: playersCopy,
-            currentPlayer: playerUID,
-            moves: [],
-            board: createInitialBoard(initialColors),
-            towerPositions: createInitialTowerPositions(Object.keys(players))
+            currentPlayer: playerID,
+            moves: []
         };
         const gameName = getGameKey(newGame);
-        const playerRef = db.ref(`players/${playerUID}`);
-        const opponentRef = db.ref(`players/${opponentUID}`);
-        const gameRef = db.ref(`games/${gameName}`);
+        const playerRef = db.child(`players/${playerID}`);
+        const opponentRef = db.child(`players/${opponentID}`);
+        const gameRef = db.child(`games/${gameName}`);
 
         return Promise.all([
             opponentRef.once('value'),
@@ -384,12 +431,12 @@ export function startGame(playerUID, opponentUID, players) {
             }
 
             gameRef.set(newGame).then(() => Promise.all([
-                db.ref(`players/${playerUID}/games`).transaction(updatePlayerGames),
-                db.ref(`players/${opponentUID}/games`).transaction(updatePlayerGames)
+                db.child(`players/${playerID}/games`).transaction(updatePlayerGames),
+                db.child(`players/${opponentID}/games`).transaction(updatePlayerGames)
             ])).then(() => {
                 dispatch(gameStarted(newGame));
                 dispatch(endLoading());
-                dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerUID].name} vs ${players[opponentUID].name}`)));
+                dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerID].name} vs ${players[opponentID].name}`)));
             });
         }).catch(err => {
             dispatch(endLoading());
@@ -405,26 +452,21 @@ export const updateGame = game => ({
 
 export function searchForPlayers(searchStr) {
     return dispatch => {
-        const currentUser = firebase.auth().currentUser;
         const searchStart = searchStr.toLowerCase();
         const searchEnd = `${searchStart}\uf8ff`;
 
-        db.ref('players')
-            .orderByChild('searchName')
-            .startAt(searchStart)
-            .endAt(searchEnd)
-            .once('value')
-            .then(snapshot => {
-                if (snapshot.exists()) {
-                    const playersObj = snapshot.val();
-                    if (playersObj[currentUser.uid]) {
-                        delete playersObj[currentUser.uid];
-                    }
-                    dispatch(updatePlayers(searchStr, playersObj));
-                } else {
-                    dispatch(updatePlayers(searchStr, []));
-                }
-            });
+        db.child('players')
+        .orderByKey()
+        .startAt(searchStart)
+        .endAt(searchEnd)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                dispatch(updatePlayers(searchStr, snapshot.val()));
+            } else {
+                dispatch(updatePlayers(searchStr, []));
+            }
+        });
     }
 }
 
@@ -446,8 +488,8 @@ export const resizeGameSurface = (width, height) => ({
 
 export function endGame(gameKey, player) {
     return dispatch => {
-        const gameRef = db.ref(`games/${gameKey}`);
-        const playerGameRef = db.ref(`players/${player}/games/${gameKey}`);
+        const gameRef = db.child(`games/${gameKey}`);
+        const playerGameRef = db.child(`players/${player}/games/${gameKey}`);
         
         // do not receive updates on this game anymore
         gameRef.off();
@@ -460,7 +502,7 @@ export function endGame(gameKey, player) {
             playerGameRef.remove();
 
             // if opponent still has game
-            return db.ref(`players/${opponent}/games/${gameKey}`).once('value').then(val => {
+            return db.child(`players/${opponent}/games/${gameKey}`).once('value').then(val => {
                 if (val.exists()) {
                     if (game.currentPlayer === player) {
                         gameRef.child('currentPlayer').set(opponent);

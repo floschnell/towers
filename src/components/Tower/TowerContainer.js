@@ -13,15 +13,15 @@ const mapStateToProps = (state, ownProps) => {
                 && state.game.selectedTower.x === tower.x
                 && state.game.selectedTower.y === tower.y) || !state.game.selectedTower)
                 && tower.belongsToPlayer === state.game.currentPlayer,
-    playerUid: state.app.player.uid,
-    belongsToMe: state.app.player.uid === tower.belongsToPlayer
+    playerID: state.app.player.id,
+    belongsToMe: state.app.player.id === tower.belongsToPlayer
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  clickOnTower: (tower, playerUid) => {
+  clickOnTower: (tower, playerID) => {
     console.log('click on tower!');
-    dispatch(clickOnTower(tower, playerUid));
+    dispatch(clickOnTower(tower, playerID));
   }
 });
 

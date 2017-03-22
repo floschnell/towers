@@ -6,6 +6,7 @@ export default (state, action) => {
     
     if (typeof state === 'undefined') {
         return {
+            usernameValid: false,
             token: null,
             isLoading: false,
             loadingMessage: '',
@@ -22,6 +23,12 @@ export default (state, action) => {
     }
     
     switch (action.type) {
+
+        case ACTION_TYPES.USERNAME_CHECKED:
+            return Object.assign(state, {
+                usernameValid: action.result
+            }); 
+
         case ACTION_TYPES.UPDATE_TOKEN:
             return Object.assign(state, {
                 token: action.token
@@ -80,10 +87,9 @@ export default (state, action) => {
             
         case ACTION_TYPES.SET_PLAYER:
             const test = Object.assign(state, {
-                player: action.player,
-                user: action.user
+                player: action.player
             });
-            console.log('new app state:', test);
+            console.debug('new app state:', test);
             return test;
             
         case ACTION_TYPES.RESUME_GAME:
