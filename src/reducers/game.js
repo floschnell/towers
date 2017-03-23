@@ -75,7 +75,8 @@ export default (state, action) => {
             currentColor: null,
             selectedTower: null,
             moves: [],
-            towerPositions: createInitialTowerPositions(Object.keys(initialPlayers))
+            towerPositions: createInitialTowerPositions(Object.keys(initialPlayers)),
+            valid: true
         };
     }
     
@@ -154,24 +155,26 @@ export default (state, action) => {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
 
                     Object.assign(updatedState, {
-                        towerPositions: finalTowers
+                        towerPositions: finalTowers,
+                        valid: true
                     });
                     return updatedState;
                 } else {
                     Object.assign(updatedState, {
-                        towerPositions: initialTowers
+                        towerPositions: initialTowers,
+                        valid: true
                     });
                     return updatedState;
                 }
             } catch (e) {
-                alert(e);
-                console.error('Game could not be loaded! ', e);
+                newState.valid = false;
+                return newState;
             }
-            return state;
 
         case ACTION_TYPES.RESUME_GAME:
             return Object.assign(newState, {
                 currentColor: undefined,
+                moves: [],
                 board: createInitialBoard(initialColors)
             });
             

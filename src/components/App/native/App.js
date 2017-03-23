@@ -15,7 +15,9 @@ import {
     Alert,
     BackAndroid,
     StatusBar,
-    ActivityIndicator
+    ActivityIndicator,
+    Modal,
+    ToastAndroid
 } from 'react-native';
 
 import firebase from 'firebase';
@@ -83,8 +85,6 @@ export default class App extends React.Component {
             return <DashboardContainer />;
 
         } else if (PAGES.GAME.equals(this.props.currentPage) && loggedIn) {
-            const windowDimensions = Dimensions.get('window');
-
             return <GameContainer />;
 
         } else if (PAGES.CREATE_GAME.equals(this.props.currentPage) && loggedIn) {
@@ -122,14 +122,23 @@ export default class App extends React.Component {
         const windowDimensions = Dimensions.get('window');
 
         this.props.resizeGameSurface(windowDimensions.width, windowDimensions.height - 44 - StatusBar.currentHeight);
-    };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.message) {
+            ToastAndroid.show(nextProps.message, 2000);
+            nextProps.clearMessage();
+        }
+    }
 
     renderActivityIndicator() {
         if (this.props.isLoading) {
-            return <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            return <Modal onRequestClose={() => false} transparent={true}>
+                <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
                 <ActivityIndicator size="large" />
                 <Text>{this.props.loadingMessage}</Text>
-            </View>;
+                </View>
+            </Modal>;
         } else {
             return null;
         }

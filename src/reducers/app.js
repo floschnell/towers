@@ -18,6 +18,7 @@ export default (state, action) => {
             surfaceWidth: 0,
             surfaceHeight: 0,
             surfaceMinSize: 0,
+            message: null,
             pageStack: [PAGES.LOGIN]
         };
     }
@@ -119,6 +120,15 @@ export default (state, action) => {
                 surfaceHeight: action.surfaceHeight,
                 surfaceSize: (action.surfaceWidth < action.surfaceHeight) ? action.surfaceWidth : action.surfaceHeight 
             });
+
+        case ACTION_TYPES.SHOW_MESSAGE:
+            return Object.assign(state, {
+                message: action.message
+            });
+
+        case ACTION_TYPES.CLEAR_MESSAGE:
+            delete state.message;
+            return state;
             
         default:
             return state;

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     StyleSheet,
-    View,
+    View
 } from 'react-native';
 
 export default class Arrow extends React.Component {
@@ -17,7 +17,7 @@ export default class Arrow extends React.Component {
         const offsetY = Math.sin(rad) * distance / 2;
         const offsetX = (distance + Math.cos(rad) * distance) / 2;
 
-        return <View style={{
+        return <View pointerEvents="none" style={{
             position: 'absolute',
             width: distance,
             height: this.props.width,

@@ -49,16 +49,16 @@ export default class Login extends React.Component {
         const renderGames = () => Object.keys(this.props.games).map(gameKey => {
             console.log('games:', this.props.games);
             const game = this.props.games[gameKey];
-            const playerUIDs = Object.keys(game.players);
-            const playerUID = this.props.player.uid;
-            const opponentUID = getOpponent(playerUID, playerUIDs);
-            const opponentName = game.players[opponentUID].name;
+            const playerIDs = Object.keys(game.players);
+            const playerID = this.props.player.id;
+            const opponentID = getOpponent(playerID, playerIDs);
+            const opponentName = game.players[opponentID].name;
             const chooseGame = () => {
                 if (!this.props.isLoading) {
                     this.props.chooseGame(gameKey);
                 }
             };
-            const myTurn = game.currentPlayer === playerUID;
+            const myTurn = game.currentPlayer === playerID;
             const turnDesc = myTurn ? '(your turn)' : '(waiting)';
 
             return <View key={gameKey+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={`button-${gameKey}`} onPress={chooseGame} title={`You vs. ${opponentName} ${turnDesc}`}></Button></View>

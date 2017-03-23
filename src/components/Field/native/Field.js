@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableWithoutFeedback, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 
 export default class Field extends React.Component {
   render() {
@@ -9,14 +9,13 @@ export default class Field extends React.Component {
 
     const styles = {
       backgroundColor: this.getColor(this.props.color),
-      opacity: 0.9,
       width: fieldSize,
       height: fieldSize
     };
     
     const onClick = this.props.onClick.bind(null, this.props.playerID, this.props.opponentID, this.props.currentGame);
     
-    return <TouchableWithoutFeedback onPress={onClick}><View style={styles}></View></TouchableWithoutFeedback>;
+    return <TouchableOpacity activeOpacity={0.5} onPress={onClick}><View style={styles}></View></TouchableOpacity>;
   }
 
   getColor(colorCode) {

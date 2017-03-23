@@ -46,15 +46,15 @@ export default class CreateGame extends React.Component {
         };
 
         return <View style={{flex: 1, flexDirection: 'column'}}>
-            <View style={{zIndex: 1, flexGrow: 0, alignItems: 'center', alignSelf: 'stretch', flexDirection: 'row'}}>
-                <Text style={{padding: 5, paddingLeft: 10}}>Search for Opponent: </Text>
-                <TextInput style={{flexGrow: 1}}
-                        onChangeText={searchStr => {
-                            this.setState({searchStr});
-                            this.props.searchForPlayers(searchStr);
-                        }}
-                        value={this.state.searchStr}
-                    />
+                <View style={{flexGrow: 0, alignItems: 'center', flexDirection: 'row'}}>
+                    <Text style={{padding: 5, paddingLeft: 10}}>Search for Opponent: </Text>
+                    <TextInput style={{flexGrow: 1}}
+                            onChangeText={searchStr => {
+                                this.setState({searchStr});
+                                this.props.searchForPlayers(searchStr);
+                            }}
+                            value={this.state.searchStr}
+                        />
                 </View>
                 <ScrollView style={{ flexGrow: 1 }}>
                     {renderPlayers()}

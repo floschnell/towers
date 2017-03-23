@@ -24,7 +24,9 @@ export const ACTION_TYPES = {
     START_SEARCH_FOR_PLAYERS: 'START_SEARCH_FOR_PLAYERS',
     UPDATE_PLAYERS: 'UPDATE_PLAYERS',
     GAME_ENDED: 'GAME_ENDED',
-    RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE'
+    RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE',
+    SHOW_MESSAGE: 'SHOW_MESSAGE',
+    CLEAR_MESSAGE: 'CLEAR_MESSAGE'
 };
 
 let gamelistSubscriptionRef = null;
@@ -109,6 +111,15 @@ export function initializeWithPage(page) {
     };
 }
 
+export const showMessage = message => ({
+    type: ACTION_TYPES.SHOW_MESSAGE,
+    message
+});
+
+export const clearMessage = () => ({
+    type: ACTION_TYPES.CLEAR_MESSAGE
+});
+
 export function logout() {
     return dispatch => {
         dispatch(startLoading('Logging out ...'));
@@ -192,7 +203,13 @@ export function loadGameFromKey(gameKey) {
                     dispatch(resumeGame(gameKey));
                     dispatch(updateGame(game));
                     dispatch(endLoading());
-                    dispatch(pushPage(gamePage));
+
+                    const gameState = getState().game;
+                    if (gameState.valid) {
+                        dispatch(pushPage(gamePage));
+                    } else {
+                        dispatch(showMessage('Game is not in a valid state!'))
+                    }
                 }
         })
     };
@@ -296,6 +313,8 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
             .then(() => [playerID, opponentID].map(id => 
                 db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
             ));
+        } else {
+            dispatch(showMessage('Move is not valid.'));
         }
     };
 }
@@ -427,7 +446,7 @@ export function startGame(playerID, opponentID, players) {
                 throw 'Player does not exist in database!';
             }
             if (game.exists()) {
-                throw 'Game exists already!';
+                throw `You are already playing against ${opponent.val().name}!`;
             }
 
             gameRef.set(newGame).then(() => Promise.all([
@@ -439,8 +458,8 @@ export function startGame(playerID, opponentID, players) {
                 dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerID].name} vs ${players[opponentID].name}`)));
             });
         }).catch(err => {
+            dispatch(showMessage(err));
             dispatch(endLoading());
-            console.log('Could not start game because:', err);
         });
     };
 };
