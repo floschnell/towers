@@ -63,6 +63,13 @@ export const createInitialBoard = (colors) => colors.map((row, index) =>
     )
 );
 
+export const MOVE_RESULTS = {
+    OK: 'OK',
+    NOT_YOUR_TURN: 'NOT_YOUR_TURN',
+    INVALID: 'INVALID',
+    NO_TOWER_SELECTED: 'NO_TOWER_SELECTED'
+};
+
 export default (state, action) => {
     
     if (typeof(state) === "undefined") {
@@ -76,7 +83,8 @@ export default (state, action) => {
             selectedTower: null,
             moves: [],
             towerPositions: createInitialTowerPositions(Object.keys(initialPlayers)),
-            valid: true
+            valid: true,
+            moveResult: MOVE_RESULTS.OK
         };
     }
     
@@ -133,7 +141,7 @@ export default (state, action) => {
                         if (!newState.moves) newState.moves = [];
                         newState.moves.push(move);
                     } catch (e) {
-                        console.log('move has failed, resetting ...', e);
+                        newState.moveResult = MOVE_RESULTS.INVALID;
                         newState.currentPlayer = currentPlayer;
                         if (currentColor) {
                             newState.currentColor = currentColor;
@@ -141,7 +149,11 @@ export default (state, action) => {
                         newState.selectedTower = towerToMove;
                         newState.towerPositions = copyTowers(state.towerPositions);
                     }
+                } else {
+                    newState.moveResult = MOVE_RESULTS.NO_TOWER_SELECTED;
                 }
+            } else {
+                newState.moveResult = MOVE_RESULTS.NOT_YOUR_TURN;
             }
             break;
             
@@ -153,10 +165,12 @@ export default (state, action) => {
 
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
+                    const currentColor = moves[moves.length - 1].targetField.color;
 
                     Object.assign(updatedState, {
                         towerPositions: finalTowers,
-                        valid: true
+                        valid: true,
+                        currentColor
                     });
                     return updatedState;
                 } else {
@@ -172,8 +186,10 @@ export default (state, action) => {
             }
 
         case ACTION_TYPES.RESUME_GAME:
+            delete newState.currentColor;
+
             return Object.assign(newState, {
-                currentColor: undefined,
+                selectedTower: undefined,
                 moves: [],
                 board: createInitialBoard(initialColors)
             });
@@ -183,6 +199,8 @@ export default (state, action) => {
             const newGameState = Object.assign({}, action.game);
 
             return Object.assign(newGameState, {
+                currentColor: undefined,
+                selectedTower: undefined,
                 board: createInitialBoard(initialColors),
                 towerPositions: createInitialTowerPositions(Object.keys(action.game.players))
             });

@@ -1,5 +1,5 @@
 import db from '../database';
-import { createInitialBoard, createInitialTowerPositions, initialColors, getGameKey } from '../reducers/game';
+import { getGameKey, MOVE_RESULTS } from '../reducers/game';
 import firebase from 'firebase';
 import Game from '../models/Game';
 import { PAGES } from '../models/Page';
@@ -122,14 +122,11 @@ export const clearMessage = () => ({
 
 export function logout() {
     return dispatch => {
-        dispatch(startLoading('Logging out ...'));
+        dispatch(initializeWithPage(PAGES.LOGIN.withTitle('Welcome to Towers')));
         firebase.auth().signOut().then(() => {
-            dispatch(setPlayer(null, null));
-            dispatch(initializeWithPage(PAGES.LOGIN));
+            dispatch(setPlayer(null));
         }).catch(e => {
             console.error('Could not log out user, because: ', e);
-        }).then(() => {
-            dispatch(endLoading());
         });
     };
 }
@@ -190,8 +187,8 @@ export function loadGameFromKey(gameKey) {
 
         dispatch(startLoading(`Resuming game ...`));
         db.child(`games/${gameKey}`)
-            .once('value')
-            .then(gameSnapshot => {
+        .once('value')
+        .then(gameSnapshot => {
                 if (gameSnapshot.exists()) {
                     const game = gameSnapshot.val();
                     const player = Game.getPlayer(game, currentState.app.player.id);
@@ -202,7 +199,6 @@ export function loadGameFromKey(gameKey) {
 
                     dispatch(resumeGame(gameKey));
                     dispatch(updateGame(game));
-                    dispatch(endLoading());
 
                     const gameState = getState().game;
                     if (gameState.valid) {
@@ -211,7 +207,11 @@ export function loadGameFromKey(gameKey) {
                         dispatch(showMessage('Game is not in a valid state!'))
                     }
                 }
-        })
+        }).catch(e => {
+            dispatch(showMessage(e));
+        }).then(() => {
+            dispatch(endLoading());
+        });
     };
 }
 
@@ -314,7 +314,15 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
                 db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
             ));
         } else {
-            dispatch(showMessage('Move is not valid.'));
+            if (newState.game.moveResult === MOVE_RESULTS.NOT_YOUR_TURN) {
+                dispatch(showMessage(`It's not your turn.`));
+            } else if (newState.game.moveResult === MOVE_RESULTS.INVALID) {
+                dispatch(showMessage('Move is not valid.'));
+            } else if (newState.game.moveResult === MOVE_RESULTS.NO_TOWER_SELECTED) {
+                dispatch(showMessage('Select a tower first.'));
+            } else {
+                dispatch(showMessage('No way.'));
+            }
         }
     };
 }
@@ -454,12 +462,12 @@ export function startGame(playerID, opponentID, players) {
                 db.child(`players/${opponentID}/games`).transaction(updatePlayerGames)
             ])).then(() => {
                 dispatch(gameStarted(newGame));
-                dispatch(endLoading());
                 dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerID].name} vs ${players[opponentID].name}`)));
+                dispatch(endLoading());
             });
         }).catch(err => {
-            dispatch(showMessage(err));
             dispatch(endLoading());
+            dispatch(showMessage(err));
         });
     };
 };
