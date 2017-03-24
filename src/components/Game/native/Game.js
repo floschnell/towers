@@ -65,28 +65,33 @@ export default class Game extends React.Component {
         <Text style={{ color: 'black', fontSize: 14 }}>{this.props.myTurn ? 'is waiting ...': 'about to move'}</Text>
       </View>;
 
-    const visualizeLastMoves = () => this.props.lastMoves.map(move =>
-      <Arrow
+    const visualizeLastMoves = () => this.props.lastMoves.map(move => {
+      const sourceX = this.props.rotateBoard ? 7 - move.sourceField.x : move.sourceField.x;
+      const sourceY = this.props.rotateBoard ? 7 - move.sourceField.y : move.sourceField.y;
+      const targetX = this.props.rotateBoard ? 7 - move.targetField.x : move.targetField.x;
+      const targetY = this.props.rotateBoard ? 7 - move.targetField.y : move.targetField.y;
+
+      return <Arrow
           key={`move-${move.sourceField.x}x${move.sourceField.y}y-${move.targetField.x}x${move.targetField.y}y`}
-          fromX={move.sourceField.x * this.props.fieldSize + this.props.fieldSize / 2}
-          fromY={move.sourceField.y * this.props.fieldSize + this.props.fieldSize / 2}
-          toX={move.targetField.x * this.props.fieldSize + this.props.fieldSize / 2}
-          toY={move.targetField.y * this.props.fieldSize + this.props.fieldSize / 2}
+          fromX={sourceX * this.props.fieldSize + this.props.fieldSize / 2}
+          fromY={sourceY * this.props.fieldSize + this.props.fieldSize / 2}
+          toX={targetX * this.props.fieldSize + this.props.fieldSize / 2}
+          toY={targetY * this.props.fieldSize + this.props.fieldSize / 2}
           width={10}
           color={this.props.lastMoveByMe ? 'black' : 'white'}
       />
-    );
+    });
 
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'stretch' }}>
-    {renderOpponent()}
-      <View style={{width: this.props.size, height: this.props.size, transform: [ getTransform() ]}}>
-        <BoardContainer size={this.props.size} />
-        {visualizeLastMoves()}
-        <TowerSetContainer towers={playerOneTowers} size={this.props.size} />
-        <TowerSetContainer towers={playerTwoTowers} size={this.props.size} />
-        </View>
-        {renderPlayer()}
-        {renderEndOfGame()}
-    </View>;
+              {renderOpponent()}
+              <View style={{width: this.props.size, height: this.props.size}}>
+                  <BoardContainer size={this.props.size} reverse={this.props.rotateBoard} />
+                  {visualizeLastMoves()}
+                  <TowerSetContainer towers={playerOneTowers} size={this.props.size} reverse={this.props.rotateBoard} />
+                  <TowerSetContainer towers={playerTwoTowers} size={this.props.size} reverse={this.props.rotateBoard} />
+              </View>
+              {renderPlayer()}
+              {renderEndOfGame()}
+          </View>;
   }
 }
