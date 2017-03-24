@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import {
+    View,
+    TouchableOpacity
+} from 'react-native';
 
 export default class Tower extends React.Component {
 
@@ -44,11 +47,9 @@ export default class Tower extends React.Component {
             this.props.clickOnTower(tower, this.props.playerID);
         }
 
-        return <TouchableWithoutFeedback onPress={onClick.bind(this)}>
-            <View style={styles}>
-                {renderActiveMark()}
-            </View>
-        </TouchableWithoutFeedback>
+        return <TouchableOpacity activeOpacity={0.5} onPress={onClick.bind(this)} style={styles}>
+            {renderActiveMark()}
+        </TouchableOpacity>
     }
 
     getColor(colorCode) {

@@ -133,7 +133,7 @@ export default class App extends React.Component {
 
     renderActivityIndicator() {
         if (this.props.isLoading) {
-            return <Modal animationType={'fade'} onRequestClose={() => false} transparent={true}>
+            return <Modal animationType={'fade'} onRequestClose={this.props.cancelLoading.bind(this)} transparent={true}>
                 <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
                 <ActivityIndicator size="large" />
                 <Text>{this.props.loadingMessage}</Text>

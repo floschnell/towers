@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import App from './native/App.js';
 import db from '../../database.js';
-import { setPlayer, waitForLogin, logout, popPage, resizeGameSurface, clearMessage } from '../../actions/index';
+import { setPlayer, waitForLogin, logout, popPage, resizeGameSurface, clearMessage, cancelLoading } from '../../actions/index';
 import firebase from 'firebase';
 
 const mapStateToProps = (state) => ({
@@ -29,6 +29,9 @@ const mapDispatchToProps = (dispatch) => ({
     },
     clearMessage: () => {
         dispatch(clearMessage());
+    },
+    cancelLoading: () => {
+        dispatch(cancelLoading())
     }
 });
 

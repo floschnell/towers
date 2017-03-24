@@ -1,4 +1,4 @@
-import {ACTION_TYPES} from '../actions/index';
+import { ACTION_TYPES, MOVE_RESULTS } from '../actions/index';
 import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
 import Game from '../models/Game';
 
@@ -62,13 +62,6 @@ export const createInitialBoard = (colors) => colors.map((row, index) =>
         }
     )
 );
-
-export const MOVE_RESULTS = {
-    OK: 'OK',
-    NOT_YOUR_TURN: 'NOT_YOUR_TURN',
-    INVALID: 'INVALID',
-    NO_TOWER_SELECTED: 'NO_TOWER_SELECTED'
-};
 
 export default (state, action) => {
     

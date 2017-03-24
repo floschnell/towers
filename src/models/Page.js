@@ -4,7 +4,6 @@ export class Page {
         this._name = name;
         this._title = '';
         this._backButton = null;
-        this._removeAction = null;
     }
 
     withTitle(title) {
@@ -17,21 +16,12 @@ export class Page {
         return this;
     }
 
-    whenRemoved(removeAction) {
-        this._removeAction = removeAction;
-        return this;
-    }
-
     getTitle() {
         return this._title;
     }
 
     getBackButton() {
         return this._backButton;
-    }
-
-    getRemoveAction() {
-        return this._removeAction;
     }
 
     getName() {

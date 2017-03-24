@@ -1,7 +1,6 @@
 import db from '../database';
-import { getGameKey, MOVE_RESULTS } from '../reducers/game';
-import firebase from 'firebase';
 import Game from '../models/Game';
+import firebase from 'firebase';
 import { PAGES } from '../models/Page';
 
 export const ACTION_TYPES = {
@@ -26,7 +25,15 @@ export const ACTION_TYPES = {
     GAME_ENDED: 'GAME_ENDED',
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE',
     SHOW_MESSAGE: 'SHOW_MESSAGE',
-    CLEAR_MESSAGE: 'CLEAR_MESSAGE'
+    CLEAR_MESSAGE: 'CLEAR_MESSAGE',
+    CANCEL_LOADING: 'CANCEL_LOADING'
+};
+
+export const MOVE_RESULTS = {
+    OK: 'OK',
+    NOT_YOUR_TURN: 'NOT_YOUR_TURN',
+    INVALID: 'INVALID',
+    NO_TOWER_SELECTED: 'NO_TOWER_SELECTED'
 };
 
 let gamelistSubscriptionRef = null;
@@ -63,6 +70,10 @@ export function usernameChecked(result) {
         result
     };
 }
+
+export const cancelLoading = () => ({
+    type: ACTION_TYPES.CANCEL_LOADING
+})
 
 /**
  * @param {Page} page 
@@ -132,10 +143,15 @@ export function logout() {
 }
 
 export function login(id, password) {
-    return dispatch => {
-        dispatch(startLoading('Authenticating ...'));
+    return (dispatch, getState) => {
+        const orderID = Date.now();
 
+        dispatch(startLoading('Authenticating ...', orderID));
         db.child(`players/${id.toLowerCase()}`).once('value').then(playerSnapshot => {
+            if (!getState().app.loadingOrderID === orderID) {
+                return;
+            }
+
             if (!playerSnapshot.exists()) {
                 throw 'This player does not exist!';
             }
@@ -183,30 +199,32 @@ export function stopListeningForGameUpdates(gameKey) {
 
 export function loadGameFromKey(gameKey) {
     return (dispatch, getState) => {
-        const currentState = getState();
+        const orderID = Date.now();
 
-        dispatch(startLoading(`Resuming game ...`));
+        dispatch(startLoading(`Resuming game ...`, orderID));
         db.child(`games/${gameKey}`)
         .once('value')
         .then(gameSnapshot => {
-                if (gameSnapshot.exists()) {
-                    const game = gameSnapshot.val();
-                    const player = Game.getPlayer(game, currentState.app.player.id);
-                    const opponent = Game.getOpponent(game, currentState.app.player.id);
-                    const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`).whenRemoved(() => {
-                        dispatch(suspendGame(gamekey));
-                    });
+            const currentState = getState();
 
-                    dispatch(resumeGame(gameKey));
-                    dispatch(updateGame(game));
+            if (gameSnapshot.exists() && currentState.app.loadingOrderID === orderID) {
+                const game = gameSnapshot.val();
+                const player = Game.getPlayer(game, currentState.app.player.id);
+                const opponent = Game.getOpponent(game, currentState.app.player.id);
+                const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
 
-                    const gameState = getState().game;
-                    if (gameState.valid) {
-                        dispatch(pushPage(gamePage));
-                    } else {
-                        dispatch(showMessage('Game is not in a valid state!'))
-                    }
+                dispatch(resumeGame(gameKey));
+                dispatch(updateGame(game));
+
+                const gameState = getState().game;
+                if (gameState.valid) {
+                    dispatch(pushPage(gamePage));
+                } else {
+                    dispatch(showMessage('Game is not in a valid state!'))
                 }
+            } else {
+                console.debug('does not match order id.');
+            }
         }).catch(e => {
             dispatch(showMessage(e));
         }).then(() => {
@@ -242,7 +260,7 @@ export function createAccount(username, email, password) {
             mail: email
         };
 
-        dispatch(startLoading());
+        dispatch(startLoading(`Creating account ${username}`));
 
         db.child(`players/${playerID}`)
             .once('value')
@@ -274,10 +292,11 @@ export function createAccount(username, email, password) {
     };
 }
 
-export function startLoading(message) {
+export function startLoading(message, orderID) {
     return {
         type: ACTION_TYPES.START_LOADING,
-        message
+        message,
+        orderID
     };
 }
 
@@ -362,17 +381,17 @@ export function waitForLogin() {
             console.debug('auth change: ', user);
             if (user) {
                 dispatch(startLoading('We are logging you back in ...'));
-                db.child('players').orderByChild('uid').equalTo(user.uid).once('value').then(playerSnapshot => {
-                    if (!playerSnapshot.exists()) {
+                db.child('players').orderByChild('uid').equalTo(user.uid).once('value').then(playersSnapshot => {
+                    if (!playersSnapshot.exists()) {
                         throw 'Player does not exist!';
                     }
 
-                    const matchingPlayers = Object.keys(playerSnapshot.val());
+                    const matchingPlayers = Object.keys(playersSnapshot.val());
                     if (matchingPlayers.length > 1) {
                         throw 'There exists more than one player with that UID!';
                     }
                     const playerID = matchingPlayers[0];
-                    const player = Object.assign(playerSnapshot.val()[playerID], {
+                    const player = Object.assign(playersSnapshot.val()[playerID], {
                         id: playerID
                     });
                     console.debug('setting user: ', player);
@@ -418,7 +437,7 @@ export function startGame(playerID, opponentID, players) {
             currentPlayer: playerID,
             moves: []
         };
-        const gameName = getGameKey(newGame);
+        const gameName = Game.getKey(newGame);
         const playerRef = db.child(`players/${playerID}`);
         const opponentRef = db.child(`players/${opponentID}`);
         const gameRef = db.child(`games/${gameName}`);

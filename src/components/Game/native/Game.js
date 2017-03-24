@@ -41,18 +41,6 @@ export default class Game extends React.Component {
       }
     }
 
-    const getTransform = () => {
-      if (this.props.rotateBoard) {
-        return {
-          rotate: '180deg'
-        };
-      } else {
-        return {
-          rotate: '0deg'
-        };
-      }
-    };
-
     const renderPlayer = () => 
       <View style={{flexGrow: 1, backgroundColor: 'black', justifyContent: 'center', alignItems: 'center'}}>
         <Text style={{ color: 'white', fontSize: 22 }}>{this.props.player.name}</Text>

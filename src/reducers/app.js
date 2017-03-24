@@ -1,5 +1,5 @@
-import {ACTION_TYPES} from '../actions/index';
-import {getGameKey} from './game';
+import { ACTION_TYPES } from '../actions/index';
+import { getGameKey } from './game';
 import { PAGES } from '../models/Page';
 
 export default (state, action) => {
@@ -10,6 +10,7 @@ export default (state, action) => {
             token: null,
             isLoading: false,
             loadingMessage: '',
+            loadingOrderID: 0,
             players: [],
             games: {},
             player: null,
@@ -73,13 +74,20 @@ export default (state, action) => {
         case ACTION_TYPES.START_LOADING:
            return Object.assign(state, {
                 isLoading: true,
-                loadingMessage: action.message
+                loadingMessage: action.message,
+                loadingOrderID: action.orderID
             });
 
         case ACTION_TYPES.END_LOADING:
            return Object.assign(state, {
                 isLoading: false
-            }); 
+            });
+
+        case ACTION_TYPES.CANCEL_LOADING:
+            return Object.assign(state, {
+                isLoading: false,
+                loadingMessage: null
+            });
 
         case ACTION_TYPES.UPDATE_GAMES:
             return Object.assign(state, {
