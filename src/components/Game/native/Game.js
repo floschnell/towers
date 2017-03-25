@@ -9,12 +9,9 @@ import {
 import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import Arrow from '../../Arrow/native/Arrow';
+import { TUTORIAL_MESSAGE_POSITION } from '../../../tutorial';
 
 export default class Game extends React.Component {
-
-  componentWillMount() {
-    this.props.listenForGameUpdates(this.props.game);
-  }
 
   componentWillUnmount() {
     this.props.suspendGame(this.props.game);
@@ -70,6 +67,24 @@ export default class Game extends React.Component {
       />
     });
 
+    const renderTutorialMessage = () => {
+      console.debug('message pos', this.props.tutorialMessagePosition);
+      const messageTop = this.props.tutorialMessagePosition === TUTORIAL_MESSAGE_POSITION.BOARD_EDGE ?
+        this.props.marginSize / 2 + this.props.fieldSize + 10 :
+        10;
+
+      if (this.props.tutorialMessage) {
+        return <View style={{position: 'absolute', borderRadius: 5, padding: 5, top: messageTop, left: 10, right: 10, backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
+          <Text style={{color: 'black', paddingBottom: 5}}>{this.props.tutorialMessage}</Text>
+          {this.props.tutorialContinueOnMessageClick ?
+            <Button onPress={this.props.nextTutorialStep} title="Continue" color="blue"></Button> : null
+          }
+        </View>
+      } else {
+        return null;
+      }
+    };
+
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'stretch' }}>
               {renderOpponent()}
               <View style={{width: this.props.size, height: this.props.size}}>
@@ -79,6 +94,7 @@ export default class Game extends React.Component {
                   <TowerSetContainer towers={playerTwoTowers} size={this.props.size} reverse={this.props.rotateBoard} />
               </View>
               {renderPlayer()}
+              {renderTutorialMessage()}
               {renderEndOfGame()}
           </View>;
   }

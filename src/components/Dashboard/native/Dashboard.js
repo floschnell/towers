@@ -47,7 +47,7 @@ export default class Login extends React.Component {
         });
 
         const renderGames = () => Object.keys(this.props.games).map(gameKey => {
-            console.log('games:', this.props.games);
+            console.debug('games:', this.props.games);
             const game = this.props.games[gameKey];
             const playerIDs = Object.keys(game.players);
             const playerID = this.props.player.id;
@@ -83,7 +83,8 @@ export default class Login extends React.Component {
 
         return <View style={{ flex: 1 }}>
             <View style={{ padding: 5 }}>
-                <Button onPress={() => this.props.startNewGame()} title="Start New Game" color="red" ></Button>
+                <Button onPress={this.props.playTutorial.bind(null, this.props.player)} title="Play Tutorial" color="green" ></Button>
+                <Button onPress={this.props.startNewGame} title="Start New Game" color="red" ></Button>
             </View>
             {renderGamelist()}
         </View>;

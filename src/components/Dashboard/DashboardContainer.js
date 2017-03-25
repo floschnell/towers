@@ -1,16 +1,17 @@
 import { connect } from 'react-redux';
 import Dashboard from './native/Dashboard';
 import db from '../../database.js';
-import { pushPage } from '../../actions/index';
 
 import {
+    pushPage,
     resumeGame,
     updateGame,
     startLoading,
     endLoading,
     startListeningForGamelistUpdates,
     stopListeningForGamelistUpdates,
-    loadGameFromKey
+    loadGameFromKey,
+    launchTutorial
 } from '../../actions/index';
 
 import { PAGES } from '../../models/Page';
@@ -23,6 +24,9 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    playTutorial: player => {
+        dispatch(launchTutorial(player));
+    },
     unsubscribeFromGameUpdates: playerID => {
         dispatch(stopListeningForGamelistUpdates(playerID))
     },

@@ -151,7 +151,7 @@ export default class GameLogic {
             }
         };
 
-        console.log(player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
+        console.debug('evaluating move:', towers, player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
 
         return towerIsOnSource
             && targetIsFree

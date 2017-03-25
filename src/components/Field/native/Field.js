@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
+import { getColor } from '../../../utils';
 
 export default class Field extends React.Component {
   render() {
@@ -8,7 +9,7 @@ export default class Field extends React.Component {
     const fieldSize = this.props.surfaceSize / 8;
 
     const styles = {
-      backgroundColor: this.getColor(this.props.color),
+      backgroundColor: getColor(this.props.color),
       width: fieldSize,
       height: fieldSize
     };
@@ -16,20 +17,6 @@ export default class Field extends React.Component {
     const onClick = this.props.onClick.bind(null, this.props.playerID, this.props.opponentID, this.props.currentGame);
     
     return <TouchableOpacity activeOpacity={0.5} onPress={onClick}><View style={styles}></View></TouchableOpacity>;
-  }
-
-  getColor(colorCode) {
-    const colors = [
-      'orange',
-      'blue',
-      'purple',
-      'pink',
-      'yellow',
-      'red',
-      'green',
-      'brown'
-    ];
-    return colors[colorCode];
   }
 }
 

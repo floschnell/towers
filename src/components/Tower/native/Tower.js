@@ -3,6 +3,7 @@ import {
     View,
     TouchableOpacity
 } from 'react-native';
+import { getColor } from '../../../utils';
 
 export default class Tower extends React.Component {
 
@@ -18,7 +19,7 @@ export default class Tower extends React.Component {
             top: this.props.y * this.props.size + this.props.size * 0.2,
             width: this.props.size * 0.6,
             height: this.props.size * 0.6,
-            backgroundColor: this.getColor(tower.color),
+            backgroundColor: getColor(tower.color),
             borderColor: color
         };
         const transforms = [];
@@ -50,20 +51,6 @@ export default class Tower extends React.Component {
         return <TouchableOpacity activeOpacity={0.5} onPress={onClick.bind(this)} style={styles}>
             {renderActiveMark()}
         </TouchableOpacity>
-    }
-
-    getColor(colorCode) {
-        const colors = [
-            'orange',
-            'blue',
-            'purple',
-            'pink',
-            'yellow',
-            'red',
-            'green',
-            'brown'
-        ];
-        return colors[colorCode];
     }
 }
 

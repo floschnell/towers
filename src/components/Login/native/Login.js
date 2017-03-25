@@ -5,10 +5,11 @@ import {
     View,
     TextInput,
     Button,
-    ActivityIndicator
+    ActivityIndicator,
+    Keyboard
 } from 'react-native';
 import dismissKeyboard from 'dismissKeyboard';
-import { Actions } from 'react-native-router-flux';
+import { AUTH_STATE } from '../../../actions/index'
 
 export default class Login extends React.Component {
 
@@ -51,6 +52,17 @@ export default class Login extends React.Component {
                 width: 150
             }
         });
+
+        if (this.props.authState === AUTH_STATE.INITIALIZING || this.props.authState === AUTH_STATE.PENDING) {
+            return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <ActivityIndicator size="large" />
+                {
+                    this.props.authState === AUTH_STATE.INITIALIZING ?
+                    <Text>Initializing ...</Text> :
+                    <Text>We are logging you back in ...</Text>
+                }
+            </View>
+        }
 
         return <View style={{flex: 1}}>
             <View style={styles.container}>

@@ -15,7 +15,9 @@ export const ACTION_TYPES = {
     CLICK_ON_TOWER: 'CLICK_ON_TOWER',
     CLICK_ON_FIELD: 'CLICK_ON_FIELD',
     USERNAME_CHECKED: 'USERNAME_CHECKED',
-    SET_PLAYER: 'SET_PLAYER',
+    AUTHENTICATE: 'AUTHENTICATE',
+    AUTHENTICATION_IN_PROGRESS: 'AUTHENTICATION_IN_PROGRESS',
+    DEAUTHENTICATE: 'DEAUTHENTICATE',
     UPDATE_GAMES: 'UPDATE_GAMES',
     RESUME_GAME: 'RESUME_GAME',
     START_GAME: 'START_GAME',
@@ -26,7 +28,16 @@ export const ACTION_TYPES = {
     RESIZE_GAME_SURFACE: 'RESIZE_GAME_SURFACE',
     SHOW_MESSAGE: 'SHOW_MESSAGE',
     CLEAR_MESSAGE: 'CLEAR_MESSAGE',
-    CANCEL_LOADING: 'CANCEL_LOADING'
+    CANCEL_LOADING: 'CANCEL_LOADING',
+    LAUNCH_TUTORIAL: 'LAUNCH_TUTORIAL',
+    NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP'
+};
+
+export const AUTH_STATE = {
+    INITIALIZING: 'INITIALIZING',
+    PENDING: 'PENDING',
+    AUTHENTICATED: 'AUTHENTICATED',
+    UNAUTHENTICATED: 'UNAUTHENTICATED'
 };
 
 export const MOVE_RESULTS = {
@@ -38,6 +49,15 @@ export const MOVE_RESULTS = {
 
 let gamelistSubscriptionRef = null;
 let gameSubscriptionRef = null;
+
+export const launchTutorial = player => ({
+    type: ACTION_TYPES.LAUNCH_TUTORIAL,
+    player
+});
+
+export const nextTutorialStep = () => ({
+    type: ACTION_TYPES.NEXT_TUTORIAL_STEP
+});
 
 export function checkUsername(playerName) {
     return dispatch => {
@@ -135,7 +155,7 @@ export function logout() {
     return dispatch => {
         dispatch(initializeWithPage(PAGES.LOGIN.withTitle('Welcome to Towers')));
         firebase.auth().signOut().then(() => {
-            dispatch(setPlayer(null));
+            dispatch(deauthenticate());
         }).catch(e => {
             console.error('Could not log out user, because: ', e);
         });
@@ -146,7 +166,7 @@ export function login(id, password) {
     return (dispatch, getState) => {
         const orderID = Date.now();
 
-        dispatch(startLoading('Authenticating ...', orderID));
+        dispatch(authenticationInProgress());
         db.child(`players/${id.toLowerCase()}`).once('value').then(playerSnapshot => {
             if (!getState().app.loadingOrderID === orderID) {
                 return;
@@ -156,16 +176,14 @@ export function login(id, password) {
                 throw 'This player does not exist!';
             }
 
-            firebase.auth()
+            return firebase
+            .auth()
             .signInWithEmailAndPassword(playerSnapshot.val().mail, password)
-            .then(user => {
-                dispatch(endLoading());
-            }).catch(error => {
-                throw error.message;
-            });
+            .catch(error =>  {throw error.message});
+
         }).catch(error => {
-            alert(error);
-            dispatch(endLoading());
+            dispatch(deauthenticate());
+            dispatch(showMessage(error));
         });
     };
 }
@@ -215,6 +233,7 @@ export function loadGameFromKey(gameKey) {
 
                 dispatch(resumeGame(gameKey));
                 dispatch(updateGame(game));
+                dispatch(startListeningForGameUpdates(gameKey));
 
                 const gameState = getState().game;
                 if (gameState.valid) {
@@ -320,18 +339,22 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
         const newState = getState();
 
         if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
-            const game = {
-                currentColor: newState.game.currentColor,
-                currentPlayer: newState.game.currentPlayer,
-                players: newState.game.players,
-                moves: newState.game.moves
-            };
 
-            db.child(`games/${currentGame}`)
-            .update(game)
-            .then(() => [playerID, opponentID].map(id => 
-                db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
-            ));
+            // only save game if it is not a tutorial
+            if (!oldState.game.isTutorial) {
+                const game = {
+                    currentColor: newState.game.currentColor,
+                    currentPlayer: newState.game.currentPlayer,
+                    players: newState.game.players,
+                    moves: newState.game.moves
+                };
+
+                db.child(`games/${currentGame}`)
+                .update(game)
+                .then(() => [playerID, opponentID].map(id => 
+                    db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
+                ));
+            }
         } else {
             if (newState.game.moveResult === MOVE_RESULTS.NOT_YOUR_TURN) {
                 dispatch(showMessage(`It's not your turn.`));
@@ -339,8 +362,6 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
                 dispatch(showMessage('Move is not valid.'));
             } else if (newState.game.moveResult === MOVE_RESULTS.NO_TOWER_SELECTED) {
                 dispatch(showMessage('Select a tower first.'));
-            } else {
-                dispatch(showMessage('No way.'));
             }
         }
     };
@@ -353,9 +374,17 @@ export const clickedOnField = (field, playerID, currentGame) => ({
     currentGame
 });
 
-export const setPlayer = player => ({
-    type: ACTION_TYPES.SET_PLAYER,
+export const authenticate = player => ({
+    type: ACTION_TYPES.AUTHENTICATE,
     player
+});
+
+export const deauthenticate = () => ({
+    type: ACTION_TYPES.DEAUTHENTICATE
+});
+
+export const authenticationInProgress = () => ({
+    type: ACTION_TYPES.AUTHENTICATION_IN_PROGRESS
 });
 
 export const updateGames = games => ({
@@ -380,7 +409,7 @@ export function waitForLogin() {
         firebase.auth().onAuthStateChanged(user => {
             console.debug('auth change: ', user);
             if (user) {
-                dispatch(startLoading('We are logging you back in ...'));
+                dispatch(authenticationInProgress());
                 db.child('players').orderByChild('uid').equalTo(user.uid).once('value').then(playersSnapshot => {
                     if (!playersSnapshot.exists()) {
                         throw 'Player does not exist!';
@@ -395,8 +424,7 @@ export function waitForLogin() {
                         id: playerID
                     });
                     console.debug('setting user: ', player);
-                    dispatch(setPlayer(player));
-                    dispatch(endLoading());
+                    dispatch(authenticate(player));
                     dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)))
                     console.debug('you got logged in');
 
@@ -406,12 +434,12 @@ export function waitForLogin() {
                         });
                     }
                 }).catch(e => {
-                    dispatch(endLoading());
+                    dispatch(deauthenticate())
                     firebase.auth().signOut();
-                    alert('Could not log you in because: ' + e);
+                    dispatch(showMessage('Could not log you in.'));
                 });
             } else {
-                dispatch(setPlayer(null))
+                dispatch(deauthenticate());
             }
         });
     }
@@ -482,6 +510,7 @@ export function startGame(playerID, opponentID, players) {
             ])).then(() => {
                 dispatch(gameStarted(newGame));
                 dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerID].name} vs ${players[opponentID].name}`)));
+                dispatch(startListeningForGameUpdates(newGame));
                 dispatch(endLoading());
             });
         }).catch(err => {
@@ -533,7 +562,13 @@ export const resizeGameSurface = (width, height) => ({
 });
 
 export function endGame(gameKey, player) {
-    return dispatch => {
+    return (dispatch, getState) => {
+        const currentState = getState();
+        if (currentState.game.isTutorial) {
+            dispatch(popPage())
+            return;
+        }
+
         const gameRef = db.child(`games/${gameKey}`);
         const playerGameRef = db.child(`players/${player}/games/${gameKey}`);
         

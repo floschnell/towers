@@ -6,8 +6,7 @@ import { login, pushPage } from '../../actions/index';
 import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
-    isLoading: state.app.isLoading,
-    loadingMessage: state.app.loadingMessage
+    authState: state.app.authState
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

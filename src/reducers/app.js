@@ -1,4 +1,4 @@
-import { ACTION_TYPES } from '../actions/index';
+import { ACTION_TYPES, AUTH_STATE } from '../actions/index';
 import { getGameKey } from './game';
 import { PAGES } from '../models/Page';
 
@@ -20,11 +20,18 @@ export default (state, action) => {
             surfaceHeight: 0,
             surfaceMinSize: 0,
             message: null,
-            pageStack: [PAGES.LOGIN]
+            pageStack: [PAGES.LOGIN],
+            authState: AUTH_STATE.INITIALIZING
         };
     }
     
     switch (action.type) {
+
+        case ACTION_TYPES.LAUNCH_TUTORIAL:
+            const gamePage = PAGES.GAME.withTitle('Tutorial');
+            return Object.assign(state, {
+                pageStack: state.pageStack.concat(gamePage)
+            });
 
         case ACTION_TYPES.USERNAME_CHECKED:
             return Object.assign(state, {
@@ -86,7 +93,8 @@ export default (state, action) => {
         case ACTION_TYPES.CANCEL_LOADING:
             return Object.assign(state, {
                 isLoading: false,
-                loadingMessage: null
+                loadingMessage: null,
+                loadingOrderID: 0
             });
 
         case ACTION_TYPES.UPDATE_GAMES:
@@ -94,12 +102,22 @@ export default (state, action) => {
                 games: action.games
             });
             
-        case ACTION_TYPES.SET_PLAYER:
-            const test = Object.assign(state, {
-                player: action.player
+        case ACTION_TYPES.AUTHENTICATE:
+            return Object.assign(state, {
+                player: action.player,
+                authState: AUTH_STATE.AUTHENTICATED
             });
-            console.debug('new app state:', test);
-            return test;
+
+        case ACTION_TYPES.AUTHENTICATION_IN_PROGRESS:
+            return Object.assign(state, {
+                authState: AUTH_STATE.PENDING
+            });
+
+        case ACTION_TYPES.DEAUTHENTICATE:
+            return Object.assign(state, {
+                player: null,
+                authState: AUTH_STATE.UNAUTHENTICATED
+            });
             
         case ACTION_TYPES.RESUME_GAME:
             return Object.assign(state, {

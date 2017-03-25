@@ -6,7 +6,8 @@ import {
   resizeGameSurface,
   startListeningForGameUpdates,
   goToPage,
-  suspendGame
+  suspendGame,
+  nextTutorialStep
 } from '../../actions/index';
 import { playerMoveDirection, getOpponent } from '../../gamelogic.js';
 import db from '../../database';
@@ -18,6 +19,7 @@ const mapStateToProps = (state, ownProps) => {
   const opponentID = getOpponent(playerID, playerIDs);
   const targetRow = (playerA, playerB) => playerMoveDirection(playerA, [playerA, playerB]) === 1 ? 7 : 0;
   const size = state.app.surfaceWidth < state.app.surfaceHeight ? state.app.surfaceWidth : state.app.surfaceHeight;
+  const marginSize = state.app.surfaceWidth < state.app.surfaceHeight ? state.app.surfaceHeight - state.app.surfaceWidth : state.app.surfaceWidth - state.app.surfaceHeight;
 
   const lastMoves = [];
   let player = null;
@@ -44,9 +46,13 @@ const mapStateToProps = (state, ownProps) => {
     rotateBoard: playerID < opponentID,
     myTurn: state.game.currentPlayer === playerID,
     size,
+    marginSize,
     lastMoves,
     fieldSize: size / 8,
-    lastMoveByMe: lastMoves.length > 0 && playerID === player
+    lastMoveByMe: lastMoves.length > 0 && playerID === player,
+    tutorialMessage: state.game.tutorial.message,
+    tutorialContinueOnMessageClick: state.game.tutorial.continueOnMessageClick,
+    tutorialMessagePosition: state.game.tutorial.messagePosition
   }
 };
 
@@ -63,6 +69,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
   resizeGameSurface: (width, height) => {
     resizeGameSurface(dispatch, width, height);
+  },
+  nextTutorialStep: () => {
+    dispatch(nextTutorialStep())
   }
 });
 
