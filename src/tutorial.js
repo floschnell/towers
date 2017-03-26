@@ -1,6 +1,7 @@
 import Game from './models/Game';
 import { getColor } from './utils';
 import GameLogic from './gamelogic';
+import { MOVE_RESULTS } from './actions/index';
 
 export const TUTORIAL_MESSAGE_POSITION = {
     TOP: 'TOP',
@@ -20,10 +21,10 @@ export function nextTutorialState(gameState) {
             gameState.tutorial.message = `Every game starts off like this.
                                     The player who started the game makes the first move.
                                     The black rectangles (towers) are yours. The color inside the rectangles determine the color of the tower.
-                                    Initially the towers are standing on fields with same color.
+                                    Initially your towers are standing on fields with same color on your board side.
                                     Because it is the first move, you will be free to choose which of your towers you want to move.
 
-                                    Click on one of your towers to continue`.replace(/\s+/g, ' ');
+                                    Click on one of your towers to continue.`.replace(/\s+/g, ' ');
             gameState.tutorial.continueOnTowerClick = true;
             gameState.tutorial.continueOnFieldClick = false;
             gameState.tutorial.continueOnMessageClick = false;
@@ -31,7 +32,8 @@ export function nextTutorialState(gameState) {
         case 1:
         gameState.tutorial.messagePosition = TUTORIAL_MESSAGE_POSITION.BOARD_EDGE;
             gameState.tutorial.message = `Towers can only move straight and diagonally and only upwards the board.
-                                        Also they cannot move past obstacles like the board edges or other towers.
+                                        Also they cannot move past obstacles (like the board edges or other towers).
+                                        The game ends as soon as one player is able to move one of his own towers at the other player's board side.
                                         Choose a valid target field for your tower to continue.`.replace(/\s+/g, ' ');
             gameState.tutorial.continueOnTowerClick = false;
             gameState.tutorial.continueOnFieldClick = true;
@@ -40,10 +42,12 @@ export function nextTutorialState(gameState) {
         case 2:
             gameState.tutorial.messagePosition = TUTORIAL_MESSAGE_POSITION.BOARD_EDGE;
             const fieldColor = getColor(gameState.moves[gameState.moves.length - 1].targetField.color);
-
-            gameState.tutorial.message = `You made your first move. The color of the field that you placed your tower on,
-                                        determines what tower your opponent will have to move next. Because you moved
-                                        your tower on a ${fieldColor} field, your opponents ${fieldColor} tower is now marked active.`.replace(/\s+/g, ' ');
+            gameState.currentPlayer = computerID;
+            gameState.tutorial.message = `You made your first move.
+                                        The line gives a visual hint which tower has recently been moved.
+                                        The color of the field that you placed your tower on,
+                                        determines what tower your opponent will have to move next.
+                                        Because you moved your tower on a ${fieldColor} field, your opponents ${fieldColor} tower is now marked active.`.replace(/\s+/g, ' ');
             gameState.tutorial.continueOnTowerClick = false;
             gameState.tutorial.continueOnFieldClick = false;
             gameState.tutorial.continueOnMessageClick = true;
@@ -85,24 +89,43 @@ export function nextTutorialState(gameState) {
             gameState.tutorial.continueOnMessageClick = false;
             break;
         case 4:
-            const shouldField = getPlayerField(7, 3);
-            const isField = gameState.moves[gameState.moves.length - 1].targetField;
-            console.log('should', shouldField, 'but is', isField);
-            if (isField.x === shouldField.x && isField.y === shouldField.y) {
+            const shouldFieldFirst = getPlayerField(7, 3);
+            const isFieldFirst = gameState.moves[gameState.moves.length - 1].targetField;
+            console.log('should', shouldFieldFirst, 'but is', isFieldFirst);
+            if (isFieldFirst.x === shouldFieldFirst.x && isFieldFirst.y === shouldFieldFirst.y) {
                 gameState.tutorial.message = `Awesome! You are one move away from winning the game.
-                                              Go ahead and win the game.
+                                              The game is one as soon, as you reach the other side of the board.
                                               After that, you can go and find some real players!`.replace(/\s+/g, ' ');
             } else {
                 gameState.tutorial.step--;
                 nextTutorialState(gameState);
                 gameState.tutorial.step--;
-                gameState.tutorial.message = `Try again. You should aim for a yellow field, so that your opponent will not be able to move.`.replace(/\s+/g, ' ');
+                gameState.tutorial.message = `Try again. Aim for a yellow field, so that your opponent will not be able to move.`.replace(/\s+/g, ' ');
+            }
+            gameState.tutorial.continueOnTowerClick = false;
+            gameState.tutorial.continueOnFieldClick = true;
+            gameState.tutorial.continueOnMessageClick = false;
+            break;
+        case 5:
+            const shouldFieldSecond = getPlayerField(4, 0);
+            const isFieldSecond = gameState.moves[gameState.moves.length - 1].targetField;
+            console.log('should', shouldFieldSecond, 'but is', isFieldSecond);
+            if (isFieldSecond.x !== shouldFieldSecond.x || isFieldSecond.y !== shouldFieldSecond.y) {
+                gameState.tutorial.step--;
+                gameState.moves.pop();
+                gameState.towerPositions = GameLogic.executeMoves(initialTowers, gameState.moves);
+                gameState.currentPlayer = playerID;
+                gameState.currentColor = 4;
+                gameState.tutorial.message = `This was not what I was expecting. You are one move away from defeating your opponent.
+                                              Finish the game by reaching the other board side with one of your towers.`.replace(/\s+/g, ' ');
             }
             gameState.tutorial.continueOnTowerClick = false;
             gameState.tutorial.continueOnFieldClick = true;
             gameState.tutorial.continueOnMessageClick = false;
             break;
     }
+
+    gameState.moveResult = MOVE_RESULTS.OK;
     gameState.tutorial.step++;
     console.debug('tutorial step:', gameState.tutorial.step);
 }

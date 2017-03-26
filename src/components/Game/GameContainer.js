@@ -50,6 +50,7 @@ const mapStateToProps = (state, ownProps) => {
     lastMoves,
     fieldSize: size / 8,
     lastMoveByMe: lastMoves.length > 0 && playerID === player,
+    inTutorial: state.game.isTutorial,
     tutorialMessage: state.game.tutorial.message,
     tutorialContinueOnMessageClick: state.game.tutorial.continueOnMessageClick,
     tutorialMessagePosition: state.game.tutorial.messagePosition

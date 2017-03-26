@@ -125,6 +125,7 @@ export default (state, action) => {
                             nextTutorialState(newState);
                         }
                     } catch (e) {
+                        console.debug('move is invalid: ', e);
                         newState.moveResult = MOVE_RESULTS.INVALID;
                         newState.currentPlayer = currentPlayer;
                         if (currentColor) {

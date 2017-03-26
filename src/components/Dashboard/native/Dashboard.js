@@ -82,8 +82,10 @@ export default class Login extends React.Component {
         }
 
         return <View style={{ flex: 1 }}>
-            <View style={{ padding: 5 }}>
-                <Button onPress={this.props.playTutorial.bind(null, this.props.player)} title="Play Tutorial" color="green" ></Button>
+            <View style={{ margin: 5 }}>
+                <Button onPress={this.props.playTutorial.bind(null, this.props.player)} title="Play Tutorial" color="red" ></Button>
+            </View>
+            <View style={{ margin: 5, marginTop: 0 }}>
                 <Button onPress={this.props.startNewGame} title="Start New Game" color="red" ></Button>
             </View>
             {renderGamelist()}

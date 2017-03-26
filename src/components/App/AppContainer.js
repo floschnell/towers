@@ -3,12 +3,13 @@ import App from './native/App.js';
 import db from '../../database.js';
 import { setPlayer, waitForLogin, logout, popPage, resizeGameSurface, clearMessage, cancelLoading } from '../../actions/index';
 import firebase from 'firebase';
+import { Page } from '../../models/Page';
 
 const mapStateToProps = (state) => ({
     player: state.app.player,
     user: state.app.user,
     game: state.app.currentGame,
-    currentPage: state.app.pageStack[state.app.pageStack.length - 1],
+    currentPage: Page.fromJson(state.app.pageStack[state.app.pageStack.length - 1]),
     openPages: state.app.pageStack.length,
     screenWidth: state.app.surfaceWidth,
     isLoading: state.app.isLoading,
