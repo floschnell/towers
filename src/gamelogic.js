@@ -134,31 +134,40 @@ export default class GameLogic {
         const targetIsFree = !fieldHasTower(towers, targetField);
         const directionValid = (deltaY > 0 && moveDirection > 0) || (deltaY < 0 && moveDirection < 0);
         const moveInLine = moveStraight || moveDiagonally;
-        const moveX = (deltaX === 0) ? 0 : (deltaX / Math.abs(deltaX));
 
-        const obstacleOnWay = (towers, currentField, targetField, moveX, moveY) => {
-            const nextField = {
-                x: currentField.x + moveX,
-                y: currentField.y + moveY
-            };
-
-            if (fieldHasTower(towers, nextField)) {
-                return true;
-            } else if (fieldsAreEqual(nextField, targetField)) {
-                return false;
-            } else {
-                return obstacleOnWay(towers, nextField, targetField, moveX, moveY);
-            }
-        };
-
-        console.debug('evaluating move:', towers, player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
+        //console.debug('evaluating move:', towers, player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
 
         return towerIsOnSource
             && targetIsFree
             && directionValid
             && moveInLine
-            && !obstacleOnWay(towers, sourceField, targetField, moveX, moveDirection);
-    };    
+            && !GameLogic._obstacleOnWay(towers, sourceField, targetField, GameLogic._getMoveDirection(deltaX), moveDirection);
+    };
+
+    static _getMoveDirection(delta) {
+        if (delta === 0) {
+            return 0;
+        } else if (delta > 0) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    static _obstacleOnWay(towers, currentField, targetField, moveX, moveY) {
+        const nextField = {
+            x: currentField.x + moveX,
+            y: currentField.y + moveY
+        };
+
+        if (fieldHasTower(towers, nextField)) {
+            return true;
+        } else if (fieldsAreEqual(nextField, targetField)) {
+            return false;
+        } else {
+            return GameLogic._obstacleOnWay(towers, nextField, targetField, moveX, moveY);
+        }
+    };
 
     /**
      * Checks whether a player can make a valid move with a certain color.

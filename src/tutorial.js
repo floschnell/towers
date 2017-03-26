@@ -47,7 +47,8 @@ export function nextTutorialState(gameState) {
                                         The line gives a visual hint which tower has recently been moved.
                                         The color of the field that you placed your tower on,
                                         determines what tower your opponent will have to move next.
-                                        Because you moved your tower on a ${fieldColor} field, your opponents ${fieldColor} tower is now marked active.`.replace(/\s+/g, ' ');
+                                        Because you moved your tower on a ${fieldColor} field, your opponents ${fieldColor} tower is now marked active.
+                                        Click on the button below to continue.`.replace(/\s+/g, ' ');
             gameState.tutorial.continueOnTowerClick = false;
             gameState.tutorial.continueOnFieldClick = false;
             gameState.tutorial.continueOnMessageClick = true;
@@ -83,7 +84,7 @@ export function nextTutorialState(gameState) {
             gameState.tutorial.message = `In some cases the tower of the active player is blocked and can not move.
                                           The player is then forced to make a zero-length move.
                                           This means that the move will end on the same field as the tower is currently standing on.
-                                          You can use the circumstance that the yellow tower of your opponent can not be moved to actually win the game. Try it!`.replace(/\s+/g, ' ');
+                                          In this case, you can use the circumstance that the yellow tower of your opponent can not be moved to even win the game. Try it!`.replace(/\s+/g, ' ');
             gameState.tutorial.continueOnTowerClick = false;
             gameState.tutorial.continueOnFieldClick = true;
             gameState.tutorial.continueOnMessageClick = false;
@@ -93,9 +94,10 @@ export function nextTutorialState(gameState) {
             const isFieldFirst = gameState.moves[gameState.moves.length - 1].targetField;
             console.log('should', shouldFieldFirst, 'but is', isFieldFirst);
             if (isFieldFirst.x === shouldFieldFirst.x && isFieldFirst.y === shouldFieldFirst.y) {
-                gameState.tutorial.message = `Awesome! You are one move away from winning the game.
-                                              The game is one as soon, as you reach the other side of the board.
-                                              After that, you can go and find some real players!`.replace(/\s+/g, ' ');
+                gameState.tutorial.message = `Awesome! Your opponent could not move, because his yellow tower is blocked.
+                                              So it's your turn again and you are only one move away from winning the game.
+                                              Remember: the game is won as soon, as you reach the other side of the board.
+                                              After that I suggest, you go and find some real players!`.replace(/\s+/g, ' ');
             } else {
                 gameState.tutorial.step--;
                 nextTutorialState(gameState);

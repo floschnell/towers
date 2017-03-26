@@ -97,17 +97,17 @@ export default class Game extends React.Component {
 
       if (this.props.inTutorial && this.props.tutorialMessage) {
         if (this.state.tutorialMessageExpanded) {
-          return <View style={{position: 'absolute', borderRadius: 5, borderStyle: 'solid', borderColor: 'black', borderWidth: 1, padding: 5, top: messageTop, left: 10, right: 10, backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
+          return <View style={{position: 'absolute', borderRadius: 5, borderStyle: 'solid', borderColor: 'black', borderWidth: 1, padding: 5, top: messageTop, left: 10, right: 10, backgroundColor: 'white', opacity: 0.9}}>
             <Text style={{color: 'black'}}>{this.props.tutorialMessage}</Text>
             {this.props.tutorialContinueOnMessageClick ?
-              <View style={{marginTop: 5}}><Button onPress={this.props.nextTutorialStep} title="Continue" color="blue"></Button></View> : null
+              <View style={{marginTop: 5}}><Button onPress={this.props.nextTutorialStep} title="Continue" color="red"></Button></View> : null
             }
-            <View style={{marginTop: 5}}><Button onPress={hideTutorialMessage.bind(this)} title="Hide Message" color="blue"></Button></View>
+            <View style={{marginTop: 5}}><Button onPress={hideTutorialMessage.bind(this)} title="Hide Message" color="red"></Button></View>
           </View>;
         } else {
-          return <View style={{position: 'absolute', borderRadius: 5, borderStyle: 'solid', borderColor: 'black', borderWidth: 1, padding: 5, top: 5, left: 10, right: 10, height: this.props.marginSize / 2 - 10, backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
+          return <View style={{position: 'absolute', borderRadius: 5, borderStyle: 'solid', borderColor: 'black', borderWidth: 1, padding: 5, top: 5, left: 10, right: 10, height: this.props.marginSize / 2 - 10, backgroundColor: 'white'}}>
             <Text numberOfLines={1} style={{color: 'black', padding: 5, flex: 1}}>{this.props.tutorialMessage}</Text>
-            <Button onPress={showTutorialMessage.bind(this)} title="Show Message" color="blue"></Button>
+            <Button onPress={showTutorialMessage.bind(this)} title="Show Message" color="red"></Button>
           </View>; 
         }
       } else {

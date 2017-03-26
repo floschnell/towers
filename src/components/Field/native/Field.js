@@ -9,11 +9,11 @@ export default class Field extends React.Component {
     const renderReachableHint = () => {
       if (this.props.canBeReached) {
         return <View style={{
-          width: '90%',
-          height: '90%',
+          width: fieldSize * 0.6,
+          height: fieldSize * 0.6,
           borderColor: this.props.myTurn ? 'black' : 'white',
-          borderWidth: 2,
-          borderStyle: 'dotted'
+          borderWidth: 3,
+          opacity: 0.5
         }}></View>
       }
     };

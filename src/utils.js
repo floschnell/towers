@@ -4,7 +4,7 @@ export function getColor(colorCode) {
         'blue',
         'purple',
         'pink',
-        'yellow',
+        '#dd0',
         'red',
         'green',
         'brown'
