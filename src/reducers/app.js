@@ -29,6 +29,12 @@ export default (state, action) => {
     
     switch (action.type) {
 
+        case ACTION_TYPES.LAUNCH_GAME_AGAINST_AI:
+            const aiGamePage = PAGES.GAME.withTitle('Game vs. PC');
+            return Object.assign(newState, {
+                pageStack: state.pageStack.concat(aiGamePage.toJson())
+            });
+
         case ACTION_TYPES.LAUNCH_TUTORIAL:
             const gamePage = PAGES.GAME.withTitle('Tutorial');
             return Object.assign(newState, {

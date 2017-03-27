@@ -88,6 +88,9 @@ export default class Login extends React.Component {
             <View style={{ margin: 5, marginTop: 0 }}>
                 <Button onPress={this.props.startNewGame} title="Start New Game" color="red" ></Button>
             </View>
+            <View style={{ margin: 5, marginTop: 0 }}>
+                <Button onPress={this.props.playAgainstPC.bind(null, this.props.player)} title="Play Against PC" color="red" ></Button>
+            </View>
             {renderGamelist()}
         </View>;
     }

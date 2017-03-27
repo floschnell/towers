@@ -2,6 +2,7 @@ import db from '../database';
 import Game from '../models/Game';
 import firebase from 'firebase';
 import { PAGES } from '../models/Page';
+import { rateMoves } from '../ai';
 
 export const ACTION_TYPES = {
     UPDATE_TOKEN: 'UPDATE_TOKEN',
@@ -30,7 +31,8 @@ export const ACTION_TYPES = {
     CLEAR_MESSAGE: 'CLEAR_MESSAGE',
     CANCEL_LOADING: 'CANCEL_LOADING',
     LAUNCH_TUTORIAL: 'LAUNCH_TUTORIAL',
-    NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP'
+    NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP',
+    LAUNCH_GAME_AGAINST_AI: 'LAUNCH_GAME_AGAINST_AI'
 };
 
 export const AUTH_STATE = {
@@ -52,6 +54,11 @@ let gameSubscriptionRef = null;
 
 export const launchTutorial = player => ({
     type: ACTION_TYPES.LAUNCH_TUTORIAL,
+    player
+});
+
+export const launchGameAgainstAI = player => ({
+    type: ACTION_TYPES.LAUNCH_GAME_AGAINST_AI,
     player
 });
 
@@ -341,7 +348,7 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
         if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
 
             // only save game if it is not a tutorial
-            if (!oldState.game.isTutorial) {
+            if (!oldState.game.isTutorial && !oldState.game.isAIGame) {
                 const game = {
                     currentColor: newState.game.currentColor,
                     currentPlayer: newState.game.currentPlayer,
@@ -354,6 +361,16 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
                 .then(() => [playerID, opponentID].map(id => 
                     db.child(`players/${id}/games/${currentGame}/currentPlayer`).set(game.currentPlayer)
                 ));
+            }
+
+            if (oldState.game.isAIGame) {
+                const results = [];
+                rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, results);
+                results.sort((a, b) => a.score < b.score ? 1 : -1);
+                console.debug('possible moves:', results);
+                console.debug('computer chooses:', results[0]);
+                const field = results[0].to;
+                dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
             }
         } else {
             if (newState.game.moveResult === MOVE_RESULTS.NOT_YOUR_TURN) {

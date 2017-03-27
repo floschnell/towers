@@ -11,7 +11,8 @@ import {
     startListeningForGamelistUpdates,
     stopListeningForGamelistUpdates,
     loadGameFromKey,
-    launchTutorial
+    launchTutorial,
+    launchGameAgainstAI
 } from '../../actions/index';
 
 import { PAGES } from '../../models/Page';
@@ -26,6 +27,9 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
     playTutorial: player => {
         dispatch(launchTutorial(player));
+    },
+    playAgainstPC: player => {
+        dispatch(launchGameAgainstAI(player));
     },
     unsubscribeFromGameUpdates: playerID => {
         dispatch(stopListeningForGamelistUpdates(playerID))

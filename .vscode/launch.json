@@ -4,6 +4,20 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceRoot}/src/ai.js",
+            "runtimeExecutable": "babel-node",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "sourceMaps": true
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Mocha Tests",
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",

@@ -3,6 +3,7 @@ import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
 import Game from '../models/Game';
 import { getColor } from '../utils';
 import { nextTutorialState, TUTORIAL_MESSAGE_POSITION } from '../tutorial';
+import { rateMoves } from '../ai';
 
 export default (state, action) => {
     
@@ -20,6 +21,7 @@ export default (state, action) => {
             valid: true,
             moveResult: MOVE_RESULTS.OK,
             isTutorial: false,
+            isAIGame: false,
             tutorial: {
                 step: 0,
                 message: '',
@@ -36,6 +38,30 @@ export default (state, action) => {
     const currentColor = state.currentColor;
     
     switch (action.type) {
+
+        case ACTION_TYPES.LAUNCH_GAME_AGAINST_AI:
+            const aiGamePlayers = {
+                computer: {
+                    name: 'Computer'
+                },
+                [action.player.id]: action.player
+            };
+            const aiGameTowers = Game.createInitialTowerPositions(Object.keys(aiGamePlayers));
+            const aiGameBoard = Game.createInitialBoard();
+
+            Object.assign(newState, {
+                selectedTower: undefined,
+                currentColor: undefined,
+                moves: [],
+                board: aiGameBoard,
+                players: aiGamePlayers,
+                currentPlayer: action.player.id,
+                towerPositions: aiGameTowers,
+                valid: true,
+                isAIGame: true
+            });
+            nextTutorialState(newState);
+            return newState;
 
         case ACTION_TYPES.NEXT_TUTORIAL_STEP:
             console.debug('tutorial click on message');
@@ -124,6 +150,7 @@ export default (state, action) => {
                             console.debug('tutorial click on field');
                             nextTutorialState(newState);
                         }
+
                     } catch (e) {
                         console.debug('move is invalid: ', e);
                         newState.moveResult = MOVE_RESULTS.INVALID;
