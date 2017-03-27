@@ -365,10 +365,11 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
 
             if (oldState.game.isAIGame) {
                 const results = [];
-                rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, results);
+                const test = rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, results);
                 results.sort((a, b) => a.score < b.score ? 1 : -1);
                 console.debug('possible moves:', results);
                 console.debug('computer chooses:', results[0]);
+                console.debug('test', test);
                 const field = results[0].to;
                 dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
             }
