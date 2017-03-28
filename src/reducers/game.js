@@ -58,9 +58,9 @@ export default (state, action) => {
                 currentPlayer: action.player.id,
                 towerPositions: aiGameTowers,
                 valid: true,
-                isAIGame: true
+                isAIGame: true,
+                isTutorial: false
             });
-            nextTutorialState(newState);
             return newState;
 
         case ACTION_TYPES.NEXT_TUTORIAL_STEP:

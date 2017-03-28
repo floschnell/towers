@@ -27,15 +27,11 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             const otherPlayer = Object.keys(towers).find(player => player !== currentPlayer);
             const color = board[y][x].color;
 
-            if (iterations === 4) console.log('move from', fromX, fromY, 'to', x, y);
-
             // if we move here, what could happen to us?
             const boardRate = rateBoard(copyOfTowers, otherPlayer, color, me, iterations);
-            if (iterations === 4) console.log('rate board', boardRate);
             let score = boardRate;
 
             const movesRate = rateMoves(copyOfTowers, color, otherPlayer, me, iterations - 1);
-            if (iterations === 4) console.log('rate moves', movesRate);
             score += movesRate;
 
             if (results) {
@@ -77,15 +73,11 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             const color = board[y][x].color;
             let score = 0;
 
-            if (iterations === 4) console.log('move from', fromX, fromY, 'to', x, y);
-
             // if we move here, what could happen to us?
             const boardRate = rateBoard(copyOfTowers, otherPlayer, color, me, iterations);
-            if (iterations === 4) console.log('rate board', boardRate);
             score += boardRate;
 
             const movesRate = rateMoves(copyOfTowers, color, otherPlayer, me, iterations - 1);
-            if (iterations === 4) console.log('rate moves', movesRate);
             score += movesRate;
 
             if (results) {
@@ -127,15 +119,11 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             const color = board[y][x].color;
             let score = 0;
 
-            if (iterations === 4) console.log('move from', fromX, fromY, 'to', x, y);
-
             // if we move here, what could happen to us?
             const boardRate = rateBoard(copyOfTowers, otherPlayer, color, me, iterations);
-            if (iterations === 4) console.log('rate board', boardRate);
             score += boardRate;
 
             const movesRate = rateMoves(copyOfTowers, color, otherPlayer, me, iterations - 1);
-            if (iterations === 4) console.log('rate moves', movesRate);
             score += movesRate;
 
             if (results) {
@@ -173,8 +161,6 @@ function couldTowerFinish(towers, color, player) {
     const rightReachable = towers[player][color].x + distance <= 7;
     let points = 0;
 
-    if (towers[player][color].y === targetY) return 4;
-
     if (leftReachable) {
         const fieldLeft = {
             x: towers[player][color].x - distance,
@@ -206,12 +192,26 @@ function rateBoard(towers, player, currentColor, me, iteration) {
     for (let color = 0; color < 8; color++) {
         const isCurrentColor = color === currentColor;
         
+
+        const moveDirection = playerMoveDirection(player, Object.keys(towers));
+        const targetY = moveDirection === 1 ? 7 : 0;
+        const hasTowerFinished = towers[player][color].y === targetY;
+        if (hasTowerFinished && player === me) {
+            return 1000000;
+        } else if (hasTowerFinished && player !== me) {
+            return -1000000;
+        }
+
         const howOftenCouldTowerFinish = couldTowerFinish(towers, color, player);
 
         // if this is me
         if (player === me) {
             if (isCurrentColor) {
-                points += howOftenCouldTowerFinish * 10;
+                if (iteration === 4) {
+                    points += howOftenCouldTowerFinish * 10000;
+                } else {
+                    points += howOftenCouldTowerFinish * 100;
+                }
             } else {
                 points += howOftenCouldTowerFinish;
             }
@@ -226,16 +226,12 @@ function rateBoard(towers, player, currentColor, me, iteration) {
     }
 
     if (iteration === 4) {
-        console.debug('player', player, 'color', currentColor, 'me', me, 'points', points);
-    }
-
-    if (iteration === 4) {
         return points;
     } else if (iteration === 3) {
         return points;
     } else if (iteration === 2) {
-        return points / 10;
+        return points / 2;
     } else {
-        return points / 20;
+        return points / 2;
     }
 }

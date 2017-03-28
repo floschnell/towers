@@ -343,7 +343,7 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
     return (dispatch, getState) => {
         const oldState = getState();
         dispatch(clickedOnField(field, playerID, currentGame));
-        const newState = getState();
+        let newState = getState();
 
         if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
 
@@ -364,14 +364,31 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
             }
 
             if (oldState.game.isAIGame) {
-                const results = [];
-                const test = rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, results);
-                results.sort((a, b) => a.score < b.score ? 1 : -1);
-                console.debug('possible moves:', results);
-                console.debug('computer chooses:', results[0]);
-                console.debug('test', test);
-                const field = results[0].to;
-                dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
+                while (newState.game.currentPlayer === 'computer') {
+                    const ratedMoves = [];
+                    rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, ratedMoves);
+                    ratedMoves.sort((a, b) => a.score < b.score ? 1 : -1);
+
+                    const bestMove = ratedMoves[0];
+                    const worstMove = ratedMoves[ratedMoves.length - 1];
+                    const scoreVariation = bestMove.score - worstMove.score;
+                    let chosenMove = bestMove;
+                    for (let index = 1; index < ratedMoves.length; index++) {
+                        console.log('percent of score variation:', Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation));
+                        if (Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation) < 0.1 && Math.random() < 0.5) {
+                            chosenMove = ratedMoves[index];
+                            console.debug('doing move variation.');
+                        } else {
+                            break;
+                        }
+                    }
+
+                    console.debug('possible moves:', ratedMoves);
+                    console.debug('computer chooses:', chosenMove);
+                    const field = chosenMove.to;
+                    dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
+                    newState = getState();
+                }
             }
         } else {
             if (newState.game.moveResult === MOVE_RESULTS.NOT_YOUR_TURN) {
@@ -582,7 +599,7 @@ export const resizeGameSurface = (width, height) => ({
 export function endGame(gameKey, player) {
     return (dispatch, getState) => {
         const currentState = getState();
-        if (currentState.game.isTutorial) {
+        if (currentState.game.isAIGame || currentState.game.isTutorial) {
             dispatch(popPage())
             return;
         }
