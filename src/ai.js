@@ -6,7 +6,7 @@ const board = Game.createInitialBoard();
 
 function rate(from, to, towers, player, me, iterations) {
     if (iterations === 0) {
-        const result = rateBoard(towers, player, to.color, me, iterations);
+        const result = rateBoard(towers, player, to.color, me);
         return {
             from,
             to,
@@ -59,8 +59,16 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             const copyOfTowers = copyTowers(towers);
             copyOfTowers[currentPlayer][currentColor].y = y;
             targetField.color = board[y][x].color;
-            const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
-            outcomes.push(rating);
+            if (targetField.y === targetY && iterations === 4) {
+                outcomes.push({
+                    to: targetField,
+                    from: fromField,
+                    score: MAX_SCORE
+                });
+            } else {
+                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                outcomes.push(rating);
+            }
         } else {
             break;
         }
@@ -79,8 +87,16 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             copyOfTowers[currentPlayer][currentColor].y = y;
             copyOfTowers[currentPlayer][currentColor].x = x;
             targetField.color = board[y][x].color;
-            const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
-            outcomes.push(rating);
+            if (targetField.y === targetY && iterations === 4) {
+                outcomes.push({
+                    to: targetField,
+                    from: fromField,
+                    score: MAX_SCORE
+                });
+            } else {
+                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                outcomes.push(rating);
+            }
         } else {
             break;
         }
@@ -99,8 +115,16 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             copyOfTowers[currentPlayer][currentColor].y = y;
             copyOfTowers[currentPlayer][currentColor].x = x;
             targetField.color = board[y][x].color;
-            const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
-            outcomes.push(rating);
+            if (targetField.y === targetY && iterations === 4) {
+                outcomes.push({
+                    to: targetField,
+                    from: fromField,
+                    score: MAX_SCORE
+                });
+            } else {
+                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                outcomes.push(rating);
+            }
         } else {
             break;
         }
@@ -109,7 +133,7 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
     return outcomes;
 }
 
-function rateBoard(towers, player, currentColor, me, iteration) {
+function rateBoard(towers, player, currentColor, me) {
     let points = 0;
 
     // check all towers
@@ -129,7 +153,7 @@ function rateBoard(towers, player, currentColor, me, iteration) {
             if (!fieldHasTower(towers, { x, y: curY })) {
                 points++;
                 if (curY === targetY) {
-                    points += 10;
+                    points += isCurrentColor ? 20 : 10;
                 }
             }
         }
@@ -138,7 +162,7 @@ function rateBoard(towers, player, currentColor, me, iteration) {
             if (!fieldHasTower(towers, { x: curX, y: curY })) {
                 points++;
                 if (curY === targetY) {
-                    points += 10;
+                    points += isCurrentColor ? 20 : 10;
                 }
             }
         }
@@ -147,7 +171,7 @@ function rateBoard(towers, player, currentColor, me, iteration) {
             if (!fieldHasTower(towers, { x: curX, y: curY })) {
                 points++;
                 if (curY === targetY) {
-                    points += 10;
+                    points += isCurrentColor ? 20 : 10;
                 }
             }
         }
