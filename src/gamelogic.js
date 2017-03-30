@@ -155,6 +155,10 @@ export default class GameLogic {
     }
 
     static _obstacleOnWay(towers, currentField, targetField, moveX, moveY) {
+        if (fieldsAreEqual(currentField, targetField)) {
+            return false;
+        }
+
         const nextField = {
             x: currentField.x + moveX,
             y: currentField.y + moveY
@@ -162,8 +166,6 @@ export default class GameLogic {
 
         if (fieldHasTower(towers, nextField)) {
             return true;
-        } else if (fieldsAreEqual(nextField, targetField)) {
-            return false;
         } else {
             return GameLogic._obstacleOnWay(towers, nextField, targetField, moveX, moveY);
         }

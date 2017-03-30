@@ -366,28 +366,32 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
                     const ratedMoves = [];
-                    rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, ratedMoves);
-                    ratedMoves.sort((a, b) => a.score < b.score ? 1 : -1);
-
-                    const bestMove = ratedMoves[0];
-                    const worstMove = ratedMoves[ratedMoves.length - 1];
-                    const scoreVariation = bestMove.score - worstMove.score;
-                    let chosenMove = bestMove;
-                    for (let index = 1; index < ratedMoves.length; index++) {
-                        console.log('percent of score variation:', Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation));
-                        if (Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation) < 0.1 && Math.random() < 0.5) {
-                            chosenMove = ratedMoves[index];
-                            console.debug('doing move variation.');
-                        } else {
-                            break;
-                        }
-                    }
-
-                    console.debug('possible moves:', ratedMoves);
-                    console.debug('computer chooses:', chosenMove);
-                    const field = chosenMove.to;
-                    dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
+                    const outcomes = rateMoves(newState.game.towerPositions, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4, ratedMoves);
+                    console.log('outcomes:', outcomes);
+                    outcomes.sort((a, b) => a.score < b.score ? 1 : -1);
+                    console.log('will choose:', outcomes[0]);
+                    dispatch(clickedOnField(outcomes[0].to, newState.game.currentPlayer, currentGame));
                     newState = getState();
+
+                    // const bestMove = ratedMoves[0];
+                    // const worstMove = ratedMoves[ratedMoves.length - 1];
+                    // const scoreVariation = bestMove.score - worstMove.score;
+                    // let chosenMove = bestMove;
+                    // for (let index = 1; index < ratedMoves.length; index++) {
+                    //     console.log('percent of score variation:', Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation));
+                    //     if (Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation) < 0.1 && Math.random() < 0.5) {
+                    //         chosenMove = ratedMoves[index];
+                    //         console.debug('doing move variation.');
+                    //     } else {
+                    //         break;
+                    //     }
+                    // }
+
+                    // console.debug('possible moves:', ratedMoves);
+                    // console.debug('computer chooses:', chosenMove);
+                    // const field = chosenMove.to;
+                    // dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
+                    // newState = getState();
                 }
             }
         } else {
