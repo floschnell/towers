@@ -5,7 +5,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/src/ai.js",
+            "program": "${workspaceRoot}/src/models/Board.js",
             "runtimeExecutable": "babel-node",
             "runtimeArgs": [
                 "--nolazy"

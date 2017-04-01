@@ -1,26 +1,34 @@
 import Game from './models/Game';
-import GameLogic, { copyTowers, fieldsAreEqual, fieldHasTower, playerMoveDirection } from './gamelogic';
+import Board from './models/Board';
 
 const MAX_SCORE = 10000000;
-const board = Game.createInitialBoard();
 
-function rate(from, to, towers, player, me, iterations) {
+/**
+ * 
+ * @param {*} from 
+ * @param {*} to 
+ * @param {Board} board 
+ * @param {*} player 
+ * @param {*} me 
+ * @param {*} iterations 
+ */
+function rate(from, to, board, player, me, iterations) {
     if (iterations === 0) {
-        const result = rateBoard(towers, player, to.color, me);
+        const result = rateBoard(board, player, to.color, me);
         return {
             from,
             to,
             score: result
         };
     } else {
-        let results = rateMoves(towers, to.color, player, me, iterations - 1);
+        let results = rateMoves(board, to.color, player, me, iterations - 1);
         if (results.length === 0) {
             iterations--;
             if (iterations >= 1) {
-                const blockedTower = towers[player][to.color];
-                const otherPlayer = Object.keys(towers).find(id => id !== player);
-                const blockedTowerFieldColor = board[blockedTower.y][blockedTower.x].color;
-                results = rateMoves(towers, blockedTowerFieldColor, otherPlayer, me, iterations - 1);
+                const blockedTower = board.getTowerForPlayerAndColor(player, to.color);
+                const otherPlayer = board.getOpponentOf(player);
+                const blockedTowerFieldColor = board.getBoardColorAtCoord(blockedTower.x, blockedTower.y);
+                results = rateMoves(board, blockedTowerFieldColor, otherPlayer, me, iterations - 1);
             }
         }
         if (iterations % 2 === 0) {
@@ -31,20 +39,28 @@ function rate(from, to, towers, player, me, iterations) {
         return {
             from,
             to,
-            score: results.length > 0 ? results[0].score : rateBoard(towers, player, to.color, me, iterations)
+            score: results.length > 0 ? results[0].score : rateBoard(board, player, to.color, me, iterations)
         };
     }
 }
 
-export function rateMoves(towers, currentColor, currentPlayer, me, iterations, results) {
-    const currentTower = towers[currentPlayer][currentColor];
-    const otherPlayer = Object.keys(towers).find(player => player !== currentPlayer);
-    const moveDirection = playerMoveDirection(currentPlayer, Object.keys(towers));
+/**
+ * 
+ * @param {Board} board 
+ * @param {*} currentColor 
+ * @param {*} currentPlayer 
+ * @param {*} me 
+ * @param {*} iterations 
+ */
+export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
+    const currentTower = board.getTowerForPlayerAndColor(currentPlayer, currentColor);
+    const otherPlayer = board.getOpponentOf(currentPlayer);
+    const moveDirection = board.getMoveDirectionOf(currentPlayer);
     const targetY = moveDirection === 1 ? 7 : 0;
     const outcomes = [];
     const fromField = {
-        x: towers[currentPlayer][currentColor].x,
-        y: towers[currentPlayer][currentColor].y
+        x: currentTower.x,
+        y: currentTower.y
     };
 
     // where can we move that tower?
@@ -55,10 +71,10 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             y
         };
 
-        if (!fieldHasTower(towers, targetField)) {
-            const copyOfTowers = copyTowers(towers);
-            copyOfTowers[currentPlayer][currentColor].y = y;
-            targetField.color = board[y][x].color;
+        if (!board.coordHasTower(x, y)) {
+            const boardCopy = board.copy();
+            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
+            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -66,7 +82,7 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
                     score: MAX_SCORE
                 });
             } else {
-                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                const rating = rate(fromField, targetField, boardCopy, otherPlayer, me, iterations);
                 outcomes.push(rating);
             }
         } else {
@@ -82,11 +98,10 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             y
         };
 
-        if (!fieldHasTower(towers, targetField)) {
-            const copyOfTowers = copyTowers(towers);
-            copyOfTowers[currentPlayer][currentColor].y = y;
-            copyOfTowers[currentPlayer][currentColor].x = x;
-            targetField.color = board[y][x].color;
+        if (!board.coordHasTower(x, y)) {
+            const boardCopy = board.copy();
+            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
+            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -94,7 +109,7 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
                     score: MAX_SCORE
                 });
             } else {
-                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                const rating = rate(fromField, targetField, boardCopy, otherPlayer, me, iterations);
                 outcomes.push(rating);
             }
         } else {
@@ -110,11 +125,10 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
             y
         };
 
-        if (!fieldHasTower(towers, targetField)) {
-            const copyOfTowers = copyTowers(towers);
-            copyOfTowers[currentPlayer][currentColor].y = y;
-            copyOfTowers[currentPlayer][currentColor].x = x;
-            targetField.color = board[y][x].color;
+        if (!board.coordHasTower(x, y)) {
+            const boardCopy = board.copy();
+            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
+            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -122,7 +136,7 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
                     score: MAX_SCORE
                 });
             } else {
-                const rating = rate(fromField, targetField, copyOfTowers, otherPlayer, me, iterations);
+                const rating = rate(fromField, targetField, boardCopy, otherPlayer, me, iterations);
                 outcomes.push(rating);
             }
         } else {
@@ -133,15 +147,22 @@ export function rateMoves(towers, currentColor, currentPlayer, me, iterations, r
     return outcomes;
 }
 
-function rateBoard(towers, player, currentColor, me) {
+/**
+ * 
+ * @param {Board} board 
+ * @param {*} player 
+ * @param {*} currentColor 
+ * @param {*} me 
+ */
+function rateBoard(board, player, currentColor, me) {
     let points = 0;
+    const moveDirection = board.getMoveDirectionOf(player);
+    const targetY = board.getTargetRowOf(player);
 
     // check all towers
     for (let color = 0; color < 8; color++) {
         const isCurrentColor = color === currentColor;
-        const moveDirection = playerMoveDirection(player, Object.keys(towers));
-        const targetY = moveDirection === 1 ? 7 : 0;
-        const tower = towers[player][color];
+        const tower = board.getTowerForPlayerAndColor(player, color);
         const y = tower.y;
         const x = tower.x;
 
@@ -149,29 +170,34 @@ function rateBoard(towers, player, currentColor, me) {
             return -MAX_SCORE;
         }
 
-        for (let curY = y + moveDirection; curY >= 0 && curY <= 7; curY += moveDirection) {
-            if (!fieldHasTower(towers, { x, y: curY })) {
+        for (let distance = 1, moveStraight = true, moveLeft = true, moveRight = true;
+                moveStraight || moveLeft || moveRight;
+                distance++) {
+            const curY = moveDirection === 1 ? y + distance : y - distance;
+            const curXRight = x + distance;
+            const curXLeft = x - distance;
+            const moveStraight = curY <= 7 && curY >= 0 && !board.coordHasTower(x, curY);
+            const moveLeft = curY <= 7 && curY >= 0 && curXLeft >= 0 && !board.coordHasTower(curXLeft, curY);
+            const moveRight = curY <= 7 && curY >= 0 && curXRight >= 0 && !board.coordHasTower(curXRight, curY);
+
+            if (moveStraight) {
                 points++;
                 if (curY === targetY) {
-                    points += isCurrentColor ? 20 : 10;
+                    points += isCurrentColor ? 40 : 10;
                 }
             }
-        }
 
-        for (let curY = y + moveDirection, curX = x + 1; curY >= 0 && curY <= 7 && curX <= 7; curY += moveDirection, curX++) {
-            if (!fieldHasTower(towers, { x: curX, y: curY })) {
+            if (moveLeft) {
                 points++;
                 if (curY === targetY) {
-                    points += isCurrentColor ? 20 : 10;
+                    points += isCurrentColor ? 40 : 10;
                 }
             }
-        }
-
-        for (let curY = y + moveDirection, curX = x - 1; curY >= 0 && curY <= 7 && curX <= 7; curY += moveDirection, curX--) {
-            if (!fieldHasTower(towers, { x: curX, y: curY })) {
+            
+            if (moveRight) {
                 points++;
                 if (curY === targetY) {
-                    points += isCurrentColor ? 20 : 10;
+                    points += isCurrentColor ? 40 : 10;
                 }
             }
         }
