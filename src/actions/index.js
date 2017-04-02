@@ -2,7 +2,7 @@ import db from '../database';
 import Game from '../models/Game';
 import firebase from 'firebase';
 import { PAGES } from '../models/Page';
-import Board from '../models/Board';
+import Board, {convertTowerPositionsToBoard} from '../models/Board';
 import { rateMoves } from '../ai';
 
 export const ACTION_TYPES = {
@@ -366,7 +366,7 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
 
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
-                    const board = new Board(newState.game.towerPositions);
+                    const board = convertTowerPositionsToBoard(newState.game.towerPositions);
                     const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4);
                     console.log('outcomes:', outcomes);
                     outcomes.sort((a, b) => a.score < b.score ? 1 : -1);

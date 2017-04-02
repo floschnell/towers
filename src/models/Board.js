@@ -43,28 +43,39 @@ const BIT_MASK_HAS_TOWER = 8;
 const BIT_MASK_COLOR = 7;
 const BIT_MASK_FIELD = BIT_MASK_HAS_TOWER | BIT_MASK_COLOR;
 
+export function convertTowerPositionsToBoard(towerPositions) {
+    const players = Object.keys(towerPositions);
+    const newPositions = [];
+    for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
+        newPositions[playerNumber] = towerPositions[players[playerNumber]];
+    }
+    return new Board(newPositions, players);
+}
+
 export default class Board {
 
     /**
      * Creates a new board instance.
      *
-     * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towerPositions Data structure containing the towers.
+     * @param {{x: integer, y: integer, color: integer, belongsToPlayer: string}[][]} towerPositions Data structure containing the towers.
      */
-    constructor(towerPositions) {
+    constructor(towerPositions, players) {
         this.coordToTower = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-        this.playerToColorToTower = {};
+        this.playerToColorToTower = [];
+        this.players = players;
 
-        for (const player in towerPositions) {
-            this.playerToColorToTower[player] = {};
+        for (let player = 0; player < 2; player++) {
+            this.playerToColorToTower[player] = [];
 
-            for (const color in towerPositions[player]) {
+            for (let color = 0; color < 8; color++) {
                 const tower = towerPositions[player][color];
 
-                if (typeof tower !== 'object') {
-                    console.log('huh', tower, towerPositions);
-                }
-
-                this.playerToColorToTower[player][color] = Object.assign({}, tower);
+                this.playerToColorToTower[player][color] = {
+                    x: tower.x,
+                    y: tower.y,
+                    belongsToPlayer: tower.belongsToPlayer,
+                    color: tower.color
+                };
                 const towerBitMask = (tower.color | BIT_MASK_HAS_TOWER) << (tower.x * BITS_PER_TOWER);
                 this.coordToTower[tower.y] |= towerBitMask;
             }
@@ -72,15 +83,15 @@ export default class Board {
     }
 
     copy() {
-        return new Board(this.playerToColorToTower);
+        return new Board(this.playerToColorToTower, this.players);
     }
 
     getPlayers() {
-        return Object.keys(this.playerToColorToTower);
+        return this.players;
     }
 
     getOpponentOf(player) {
-        return this.getPlayers().find(id => id !== player);
+        return this.players.indexOf(player) === 1 ? this.players[0] : this.players[1];
     }
 
     getMoveDirectionOf(player) {
@@ -107,28 +118,29 @@ export default class Board {
      * @param {{x: Number, y: Number}} to 
      */
     moveTower(player, color, from, to) {
-        const towerToMove = this.playerToColorToTower[player][color];
+        const playerNumber = this.players.indexOf(player);
+        const towerToMove = this.playerToColorToTower[playerNumber][color];
 
         if (towerToMove.x === from.x &&
             towerToMove.y === from.y) {
             
             if (this.coordHasTower(from.x, from.y)) {
-                this.playerToColorToTower[player][color].x = to.x;
-                this.playerToColorToTower[player][color].y = to.y;
+                this.playerToColorToTower[playerNumber][color].x = to.x;
+                this.playerToColorToTower[playerNumber][color].y = to.y;
                 this._clearFieldBits(from.x, from.y);
                 this._setFieldBits(to.x, to.y, color);
                 return true;
             }
         }
 
-        return false;
+        throw 'there is no tower that could be moved!';
     }
 
     _clearFieldBits(x, y) {
         const negatedFieldBits = ~this._getFieldBits(x, y);
         const restMask = (1 << (x * BITS_PER_TOWER)) - 1;
 
-        this.coordToTower[y] &= negatedFieldBits << (x * BITS_PER_TOWER) | restMask;
+        this.coordToTower[y] &= (negatedFieldBits << (x * BITS_PER_TOWER)) | restMask;
     }
 
     _setFieldBits(x, y, color) {
@@ -144,7 +156,9 @@ export default class Board {
     }
 
     getTowerForPlayerAndColor(player, color) {
-        return this.playerToColorToTower[player][color];
+        const playerNumber = this.players.indexOf(player);
+
+        return this.playerToColorToTower[playerNumber][color];
     }
 
     coordHasTower(x, y) {
@@ -180,14 +194,48 @@ export default class Board {
     }
 }
 
-const board = new Board(createInitialTowerPositions(['player', 'computer']));
-board.printBoard();
-console.log('0,0:', board.coordHasTower(0, 0));
-console.log('3,3:', board.coordHasTower(3, 3));
-console.log('7,0:', board.coordHasTower(7, 0));
-console.log('0,7:', board.coordHasTower(0, 7));
-console.log('7,7:', board.coordHasTower(7, 7));
+if (false) {
+    const towerPositions = createInitialTowerPositions(['player', 'computer']);
+    const board = convertTowerPositionsToBoard(towerPositions);
 
-console.log('move: ', board.moveTower('computer', 3, {x: 3, y: 0}, {x: 3, y: 3}));
-board.printBoard();
-console.log('3,3:', board.coordHasTower(3, 3));
+    board.printBoard();
+    console.log('0,0:', board.coordHasTower(0, 0));
+    console.log('3,3:', board.coordHasTower(3, 3));
+    console.log('7,0:', board.coordHasTower(7, 0));
+    console.log('0,7:', board.coordHasTower(0, 7));
+    console.log('7,7:', board.coordHasTower(7, 7));
+
+    console.log('move: ', board.moveTower('computer', 3, {x: 3, y: 0}, {x: 3, y: 3}));
+    board.printBoard();
+    console.log('3,3:', board.coordHasTower(3, 3));
+
+    console.log('benchmarking coordHasTower():');
+    console.time('coordHasTower');
+    for (let i = 0; i < 1000000; i++) {
+        board.coordHasTower(i + 4 % 8, i % 8);
+    }
+    const end = Date.now();
+    console.timeEnd('coordHasTower');
+
+    console.log('benchmarking copy():');
+    console.time('copy');
+    for (let i = 0; i < 100000; i++) {
+        board.copy();
+    }
+    console.timeEnd('copy');
+
+    console.log('benchmarking getTowerForPlayerAndColor():');
+    console.time('getTowerForPlayerAndColor');
+    for (let i = 0; i < 1000000; i++) {
+        board.getTowerForPlayerAndColor('computer', 4);
+    }
+    console.timeEnd('getTowerForPlayerAndColor');
+
+    console.log('benchmarking moveTower():');
+    console.time('moveTower');
+    for (let i = 0; i < 1000000; i++) {
+        board.moveTower('computer', 3, {x: 3, y: 3}, {x: 3, y: 0});
+        board.moveTower('computer', 3, {x: 3, y: 0}, {x: 3, y: 3});
+    }
+    console.timeEnd('moveTower');
+}
