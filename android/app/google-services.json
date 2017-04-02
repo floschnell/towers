@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "80269606755",
+    "firebase_url": "https://towers-42c7a.firebaseio.com",
+    "project_id": "towers-42c7a",
+    "storage_bucket": "towers-42c7a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80269606755:android:e7fd85e95ec1358c",
+        "android_client_info": {
+          "package_name": "de.floschnell.towers.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80269606755-rp95fpug53uhmppqb5o9l26nbunilvqk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv8GUh0x5Q-MbAcWQp40vxM7AX6WLyt_4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

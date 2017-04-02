@@ -1,67 +1,35 @@
-import {ACTION_TYPES} from '../actions/index';
-import db from '../database';
+import { ACTION_TYPES, MOVE_RESULTS } from '../actions/index';
 import GameLogic, { copyTowers, towerPositionsAreEqual } from '../gamelogic';
-
-const initialColors = [
-    [0, 1, 2, 3, 4, 5, 6, 7],
-    [5, 0, 3, 6, 1, 4, 7, 2],
-    [6, 3, 0, 5, 4, 7, 2, 1],
-    [3, 2, 1, 0, 7, 6, 5, 4],
-    [4, 5, 6, 7, 0, 1, 2, 3],
-    [1, 2, 7, 4, 5, 0, 3, 6],
-    [2, 7, 4, 1, 6, 3, 0, 5],
-    [7, 6, 5, 4, 3, 2, 1, 0],
-];
-
-const createInitialTowerPositions = playerUIDs => {
-    const towers = {
-        [playerUIDs[0]]: [],
-        [playerUIDs[1]]: []
-    };
-    const keys = Object.keys(towers).sort((a, b) => a < b ? -1 : 1);
-
-    for (let color = 0; color < 8; color++) {
-        towers[keys[0]].push({
-            color,
-            belongsToPlayer: keys[0],
-            x: color,
-            y: 0
-        });
-    }
-
-    for (let color = 0; color < 8; color++) {
-        towers[keys[1]].push({
-            color,
-            belongsToPlayer: keys[1],
-            x: 7 - color,
-            y: 7
-        });
-    }
-
-    return towers;
-}
-
-const createInitialBoard = (colors) => colors.map((row, index) =>
-    row.map(
-        color => {
-            return {
-                color
-            }
-        }
-    )
-);
+import Game from '../models/Game';
+import { getColor } from '../utils';
+import { nextTutorialState, TUTORIAL_MESSAGE_POSITION } from '../tutorial';
+import { rateMoves } from '../ai';
 
 export default (state, action) => {
     
     if (typeof(state) === "undefined") {
+        const initialPlayers = { "0": {}, "1": {} };
+
         return {
-            board: createInitialBoard(initialColors),
-            players: [],
+            board: Game.createInitialBoard(),
+            players: initialPlayers,
             currentPlayer: null,
             currentColor: null,
             selectedTower: null,
             moves: [],
-            towerPositions: createInitialTowerPositions([0, 1])
+            towerPositions: Game.createInitialTowerPositions(Object.keys(initialPlayers)),
+            valid: true,
+            moveResult: MOVE_RESULTS.OK,
+            isTutorial: false,
+            isAIGame: false,
+            tutorial: {
+                step: 0,
+                message: '',
+                messagePosition: TUTORIAL_MESSAGE_POSITION.BOARD_EDGE,
+                continueOnFieldClick: false,
+                continueOnMessageClick: false,
+                continueOnTowerClick: false,
+            }
         };
     }
     
@@ -70,9 +38,70 @@ export default (state, action) => {
     const currentColor = state.currentColor;
     
     switch (action.type) {
-        
+
+        case ACTION_TYPES.LAUNCH_GAME_AGAINST_AI:
+            const aiGamePlayers = {
+                computer: {
+                    name: 'Computer'
+                },
+                [action.player.id]: action.player
+            };
+            const aiGameTowers = Game.createInitialTowerPositions(Object.keys(aiGamePlayers));
+            const aiGameBoard = Game.createInitialBoard();
+
+            Object.assign(newState, {
+                selectedTower: undefined,
+                currentColor: undefined,
+                moves: [],
+                board: aiGameBoard,
+                players: aiGamePlayers,
+                currentPlayer: action.player.id,
+                towerPositions: aiGameTowers,
+                valid: true,
+                isAIGame: true,
+                isTutorial: false
+            });
+            return newState;
+
+        case ACTION_TYPES.NEXT_TUTORIAL_STEP:
+            console.debug('tutorial click on message');
+            nextTutorialState(newState);
+            return newState;
+
+        case ACTION_TYPES.LAUNCH_TUTORIAL:
+            const players = {
+                computer: {
+                    name: 'Computer'
+                },
+                [action.player.id]: action.player
+            };
+            const towerPositions = Game.createInitialTowerPositions(Object.keys(players));
+            const board = Game.createInitialBoard();
+
+            Object.assign(newState, {
+                selectedTower: undefined,
+                currentColor: undefined,
+                moves: [],
+                board,
+                players,
+                currentPlayer: action.player.id,
+                towerPositions,
+                valid: true,
+                isTutorial: true,
+                tutorial: {
+                    step: 0
+                }
+            });
+            nextTutorialState(newState);
+            return newState;
+
         case ACTION_TYPES.CLICK_ON_TOWER:
-            if (currentPlayer === action.playerUid) {
+            if (currentPlayer === action.playerID) {
+                if (state.isTutorial && state.tutorial.continueOnTowerClick) {
+                    console.debug('tutorial click on tower');
+                    nextTutorialState(newState);
+                }
+
                 const towerOnField = action.tower;
                 if (typeof state.currentColor === 'undefined' || state.currentColor === null || towerOnField.color === state.currentColor) {
                     newState.selectedTower = action.tower;
@@ -81,7 +110,7 @@ export default (state, action) => {
             break;
         
         case ACTION_TYPES.CLICK_ON_FIELD:
-            if (currentPlayer === action.playerUid) {
+            if (currentPlayer === action.playerID) {
                 let towerToMove = null;
                 const targetField = action.field;
 
@@ -91,7 +120,7 @@ export default (state, action) => {
                     towerToMove = state.towerPositions[currentPlayer][currentColor];
                 }
                 
-                if (towerToMove.belongsToPlayer === currentPlayer) {
+                if (towerToMove && towerToMove.belongsToPlayer === currentPlayer) {
                     const move = {
                         player: currentPlayer,
                         color: towerToMove.color,
@@ -101,7 +130,7 @@ export default (state, action) => {
 
                     try {
                         newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
-                        const nextPlayer = Object.keys(state.players).find(uid => uid !== currentPlayer);
+                        const nextPlayer = Game.getOpponentUID(state, currentPlayer);
                         const nextColor = targetField.color;
 
                         if (GameLogic.canMove(newState.towerPositions, nextPlayer, nextColor)) {
@@ -116,50 +145,80 @@ export default (state, action) => {
                         newState.selectedTower = null;
                         if (!newState.moves) newState.moves = [];
                         newState.moves.push(move);
+
+                        if (state.isTutorial && state.tutorial.continueOnFieldClick) {
+                            console.debug('tutorial click on field');
+                            nextTutorialState(newState);
+                        }
+
                     } catch (e) {
-                        console.log('move has failed, resetting ...', e);
+                        console.debug('move is invalid: ', e);
+                        newState.moveResult = MOVE_RESULTS.INVALID;
                         newState.currentPlayer = currentPlayer;
-                        newState.currentColor = currentColor;
+                        if (currentColor) {
+                            newState.currentColor = currentColor;
+                        }
                         newState.selectedTower = towerToMove;
                         newState.towerPositions = copyTowers(state.towerPositions);
                     }
+                } else {
+                    newState.moveResult = MOVE_RESULTS.NO_TOWER_SELECTED;
                 }
-
-                setTimeout(function () {db.ref(`games/${action.currentGame}`).update(newState)}, 0);
+            } else {
+                newState.moveResult = MOVE_RESULTS.NOT_YOUR_TURN;
             }
             break;
             
         case ACTION_TYPES.UPDATE_GAME:
             try {
-                const initialTowers = createInitialTowerPositions(Object.keys(action.game.players));
+                const updatedState = Object.assign(newState, action.game);
+                const initialTowers = Game.createInitialTowerPositions(Object.keys(action.game.players));
                 const moves = action.game.moves;
 
                 if (moves && moves.length > 0) {
                     const finalTowers = GameLogic.executeMoves(initialTowers, moves);
+                    const currentColor = moves[moves.length - 1].targetField.color;
 
-                    if (!towerPositionsAreEqual(finalTowers, action.game.towerPositions)) {
-                        throw 'Game state is invalid!';
-                    }
+                    Object.assign(updatedState, {
+                        towerPositions: finalTowers,
+                        valid: true,
+                        currentColor
+                    });
+                    return updatedState;
+                } else {
+                    Object.assign(updatedState, {
+                        towerPositions: initialTowers,
+                        valid: true
+                    });
+                    return updatedState;
                 }
             } catch (e) {
-                alert(e);
-                console.error('Game could not be loaded! ', e);
+                newState.valid = false;
+                return newState;
             }
-            return action.game;
+
+        case ACTION_TYPES.RESUME_GAME:
+            delete newState.currentColor;
+
+            return Object.assign(newState, {
+                isTutorial: false,
+                selectedTower: undefined,
+                moves: [],
+                board: Game.createInitialBoard()
+            });
             
         case ACTION_TYPES.START_GAME:
-            const newGameState = {
-                players: action.players,
-                currentPlayer: Object.keys(action.players)[0],
-                currentColor: null,
-                selectedTower: null,
-                moves: [],
-                board: createInitialBoard(initialColors),
-                towerPositions: createInitialTowerPositions(Object.keys(action.players))
-            };
-            setTimeout(function () {db.ref(`games/${action.game}`).update(newGameState)}, 0);
-            return newGameState;
-            
+            console.log('created game:', action.game);
+            const newGameState = Object.assign({}, action.game);
+
+            return Object.assign(newGameState, {
+                isTutorial: false,
+                currentColor: undefined,
+                selectedTower: undefined,
+                board: Game.createInitialBoard(),
+                towerPositions: Game.createInitialTowerPositions(Object.keys(action.game.players))
+            });
+
         default:
 
     }
