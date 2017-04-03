@@ -194,7 +194,7 @@ export default class Board {
     }
 }
 
-if (true) {
+if (false) {
     const towerPositions = createInitialTowerPositions(['player', 'computer']);
     const board = convertTowerPositionsToBoard(towerPositions);
 
