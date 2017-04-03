@@ -25,9 +25,9 @@ function rate(from, to, board, player, me, iterations) {
         if (results.length === 0) {
             iterations--;
             if (iterations >= 1) {
-                const blockedTower = board.getTowerForPlayerAndColor(player, to.color);
-                const otherPlayer = board.getOpponentOf(player);
-                const blockedTowerFieldColor = board.getBoardColorAtCoord(blockedTower.x, blockedTower.y);
+                const blockedTower = Board.getTowerForPlayerAndColor(board, player, to.color);
+                const otherPlayer = Board.getOpponentOf(board, player);
+                const blockedTowerFieldColor = Board.getBoardColorAtCoord(blockedTower.x, blockedTower.y);
                 results = rateMoves(board, blockedTowerFieldColor, otherPlayer, me, iterations - 1);
             }
         }
@@ -53,9 +53,9 @@ function rate(from, to, board, player, me, iterations) {
  * @param {*} iterations 
  */
 export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
-    const currentTower = board.getTowerForPlayerAndColor(currentPlayer, currentColor);
-    const otherPlayer = board.getOpponentOf(currentPlayer);
-    const moveDirection = board.getMoveDirectionOf(currentPlayer);
+    const currentTower = Board.getTowerForPlayerAndColor(board, currentPlayer, currentColor);
+    const otherPlayer = Board.getOpponentOf(board, currentPlayer);
+    const moveDirection = Board.getMoveDirectionOf(board, currentPlayer);
     const targetY = moveDirection === 1 ? 7 : 0;
     const outcomes = [];
     const fromField = {
@@ -71,10 +71,10 @@ export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
             y
         };
 
-        if (!board.coordHasTower(x, y)) {
-            const boardCopy = board.copy();
-            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
-            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
+        if (!Board.coordHasTower(board, x, y)) {
+            const boardCopy = Board.copy(board);
+            Board.moveTower(boardCopy, currentPlayer, currentColor, currentTower.x, currentTower.y, x, y);
+            targetField.color = Board.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -98,10 +98,10 @@ export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
             y
         };
 
-        if (!board.coordHasTower(x, y)) {
-            const boardCopy = board.copy();
-            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
-            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
+        if (!Board.coordHasTower(board, x, y)) {
+            const boardCopy = Board.copy(board);
+            Board.moveTower(boardCopy, currentPlayer, currentColor, currentTower.x, currentTower.y, x, y);
+            targetField.color = Board.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -125,10 +125,10 @@ export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
             y
         };
 
-        if (!board.coordHasTower(x, y)) {
-            const boardCopy = board.copy();
-            boardCopy.moveTower(currentPlayer, currentColor, fromField, targetField);
-            targetField.color = boardCopy.getBoardColorAtCoord(x, y);
+        if (!Board.coordHasTower(board, x, y)) {
+            const boardCopy = Board.copy(board);
+            Board.moveTower(boardCopy, currentPlayer, currentColor, currentTower.x, currentTower.y, x, y);
+            targetField.color = Board.getBoardColorAtCoord(x, y);
             if (targetField.y === targetY && iterations === 4) {
                 outcomes.push({
                     to: targetField,
@@ -156,13 +156,13 @@ export function rateMoves(board, currentColor, currentPlayer, me, iterations) {
  */
 function rateBoard(board, player, currentColor, me) {
     let points = 0;
-    const moveDirection = board.getMoveDirectionOf(player);
-    const targetY = board.getTargetRowOf(player);
+    const moveDirection = Board.getMoveDirectionOf(board, player);
+    const targetY = Board.getTargetRowOf(board, player);
 
     // check all towers
     for (let color = 0; color < 8; color++) {
         const isCurrentColor = color === currentColor;
-        const tower = board.getTowerForPlayerAndColor(player, color);
+        const tower = Board.getTowerForPlayerAndColor(board, player, color);
         const y = tower.y;
         const x = tower.x;
 
@@ -176,9 +176,9 @@ function rateBoard(board, player, currentColor, me) {
             const curY = moveDirection === 1 ? y + distance : y - distance;
             const curXRight = x + distance;
             const curXLeft = x - distance;
-            const moveStraight = curY <= 7 && curY >= 0 && !board.coordHasTower(x, curY);
-            const moveLeft = curY <= 7 && curY >= 0 && curXLeft >= 0 && !board.coordHasTower(curXLeft, curY);
-            const moveRight = curY <= 7 && curY >= 0 && curXRight >= 0 && !board.coordHasTower(curXRight, curY);
+            const moveStraight = curY <= 7 && curY >= 0 && !Board.coordHasTower(board, x, curY);
+            const moveLeft = curY <= 7 && curY >= 0 && curXLeft >= 0 && !Board.coordHasTower(board, curXLeft, curY);
+            const moveRight = curY <= 7 && curY >= 0 && curXRight >= 0 && !Board.coordHasTower(board, curXRight, curY);
 
             if (moveStraight) {
                 points++;
