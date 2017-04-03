@@ -367,7 +367,9 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
                     const board = convertTowerPositionsToBoard(newState.game.towerPositions);
-                    const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4);
+                    const iterations = ~~(Math.min(2 + (oldState.game.moves.length / 3), 6) / 2) * 2;
+                    const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, iterations);
+                    console.debug('found', outcomes.length, 'possible moves using', iterations, 'iterations.');
 
                     // this happens when game has ended
                     if (outcomes.length === 0) break;
