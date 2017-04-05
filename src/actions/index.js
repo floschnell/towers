@@ -367,7 +367,7 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
                     const board = convertTowerPositionsToBoard(newState.game.towerPositions);
-                    const iterations = ~~(Math.min(2 + (oldState.game.moves.length / 3), 6) / 2) * 2;
+                    const iterations = ~~Math.min(3 + (oldState.game.moves.length / 2), 6);
                     const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, iterations);
                     console.debug('found', outcomes.length, 'possible moves using', iterations, 'iterations.');
 
@@ -381,9 +381,12 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
                     const worstMove = outcomes[outcomes.length - 1];
                     const scoreVariation = bestMove.score - worstMove.score;
                     let chosenMove = bestMove;
+
                     for (let index = 1; index < outcomes.length; index++) {
-                        console.debug('percent of score variation:', Math.abs((bestMove.score - outcomes[index].score) / scoreVariation));
-                        if (Math.abs((bestMove.score - outcomes[index].score) / scoreVariation) < 0.1 && Math.random() < 0.5) {
+                        const percentageOfScoreVariation = scoreVariation === 0 ? 0 : Math.abs((bestMove.score - outcomes[index].score) / scoreVariation);
+
+                        console.debug('percent of score variation:', percentageOfScoreVariation);
+                        if (percentageOfScoreVariation < 0.1 && Math.random() < 0.5) {
                             chosenMove = outcomes[index];
                             console.debug('doing move variation.');
                         } else {

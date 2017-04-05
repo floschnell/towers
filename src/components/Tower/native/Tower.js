@@ -15,8 +15,9 @@ export default class Tower extends React.Component {
             justifyContent: 'center',
             alignItems: 'center',
             position: 'absolute',
-            left: this.props.x * this.props.size + this.props.size * 0.2,
-            top: this.props.y * this.props.size + this.props.size * 0.2,
+            margin: this.props.size * 0.2,
+            left: this.props.x * this.props.size,
+            top: this.props.y * this.props.size,
             width: this.props.size * 0.6,
             height: this.props.size * 0.6,
             backgroundColor: getColor(tower.color),
@@ -45,7 +46,9 @@ export default class Tower extends React.Component {
         styles.transform = transforms;
 
         const onClick = event => {
-            this.props.clickOnTower(tower, this.props.playerID);
+            if (this.props.belongsToMe) {
+                this.props.clickOnTower(tower, this.props.playerID);
+            }
         }
 
         return <TouchableOpacity activeOpacity={0.5} onPress={onClick.bind(this)} style={styles}>

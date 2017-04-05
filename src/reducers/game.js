@@ -202,6 +202,7 @@ export default (state, action) => {
 
             return Object.assign(newState, {
                 isTutorial: false,
+                isAIGame: false,
                 selectedTower: undefined,
                 moves: [],
                 board: Game.createInitialBoard()

@@ -165,6 +165,7 @@ function rateBoard(board, player, currentColor, me) {
         const tower = Board.getTowerForPlayerAndColor(board, player, color);
         const y = tower.y;
         const x = tower.x;
+        let reachableColors = 0;
 
         if (player !== me && y === targetY) {
             return -MAX_SCORE;
@@ -181,25 +182,36 @@ function rateBoard(board, player, currentColor, me) {
             const moveRight = curY <= 7 && curY >= 0 && curXRight >= 0 && !Board.coordHasTower(board, curXRight, curY);
 
             if (moveStraight) {
-                points++;
+                reachableColors |= 1 << Board.getBoardColorAtCoord(x, curY);
                 if (curY === targetY) {
-                    points += isCurrentColor ? 40 : 10;
+                    points += isCurrentColor ? 10 : 5;
                 }
             }
 
             if (moveLeft) {
-                points++;
+                reachableColors |= 1 << Board.getBoardColorAtCoord(curXLeft, curY);
                 if (curY === targetY) {
-                    points += isCurrentColor ? 40 : 10;
+                    points += isCurrentColor ? 10 : 5;
                 }
             }
             
             if (moveRight) {
-                points++;
+                reachableColors |= 1 << Board.getBoardColorAtCoord(curXRight, curY);
                 if (curY === targetY) {
-                    points += isCurrentColor ? 40 : 10;
+                    points += isCurrentColor ? 10 : 5;
                 }
             }
+        }
+
+        // tower is blocked
+        if (reachableColors === 0) {
+            points -= 20;
+        } else {
+            let count = 0;
+            for (; reachableColors > 0; ++count) {
+                reachableColors &= reachableColors - 1;
+            }
+            points += count;
         }
     }
 
