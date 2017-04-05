@@ -83,6 +83,11 @@ export function updateToken(token) {
     return (dispatch, getState) => {
         const state = getState();
 
+        if (state.app.player && state.app.player.id) {
+            db.child(`players/${state.app.player.id}/token`).set(token).then(() => {
+                console.debug('set app token on player.');
+            });
+        }
         dispatch(setToken(token));
     };
 }
@@ -471,12 +476,6 @@ export function waitForLogin() {
                     dispatch(authenticate(player));
                     dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)))
                     console.debug('you got logged in');
-
-                    if (state.app.token) {
-                        db.child(`players/${playerID}/token`).set(state.app.token).then(() => {
-                            console.debug('set app token on player.');
-                        });
-                    }
                 }).catch(e => {
                     dispatch(deauthenticate())
                     firebase.auth().signOut();
@@ -548,13 +547,13 @@ export function startGame(playerID, opponentID, players) {
                 throw `You are already playing against ${opponent.val().name}!`;
             }
 
-            gameRef.set(newGame).then(() => Promise.all([
+            return gameRef.set(newGame).then(() => Promise.all([
                 db.child(`players/${playerID}/games`).transaction(updatePlayerGames),
                 db.child(`players/${opponentID}/games`).transaction(updatePlayerGames)
             ])).then(() => {
                 dispatch(gameStarted(newGame));
                 dispatch(replacePage(PAGES.GAME.withTitle(`${players[playerID].name} vs ${players[opponentID].name}`)));
-                dispatch(startListeningForGameUpdates(newGame));
+                dispatch(startListeningForGameUpdates(gameName));
                 dispatch(endLoading());
             });
         }).catch(err => {

@@ -1,5 +1,5 @@
 import { ACTION_TYPES, AUTH_STATE } from '../actions/index';
-import { getGameKey } from './game';
+import Game from '../models/Game';
 import { PAGES } from '../models/Page';
 
 export default (state, action) => {
@@ -139,7 +139,7 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.START_GAME:
-            const gameKey = getGameKey(action.game);
+            const gameKey = Game.getKey(action.game);
 
             return Object.assign(newState, {
                 currentGame: gameKey,
