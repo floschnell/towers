@@ -217,3 +217,35 @@ function rateBoard(board, player, currentColor, me) {
 
     return (player === me) ? points : -points;
 }
+
+export function getDegreesOfFreedomForTower(board, player, color) {
+    const tower = Board.getTowerForPlayerAndColor(board, player, color);
+    const moveDirection = Board.getMoveDirectionOf(board, player);
+    const y = tower.y;
+    const x = tower.x;
+    let degreesOfFreedom = 0;
+
+    for (let distance = 1, moveStraight = true, moveLeft = true, moveRight = true;
+            moveStraight || moveLeft || moveRight;
+            distance++) {
+        const curY = moveDirection === 1 ? y + distance : y - distance;
+        const curXRight = x + distance;
+        const curXLeft = x - distance;
+        const moveStraight = curY <= 7 && curY >= 0 && !Board.coordHasTower(board, x, curY);
+        const moveLeft = curY <= 7 && curY >= 0 && curXLeft >= 0 && !Board.coordHasTower(board, curXLeft, curY);
+        const moveRight = curY <= 7 && curY >= 0 && curXRight >= 0 && !Board.coordHasTower(board, curXRight, curY);
+
+        if (moveStraight) {
+            degreesOfFreedom++;
+        }
+
+        if (moveLeft) {
+            degreesOfFreedom++;
+        }
+        
+        if (moveRight) {
+            degreesOfFreedom++;
+        }
+    }
+    return degreesOfFreedom;
+}
