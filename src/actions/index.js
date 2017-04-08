@@ -3,7 +3,7 @@ import Game from '../models/Game';
 import firebase from 'firebase';
 import { PAGES } from '../models/Page';
 import Board, {convertTowerPositionsToBoard} from '../models/Board';
-import {rateMoves, getDegreesOfFreedomForTower} from '../ai';
+import AI from '../ai';
 
 export const ACTION_TYPES = {
     UPDATE_TOKEN: 'UPDATE_TOKEN',
@@ -371,45 +371,13 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
 
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
-
-                    // estimate freedom of combinations
-                    let freedom = 0;
-                    const board = convertTowerPositionsToBoard(newState.game.towerPositions);
-                    for (player in newState.game.players) {
-                        for (let color = 0; color < 8; color++) {
-                            freedom += getDegreesOfFreedomForTower(board, player, color);
-                        }
-                    }
-                    console.debug('measured freedom:', freedom);
-                    
-                    // choose iterations based on the estimated freedom
-                    const iterations = ~~(900 / freedom);
-                    const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, iterations);
-                    console.debug('found', outcomes.length, 'possible moves using', iterations, 'iterations.');
-
-                    // this happens when game has ended
-                    if (outcomes.length === 0) break;
-
-                    outcomes.sort((a, b) => a.score < b.score ? 1 : -1);
-                    console.debug('outcomes:', outcomes);
-
-                    // alternate moves, so it does not get boring
-                    const bestMove = outcomes[0];
-                    const worstMove = outcomes[outcomes.length - 1];
-                    const scoreVariation = bestMove.score - worstMove.score;
-                    let chosenMove = bestMove;
-
-                    for (let index = 1; index < outcomes.length; index++) {
-                        const percentageOfScoreVariation = scoreVariation === 0 ? 0 : Math.abs((bestMove.score - outcomes[index].score) / scoreVariation);
-
-                        console.debug('percent of score variation:', percentageOfScoreVariation);
-                        if (percentageOfScoreVariation < 0.1 && Math.random() < 0.5) {
-                            chosenMove = outcomes[index];
-                            console.debug('doing move variation.');
-                        } else {
-                            break;
-                        }
-                    }
+                    const options = {
+                        blockedPenalty: 20 + (5 - Math.random() * 10),
+                        couldFinishBonus: 10 + (2 - Math.random() * 4),
+                        aggressiveness: 0.5 + (0.1 - Math.random() * 0.2)
+                    };
+                    const computer = new AI(newState.game, newState.app.player.id, options);
+                    const chosenMove = computer.getNextMove();
 
                     console.debug('will choose:', chosenMove);
                     dispatch(clickedOnField(chosenMove.to, newState.game.currentPlayer, currentGame));
