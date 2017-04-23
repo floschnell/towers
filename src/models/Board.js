@@ -45,64 +45,60 @@ const BIT_MASK_FIELD = BIT_MASK_HAS_TOWER | BIT_MASK_COLOR;
 export function convertTowerPositionsToBoard(towerPositions) {
     const players = Object.keys(towerPositions);
     const newPositions = [];
+    coordToTower = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
     for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
-        newPositions[playerNumber] = towerPositions[players[playerNumber]];
+        newPositions[playerNumber] = [];        
+
+        for (let color = 0; color < 8; color++) {
+            const tower = towerPositions[players[playerNumber]][color];
+            const towerBitMask = (tower.color | BIT_MASK_HAS_TOWER) << (tower.x * BITS_PER_TOWER);
+
+            newPositions[playerNumber][color] = (tower.y << 3) | tower.x;
+            coordToTower[tower.y] |= towerBitMask;
+        }
     }
-    return new Board(newPositions, players);
+
+    return {
+        playerA: players[0],
+        playerB: players[1],
+        coordToTower: coordToTower,
+        playerToColorToTower: newPositions
+    };
 }
 
 export default class Board {
 
-    /**
-     * Creates a new board instance.
-     *
-     * @param {{x: integer, y: integer, color: integer, belongsToPlayer: string}[][]} towerPositions Data structure containing the towers.
-     */
-    constructor(towerPositions, players) {
-        this.coordToTower = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-        this.playerToColorToTower = [];
-        this.players = players;
+    static copy(board) {
+        const playerToColorToTowerCopy = [];
+        for (let i = 0; i < 2; i++) {
+            playerToColorToTowerCopy[i] = board.playerToColorToTower[i].slice();
+        }
+        return {
+            playerA: board.playerA,
+            playerB: board.playerB,
+            playerToColorToTower: playerToColorToTowerCopy,
+            coordToTower: board.coordToTower.slice()
+        };
+    }
 
-        for (let player = 0; player < 2; player++) {
-            this.playerToColorToTower[player] = [];
-
-            for (let color = 0; color < 8; color++) {
-                const tower = towerPositions[player][color];
-
-                this.playerToColorToTower[player][color] = {
-                    x: tower.x,
-                    y: tower.y,
-                    belongsToPlayer: tower.belongsToPlayer,
-                    color: tower.color
-                };
-                const towerBitMask = (tower.color | BIT_MASK_HAS_TOWER) << (tower.x * BITS_PER_TOWER);
-                this.coordToTower[tower.y] |= towerBitMask;
-            }
+    static getOpponentOf(board, player) {
+        if (player === board.playerA) {
+            return board.playerB;
+        } else {
+            return board.playerA;
         }
     }
 
-    copy() {
-        return new Board(this.playerToColorToTower, this.players);
-    }
-
-    getPlayers() {
-        return this.players;
-    }
-
-    getOpponentOf(player) {
-        return this.players.indexOf(player) === 1 ? this.players[0] : this.players[1];
-    }
-
-    getMoveDirectionOf(player) {
-        if (player > this.getOpponentOf(player)) {
+    static getMoveDirectionOf(board, player) {
+        if (player > Board.getOpponentOf(board, player)) {
             return -1;
         } else {
             return 1;
         }
     }
 
-    getTargetRowOf(player) {
-        if (player > this.getOpponentOf(player)) {
+    static getTargetRowOf(board, player) {
+        if (player > Board.getOpponentOf(board, player)) {
             return 0;
         } else {
             return 7;
@@ -116,18 +112,19 @@ export default class Board {
      * @param {{x: Number, y: Number}} from 
      * @param {{x: Number, y: Number}} to 
      */
-    moveTower(player, color, from, to) {
-        const playerNumber = this.players.indexOf(player);
-        const towerToMove = this.playerToColorToTower[playerNumber][color];
+    static moveTower(board, player, color, fromX, fromY, toX, toY) {
+        const playerNumber = player === board.playerA ? 0 : 1;
+        const towerToMove = board.playerToColorToTower[playerNumber][color];
+        const towerToMoveX = towerToMove & 7;
+        const towerToMoveY = towerToMove >>> 3;
 
-        if (towerToMove.x === from.x &&
-            towerToMove.y === from.y) {
+        if (towerToMoveX === fromX &&
+            towerToMoveY === fromY) {
             
-            if (this.coordHasTower(from.x, from.y)) {
-                this.playerToColorToTower[playerNumber][color].x = to.x;
-                this.playerToColorToTower[playerNumber][color].y = to.y;
-                this._clearFieldBits(from.x, from.y);
-                this._setFieldBits(to.x, to.y, color);
+            if (Board.coordHasTower(board, fromX, fromY)) {
+                board.playerToColorToTower[playerNumber][color] = (toY << 3) | toX;
+                Board._clearFieldBits(board, fromX, fromY);
+                Board._setFieldBits(board, toX, toY, color);
                 return true;
             }
         }
@@ -135,57 +132,60 @@ export default class Board {
         throw 'there is no tower that could be moved!';
     }
 
-    _clearFieldBits(x, y) {
-        const negatedFieldBits = ~this._getFieldBits(x, y);
-        const restMask = (1 << (x * BITS_PER_TOWER)) - 1;
+    static _clearFieldBits(board, x, y) {
+        const negatedFieldBits = ~(Board._getFieldBits(board, x, y) << (x * BITS_PER_TOWER));
 
-        this.coordToTower[y] &= (negatedFieldBits << (x * BITS_PER_TOWER)) | restMask;
+        board.coordToTower[y] &= negatedFieldBits;
     }
 
-    _setFieldBits(x, y, color) {
+    static _setFieldBits(board, x, y, color) {
         const fieldBits = BIT_MASK_HAS_TOWER | color;
 
-        this.coordToTower[y] |= fieldBits << (x * BITS_PER_TOWER);
+        board.coordToTower[y] |= fieldBits << (x * BITS_PER_TOWER);
     }
 
-    _getFieldBits(x, y) {
+    static _getFieldBits(board, x, y) {
         const shift = x * BITS_PER_TOWER;
 
-        return (this.coordToTower[y] & (BIT_MASK_FIELD << shift)) >>> shift;
+        return (board.coordToTower[y] & (BIT_MASK_FIELD << shift)) >>> shift;
     }
 
-    getTowerForPlayerAndColor(player, color) {
-        const playerNumber = this.players.indexOf(player);
+    static getTowerForPlayerAndColor(board, player, color) {
+        const playerNumber = player === board.playerA ? 0 : 1;
+        const tower = board.playerToColorToTower[playerNumber][color];
 
-        return this.playerToColorToTower[playerNumber][color];
+        return {
+            x: tower & 7,
+            y: tower >>> 3
+        };
     }
 
-    coordHasTower(x, y) {
-        return (this._getFieldBits(x, y) & BIT_MASK_HAS_TOWER) === BIT_MASK_HAS_TOWER;
+    static coordHasTower(board, x, y) {
+        return (Board._getFieldBits(board, x, y) & BIT_MASK_HAS_TOWER) === BIT_MASK_HAS_TOWER;
     }
 
-    getTowerColorAtCoord(x, y) {
-        if (this.coordHasTower(x, y)) {
-            return this._getFieldBits(x, y) & BIT_MASK_COLOR;
+    static getTowerColorAtCoord(board, x, y) {
+        if (Board.coordHasTower(board, x, y)) {
+            return Board._getFieldBits(board, x, y) & BIT_MASK_COLOR;
         } else {
             return null;
         }
     }
 
-    getBoardColorAtCoord(x, y) {
+    static getBoardColorAtCoord(x, y) {
         return boardColors[y][x];
     }
 
-    _lpad = function(padString, length) {
+    static _lpad(padString, length) {
         var str = this;
         while (str.length < length)
             str = padString + str;
         return str;
     }
 
-    printBoard() {
-        for (const y in this.coordToTower) {
-            const rowString = this._lpad.bind((this.coordToTower[y] >>> 0).toString(2), '0', 8 * BITS_PER_TOWER)();
+    static printBoard(board) {
+        for (const y in board.coordToTower) {
+            const rowString = Board._lpad.bind((board.coordToTower[y] >>> 0).toString(2), '0', 8 * BITS_PER_TOWER)();
             const fields = rowString.match(new RegExp(`(.{1,${BITS_PER_TOWER}})`, 'g')).reverse();
 
             console.log(`${y}:`, fields);

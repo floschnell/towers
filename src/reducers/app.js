@@ -142,7 +142,7 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.START_GAME:
-            const gameKey = getGameKey(action.game);
+            const gameKey = Game.getKey(action.game);
 
             return Object.assign(newState, {
                 currentGame: gameKey,

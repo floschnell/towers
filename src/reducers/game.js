@@ -213,9 +213,13 @@ export default (state, action) => {
 
             return Object.assign(newState, {
                 isTutorial: false,
+                isAIGame: false,
                 selectedTower: undefined,
                 moves: [],
-                board: Game.createInitialBoard()
+                board: Game.createInitialBoard(),
+                tutorial: {
+                    message: ''
+                }
             });
             
         case ACTION_TYPES.START_GAME:
@@ -224,6 +228,9 @@ export default (state, action) => {
 
             return Object.assign(newGameState, {
                 isTutorial: false,
+                tutorial: {
+                    message: ''
+                },
                 currentColor: undefined,
                 selectedTower: undefined,
                 board: Game.createInitialBoard(),
