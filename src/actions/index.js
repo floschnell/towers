@@ -501,7 +501,7 @@ export function startGame(playerID, opponentID, players) {
         dispatch(startLoading(`starting game against ${players[opponentID].name}`));
 
         const playersCopy = {};
-        for (id in players) {
+        for (const id in players) {
             Object.assign(playersCopy, {
                 [id]: {
                     name: players[id].name

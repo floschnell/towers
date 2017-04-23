@@ -4,10 +4,10 @@
   "description": "",
   "main": "./src/test.js",
   "scripts": {
-    "build": "./node_modules/.bin/webpack --config webpack/webpack.config.js --progress -p",
-    "dev": "./node_modules/.bin/webpack-dev-server --config webpack/webpack.config.js",
-    "start": "node serve.js",
-    "test": "./node_modules/.bin/webpack --config webpack/webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./dist/test.js",
+    "web:build": "./node_modules/.bin/webpack --config webpack/webpack.web.config.js --progress -p",
+    "web:dev": "./node_modules/.bin/webpack-dev-server --config webpack/webpack.web.config.js",
+    "web:server": "node serve.js",
+    "test": "./node_modules/.bin/webpack --config webpack/webpack.test.config.js && ./node_modules/.bin/mocha -R mocha-better-spec-reporter ./dist/tests.js",
     "benchmark": "./node_modules/.bin/webpack --config webpack/webpack.benchmark.config.js --target node && node ./dist/benchmarks.js > ./dist/benchmark_results.json"
   },
   "repository": {

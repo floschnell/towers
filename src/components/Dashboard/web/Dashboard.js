@@ -11,7 +11,7 @@ export default class Dashboard extends React.Component {
   }
 
   componentWillMount() {
-    this.props.subscribeOnGameUpdates(this.props.player.uid);
+    this.props.subscribeOnGameUpdates(this.props.player.id);
   }
 
   componentWillUnmount() {
@@ -35,14 +35,16 @@ export default class Dashboard extends React.Component {
       return Object.keys(this.props.games).map(key => {
         const chooseGame = () => {
             if (!this.props.isLoading) {
-                this.props.chooseGame(game);
+                this.props.chooseGame(key);
             }
         };
+        console.debug('games:', this.props.games);
         const game = this.props.games[key];
-        const playerUID = this.props.player.uid;
-        const opponentUID = getOpponent(playerUID, Object.keys(game.players));
-        const opponentName = game.players[opponentUID].name;
-        const myTurn = game.currentPlayer === playerUID;
+        const playerIDs = Object.keys(game.players);
+        const playerID = this.props.player.id;
+        const opponentID = getOpponent(playerID, playerIDs);
+        const opponentName = game.players[opponentID].name;
+        const myTurn = game.currentPlayer === playerID;
 
         return <li className="dashboard__game" key={key} onClick={chooseGame}>
           {myTurn ? `It is your turn in the game against ${opponentName}!` : `Waiting for ${opponentName} to take his turn ...`}

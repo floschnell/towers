@@ -1,6 +1,6 @@
 import {ACTION_TYPES, AUTH_STATE} from '../actions/index';
 import Game from '../models/Game';
-import {PAGES} from '../models/Page';
+import {Page, PAGES} from '../models/Page';
 import Logger from '../logger';
 
 export default (state, action) => {
@@ -65,8 +65,10 @@ export default (state, action) => {
 
         case ACTION_TYPES.POP_UNTIL_PAGE:
             const newStack = [];
-            for (page of state.pageStack) {
-                newStack.push(page);
+            for (const pageJson of state.pageStack) {
+                const page = Page.fromJson(pageJson);
+
+                newStack.push(pageJson);
                 if (action.page.equals(page)) {
                     break;
                 }

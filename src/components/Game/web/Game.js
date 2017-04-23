@@ -18,7 +18,6 @@ export default class Game extends React.Component {
   }
   
   componentWillMount() {
-    this.props.subscribeToUpdates(this.props.game);
     this.onResize();
   }
   
@@ -33,8 +32,8 @@ export default class Game extends React.Component {
   
   render() {
     const size = this.props.width < this.props.height ? this.props.width : this.props.height;
-    const playerOneTowers = this.props.towerPositions[this.props.playerUIDs[0]];
-    const playerTwoTowers = this.props.towerPositions[this.props.playerUIDs[1]];
+    const playerOneTowers = this.props.towerPositions[this.props.playerIDs[0]];
+    const playerTwoTowers = this.props.towerPositions[this.props.playerIDs[1]];
 
     let dialog = '';
     if (this.props.won) {
@@ -43,7 +42,7 @@ export default class Game extends React.Component {
         action: event => console.log('play again...')
       },{
         text: 'End',
-        action: event => this.props.endGame(this.props.game, this.props.playerUID)
+        action: event => this.props.endGame(this.props.game, this.props.playerID)
       }]
       dialog = <Dialog zIndex="10" message="You have won!" buttons={dialogButtons} />
     } else if (this.props.lost) {
@@ -52,7 +51,7 @@ export default class Game extends React.Component {
         action: event => console.log('play again...')
       },{
         text: 'End',
-        action: event => this.props.endGame(this.props.game, this.props.playerUID)
+        action: event => this.props.endGame(this.props.game, this.props.playerID)
       }]
       dialog = <Dialog zIndex="10" message="You have lost!" buttons={dialogButtons} />
     }
@@ -104,11 +103,11 @@ export default class Game extends React.Component {
     
     return <div style={gameSurfaceStyles}>
       <BoardContainer surfaceSize={gameSurfaceSize} />
-      <div style={player1PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[0]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
-      <div style={player2PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerUIDs[1]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
+      <div style={player1PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerIDs[0]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
+      <div style={player2PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerIDs[1]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
       <TowerSetContainer towers={playerOneTowers} size={gameSurfaceSize} />
       <TowerSetContainer towers={playerTwoTowers} size={gameSurfaceSize} />
-      <div className="close-button" onClick={goToDashboard}><img src={closeButton} /></div>
+      <div className="close-button" onClick={goToDashboard}><img src={this.props.suspendGame(this.props.game)} /></div>
       {dialog}
     </div>;
   }

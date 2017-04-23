@@ -10,18 +10,18 @@ export default class CreateGame extends React.Component {
   
     render() {
         const renderPlayers = () => {
-            return Object.keys(this.props.players).map(opponentUID => {
-                const playerUID = this.props.player.uid;
+            return Object.keys(this.props.players).map(opponentID => {
+                const playerID = this.props.player.id;
                 const player = this.props.player;
-                const opponent = this.props.players[opponentUID];
+                const opponent = this.props.players[opponentID];
                 const startGameOnClick = () => {
-                    this.props.startGame(playerUID, opponentUID, {
-                        [playerUID]: player,
-                        [opponentUID]: opponent
+                    this.props.startGame(playerID, opponentID, {
+                        [playerID]: player,
+                        [opponentID]: opponent
                     });
                 };
 
-                return <li key={opponentUID} onClick={startGameOnClick}>{this.props.players[opponentUID].name}</li>;
+                return <li key={opponentID} onClick={startGameOnClick}>{this.props.players[opponentID].name}</li>;
             })
         };
 
@@ -29,12 +29,8 @@ export default class CreateGame extends React.Component {
             this.props.searchForPlayers(this.refs.searchStr.value);
         };
 
-        const navigateBack = event => {
-            this.props.goToDashboard();
-        }
-
         return <div className="dashboard">
-            <div className="dashboard__back-button" onClick={navigateBack}>Zurück</div>
+            <div className="dashboard__back-button" onClick={this.props.goToDashboard}>Zurück</div>
             <input
                 ref="searchStr"
                 type="text"

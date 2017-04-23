@@ -63,6 +63,9 @@ module.exports = {
     new webpack.NormalModuleReplacementPlugin(/\/native\//, function (resource) {
       resource.request = resource.request.replace('/native/', '/web/');
       return resource;
+    }),
+    new webpack.DefinePlugin({
+        '__DEV__': true
     })
   ]
 };
