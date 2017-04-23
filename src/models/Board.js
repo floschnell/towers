@@ -37,7 +37,6 @@ function createInitialTowerPositions(playerUIDs) {
     return towers;
 }
 
-// 8 * 3 = 24 bit
 const BITS_PER_TOWER = 4;
 const BIT_MASK_HAS_TOWER = 8;
 const BIT_MASK_COLOR = 7;
@@ -192,50 +191,4 @@ export default class Board {
             console.log(`${y}:`, fields);
         }
     }
-}
-
-if (false) {
-    const towerPositions = createInitialTowerPositions(['player', 'computer']);
-    const board = convertTowerPositionsToBoard(towerPositions);
-
-    board.printBoard();
-    console.log('0,0:', board.coordHasTower(0, 0));
-    console.log('3,3:', board.coordHasTower(3, 3));
-    console.log('7,0:', board.coordHasTower(7, 0));
-    console.log('0,7:', board.coordHasTower(0, 7));
-    console.log('7,7:', board.coordHasTower(7, 7));
-
-    console.log('move: ', board.moveTower('computer', 3, {x: 3, y: 0}, {x: 3, y: 3}));
-    board.printBoard();
-    console.log('3,3:', board.coordHasTower(3, 3));
-
-    console.log('benchmarking coordHasTower():');
-    console.time('coordHasTower');
-    for (let i = 0; i < 1000000; i++) {
-        board.coordHasTower(i + 4 % 8, i % 8);
-    }
-    const end = Date.now();
-    console.timeEnd('coordHasTower');
-
-    console.log('benchmarking copy():');
-    console.time('copy');
-    for (let i = 0; i < 100000; i++) {
-        board.copy();
-    }
-    console.timeEnd('copy');
-
-    console.log('benchmarking getTowerForPlayerAndColor():');
-    console.time('getTowerForPlayerAndColor');
-    for (let i = 0; i < 1000000; i++) {
-        board.getTowerForPlayerAndColor('computer', 4);
-    }
-    console.timeEnd('getTowerForPlayerAndColor');
-
-    console.log('benchmarking moveTower():');
-    console.time('moveTower');
-    for (let i = 0; i < 1000000; i++) {
-        board.moveTower('computer', 3, {x: 3, y: 3}, {x: 3, y: 0});
-        board.moveTower('computer', 3, {x: 3, y: 0}, {x: 3, y: 3});
-    }
-    console.timeEnd('moveTower');
 }

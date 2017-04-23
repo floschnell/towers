@@ -3,8 +3,20 @@ import Game from '../models/Game';
 import firebase from 'firebase';
 import { PAGES } from '../models/Page';
 import Board, {convertTowerPositionsToBoard} from '../models/Board';
-import { rateMoves } from '../ai';
+import AI from '../ai';
+import Rx from 'rxjs';
+import Logger from '../logger';
 
+/**
+ * Any asynchronous task that is running in background and that can be canceled.
+ * 
+ * @type {Rx.Subscription}
+ */
+let subscription = null;
+
+/**
+ * All the different actions this application consists of.
+ */
 export const ACTION_TYPES = {
     UPDATE_TOKEN: 'UPDATE_TOKEN',
     PUSH_PAGE: 'PUSH_PAGE',
@@ -24,6 +36,7 @@ export const ACTION_TYPES = {
     RESUME_GAME: 'RESUME_GAME',
     START_GAME: 'START_GAME',
     UPDATE_GAME: 'UPDATE_GAME',
+    SUSPEND_GAME: 'SUSPEND_GAME',
     START_SEARCH_FOR_PLAYERS: 'START_SEARCH_FOR_PLAYERS',
     UPDATE_PLAYERS: 'UPDATE_PLAYERS',
     GAME_ENDED: 'GAME_ENDED',
@@ -50,18 +63,30 @@ export const MOVE_RESULTS = {
     NO_TOWER_SELECTED: 'NO_TOWER_SELECTED'
 };
 
-let gamelistSubscriptionRef = null;
-let gameSubscriptionRef = null;
-
 export const launchTutorial = player => ({
     type: ACTION_TYPES.LAUNCH_TUTORIAL,
     player
 });
 
-export const launchGameAgainstAI = player => ({
-    type: ACTION_TYPES.LAUNCH_GAME_AGAINST_AI,
-    player
+export const gameSuspended = () => ({
+    type: ACTION_TYPES.SUSPEND_GAME
 });
+
+export function launchGameAgainstAI(player) {
+    const aiCharacteristics = {
+        blockedPenalty: 20 + (5 - Math.random() * 10),
+        couldFinishBonus: 10 + (2 - Math.random() * 4),
+        aggressiveness: 0.5 + (0.1 - Math.random() * 0.2)
+    };
+
+    return {
+        type: ACTION_TYPES.LAUNCH_GAME_AGAINST_AI,
+        player,
+        blockedPenalty: aiCharacteristics.blockedPenalty,
+        couldFinishBonus: aiCharacteristics.couldFinishBonus,
+        aggressiveness: aiCharacteristics.aggressiveness
+    };
+};
 
 export const nextTutorialStep = () => ({
     type: ACTION_TYPES.NEXT_TUTORIAL_STEP
@@ -70,6 +95,8 @@ export const nextTutorialStep = () => ({
 export function checkUsername(playerName) {
     return dispatch => {
         const playerID = playerName.toLowerCase();
+
+        Rx.Observable.fromPromise(db.child(`players/${playerID}`).once('value')).subscribe();
 
         db.child(`players/${playerID}`)
         .once('value')
@@ -83,6 +110,12 @@ export function updateToken(token) {
     return (dispatch, getState) => {
         const state = getState();
 
+        if (state.app.player && state.app.player.id) {
+
+            db.child(`players/${state.app.player.id}/token`).set(token).then(() => {
+                console.debug('set app token on player.');
+            });
+        }
         dispatch(setToken(token));
     };
 }
@@ -99,9 +132,15 @@ export function usernameChecked(result) {
     };
 }
 
-export const cancelLoading = () => ({
-    type: ACTION_TYPES.CANCEL_LOADING
-})
+export function cancelLoading() {
+    if (subscription) {
+        console.log(subscription);
+        subscription.unsubscribe();
+    }
+    return {
+        type: ACTION_TYPES.CANCEL_LOADING
+    };
+}
 
 /**
  * @param {Page} page 
@@ -172,27 +211,25 @@ export function logout() {
 
 export function login(id, password) {
     return (dispatch, getState) => {
-        const orderID = Date.now();
-
+        const player = Rx.Observable.fromPromise(db.child(`players/${id.toLowerCase()}`).once('value'));
         dispatch(authenticationInProgress());
-        db.child(`players/${id.toLowerCase()}`).once('value').then(playerSnapshot => {
-            if (!getState().app.loadingOrderID === orderID) {
-                return;
+
+        player.subscribe(
+            playerSnapshot => {
+                if (!playerSnapshot.exists()) {
+                    throw 'This player does not exist!';
+                }
+
+                firebase
+                .auth()
+                .signInWithEmailAndPassword(playerSnapshot.val().mail, password)
+                .catch(error => {throw error.message});
+            },
+            error => {
+                dispatch(deauthenticate());
+                dispatch(showMessage(error));
             }
-
-            if (!playerSnapshot.exists()) {
-                throw 'This player does not exist!';
-            }
-
-            return firebase
-            .auth()
-            .signInWithEmailAndPassword(playerSnapshot.val().mail, password)
-            .catch(error =>  {throw error.message});
-
-        }).catch(error => {
-            dispatch(deauthenticate());
-            dispatch(showMessage(error));
-        });
+        );
     };
 }
 
@@ -213,7 +250,7 @@ export function suspendGame(gameKey) {
     return (dispatch) => {
         console.log(`suspending game: ${gameKey}`);
         db.child(`games/${gameKey}`).off();
-        dispatch(resumeGame(null));
+        dispatch(gameSuspended());
     };
 }
 
@@ -225,38 +262,35 @@ export function stopListeningForGameUpdates(gameKey) {
 
 export function loadGameFromKey(gameKey) {
     return (dispatch, getState) => {
-        const orderID = Date.now();
+        const gameObserver = Rx.Observable.fromPromise(db.child(`games/${gameKey}`).once('value'));
 
-        dispatch(startLoading(`Resuming game ...`, orderID));
-        db.child(`games/${gameKey}`)
-        .once('value')
-        .then(gameSnapshot => {
-            const currentState = getState();
+        dispatch(startLoading(`Resuming game ...`));
+        subscription = gameObserver.subscribe(
+            gameSnapshot => {
+                const currentState = getState();
 
-            if (gameSnapshot.exists() && currentState.app.loadingOrderID === orderID) {
-                const game = gameSnapshot.val();
-                const player = Game.getPlayer(game, currentState.app.player.id);
-                const opponent = Game.getOpponent(game, currentState.app.player.id);
-                const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
+                if (gameSnapshot.exists()) {
+                    const game = gameSnapshot.val();
+                    const player = Game.getPlayer(game, currentState.app.player.id);
+                    const opponent = Game.getOpponent(game, currentState.app.player.id);
+                    const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
 
-                dispatch(resumeGame(gameKey));
-                dispatch(updateGame(game));
-                dispatch(startListeningForGameUpdates(gameKey));
+                    dispatch(resumeGame(gameKey));
+                    dispatch(updateGame(game));
+                    dispatch(startListeningForGameUpdates(gameKey));
 
-                const gameState = getState().game;
-                if (gameState.valid) {
-                    dispatch(pushPage(gamePage));
-                } else {
-                    dispatch(showMessage('Game is not in a valid state!'))
+                    const gameState = getState().game;
+                    if (gameState.valid) {
+                        dispatch(pushPage(gamePage));
+                    } else {
+                        dispatch(showMessage('Game is not in a valid state!'))
+                    }
                 }
-            } else {
-                console.debug('does not match order id.');
-            }
-        }).catch(e => {
-            dispatch(showMessage(e));
-        }).then(() => {
-            dispatch(endLoading());
-        });
+            },
+            error => dispatch(showMessage(e)),
+            () => dispatch(endLoading())
+        );
+        console.log(subscription);
     };
 }
 
@@ -319,11 +353,10 @@ export function createAccount(username, email, password) {
     };
 }
 
-export function startLoading(message, orderID) {
+export function startLoading(message) {
     return {
         type: ACTION_TYPES.START_LOADING,
-        message,
-        orderID
+        message
     };
 }
 
@@ -366,33 +399,18 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
 
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
-                    const board = convertTowerPositionsToBoard(newState.game.towerPositions);
-                    const outcomes = rateMoves(board, newState.game.currentColor, newState.game.currentPlayer, newState.game.currentPlayer, 4);
-                    console.log('outcomes:', outcomes);
-                    outcomes.sort((a, b) => a.score < b.score ? 1 : -1);
-                    console.log('will choose:', outcomes[0]);
-                    dispatch(clickedOnField(outcomes[0].to, newState.game.currentPlayer, currentGame));
-                    newState = getState();
 
-                    // const bestMove = ratedMoves[0];
-                    // const worstMove = ratedMoves[ratedMoves.length - 1];
-                    // const scoreVariation = bestMove.score - worstMove.score;
-                    // let chosenMove = bestMove;
-                    // for (let index = 1; index < ratedMoves.length; index++) {
-                    //     console.log('percent of score variation:', Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation));
-                    //     if (Math.abs((bestMove.score - ratedMoves[index].score) / scoreVariation) < 0.1 && Math.random() < 0.5) {
-                    //         chosenMove = ratedMoves[index];
-                    //         console.debug('doing move variation.');
-                    //     } else {
-                    //         break;
-                    //     }
-                    // }
+                    const computerPlayer = new AI(newState.game, newState.app.player.id, newState.game.ai);
+                    const chosenMove = computerPlayer.getNextMove();
 
-                    // console.debug('possible moves:', ratedMoves);
-                    // console.debug('computer chooses:', chosenMove);
-                    // const field = chosenMove.to;
-                    // dispatch(clickedOnField(field, newState.game.currentPlayer, currentGame));
-                    // newState = getState();
+                    if (chosenMove) {
+                        Logger.info('will choose:', chosenMove);
+                        dispatch(clickedOnField(chosenMove.to, newState.game.currentPlayer, currentGame));
+                        newState = getState();
+                    } else {
+                        Logger.info('Computer has won.');
+                        break;
+                    }
                 }
             }
         } else {

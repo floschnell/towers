@@ -1,6 +1,7 @@
-import { ACTION_TYPES, AUTH_STATE } from '../actions/index';
-import { getGameKey } from './game';
-import { PAGES } from '../models/Page';
+import {ACTION_TYPES, AUTH_STATE} from '../actions/index';
+import Game from '../models/Game';
+import {PAGES} from '../models/Page';
+import Logger from '../logger';
 
 export default (state, action) => {
 
@@ -10,7 +11,6 @@ export default (state, action) => {
             token: null,
             isLoading: false,
             loadingMessage: '',
-            loadingOrderID: 0,
             players: [],
             games: {},
             player: null,
@@ -89,8 +89,7 @@ export default (state, action) => {
         case ACTION_TYPES.START_LOADING:
            return Object.assign(newState, {
                 isLoading: true,
-                loadingMessage: action.message,
-                loadingOrderID: action.orderID
+                loadingMessage: action.message
             });
 
         case ACTION_TYPES.END_LOADING:
@@ -101,8 +100,7 @@ export default (state, action) => {
         case ACTION_TYPES.CANCEL_LOADING:
             return Object.assign(newState, {
                 isLoading: false,
-                loadingMessage: null,
-                loadingOrderID: 0
+                loadingMessage: null
             });
 
         case ACTION_TYPES.UPDATE_GAMES:
@@ -125,6 +123,11 @@ export default (state, action) => {
             return Object.assign(newState, {
                 player: null,
                 authState: AUTH_STATE.UNAUTHENTICATED
+            });
+
+        case ACTION_TYPES.SUSPEND_GAME:
+            return Object.assign(newState, {
+                currentGame: null
             });
             
         case ACTION_TYPES.RESUME_GAME:
@@ -149,6 +152,11 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.RESIZE_GAME_SURFACE:
+            if (action.surfaceWidth === state.surfaceWidth &&
+                action.surfaceHeight === state.surfaceHeight) {
+                return state;
+            }
+
             return Object.assign(newState, {
                 surfaceWidth: action.surfaceWidth,
                 surfaceHeight: action.surfaceHeight,
@@ -156,13 +164,13 @@ export default (state, action) => {
             });
 
         case ACTION_TYPES.SHOW_MESSAGE:
-            console.debug('setting message', action.message);
+            Logger.debug('setting message', action.message);
             return Object.assign(newState, {
                 message: action.message
             });
 
         case ACTION_TYPES.CLEAR_MESSAGE:
-            console.debug('clear message', newState.message);
+            Logger.debug('clear message', newState.message);
             return Object.assign(newState, {
                 message: null
             });

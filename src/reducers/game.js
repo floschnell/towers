@@ -4,6 +4,7 @@ import Game from '../models/Game';
 import { getColor } from '../utils';
 import { nextTutorialState, TUTORIAL_MESSAGE_POSITION } from '../tutorial';
 import { rateMoves } from '../ai';
+import Logger from '../logger';
 
 export default (state, action) => {
     
@@ -29,6 +30,11 @@ export default (state, action) => {
                 continueOnFieldClick: false,
                 continueOnMessageClick: false,
                 continueOnTowerClick: false,
+            },
+            ai: {
+                blockedPenalty: 20,
+                couldFinishBonus: 10,
+                aggressiveness: 0.5
             }
         };
     }
@@ -59,12 +65,17 @@ export default (state, action) => {
                 towerPositions: aiGameTowers,
                 valid: true,
                 isAIGame: true,
-                isTutorial: false
+                isTutorial: false,
+                ai: {
+                    blockedPenalty: action.blockedPenalty,
+                    couldFinishBonus: action.couldFinishBonus,
+                    aggressiveness: action.aggressiveness
+                }
             });
             return newState;
 
         case ACTION_TYPES.NEXT_TUTORIAL_STEP:
-            console.debug('tutorial click on message');
+            Logger.debug('tutorial click on message');
             nextTutorialState(newState);
             return newState;
 
@@ -98,7 +109,7 @@ export default (state, action) => {
         case ACTION_TYPES.CLICK_ON_TOWER:
             if (currentPlayer === action.playerID) {
                 if (state.isTutorial && state.tutorial.continueOnTowerClick) {
-                    console.debug('tutorial click on tower');
+                    Logger.debug('tutorial click on tower');
                     nextTutorialState(newState);
                 }
 
@@ -147,12 +158,12 @@ export default (state, action) => {
                         newState.moves.push(move);
 
                         if (state.isTutorial && state.tutorial.continueOnFieldClick) {
-                            console.debug('tutorial click on field');
+                            Logger.debug('tutorial click on field');
                             nextTutorialState(newState);
                         }
 
                     } catch (e) {
-                        console.debug('move is invalid: ', e);
+                        Logger.debug('move is invalid: ', e);
                         newState.moveResult = MOVE_RESULTS.INVALID;
                         newState.currentPlayer = currentPlayer;
                         if (currentColor) {
@@ -168,7 +179,7 @@ export default (state, action) => {
                 newState.moveResult = MOVE_RESULTS.NOT_YOUR_TURN;
             }
             break;
-            
+
         case ACTION_TYPES.UPDATE_GAME:
             try {
                 const updatedState = Object.assign(newState, action.game);
@@ -208,7 +219,7 @@ export default (state, action) => {
             });
             
         case ACTION_TYPES.START_GAME:
-            console.log('created game:', action.game);
+            Logger.log('created game:', action.game);
             const newGameState = Object.assign({}, action.game);
 
             return Object.assign(newGameState, {

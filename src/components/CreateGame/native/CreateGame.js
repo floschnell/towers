@@ -9,7 +9,6 @@ import {
     ScrollView,
     ActivityIndicator
 } from 'react-native';
-import {Actions, ActionConst} from 'react-native-router-flux';
 
 export default class CreateGame extends React.Component {
 

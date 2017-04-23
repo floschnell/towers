@@ -1,38 +1,45 @@
 import Game from './models/Game';
-import Board from './models/Board';
+import Board, {convertTowerPositionsToBoard} from './models/Board';
+import Logger from './logger';
 
 const MAX_SCORE = 10000000;
 
-/**
- * 
- * @param {*} from 
- * @param {*} to 
- * @param {Board} board 
- * @param {*} player 
- * @param {*} me 
- * @param {*} iterations 
- */
-function rate(from, to, board, player, me, iterations) {
-    if (iterations === 0) {
-        const result = rateBoard(board, player, to.color, me);
-        return {
-            from,
-            to,
-            score: result
-        };
-    } else {
-        let results = rateMoves(board, to.color, player, me, iterations - 1);
-        if (results.length === 0) {
-            iterations--;
-            if (iterations >= 1) {
-                const blockedTower = board.getTowerForPlayerAndColor(player, to.color);
-                const otherPlayer = board.getOpponentOf(player);
-                const blockedTowerFieldColor = board.getBoardColorAtCoord(blockedTower.x, blockedTower.y);
-                results = rateMoves(board, blockedTowerFieldColor, otherPlayer, me, iterations - 1);
-            }
-        }
-        if (iterations % 2 === 0) {
-            results.sort((a, b) => a.score > b.score ? 1 : -1);
+export default class AI {
+
+    constructor({towerPositions, currentColor, currentPlayer}, me, {aggressiveness, blockedPenalty, couldFinishBonus}) {
+        this.currentColor = currentColor;
+        this.currentPlayer = currentPlayer;
+        this.me = me;
+        this.board = convertTowerPositionsToBoard(towerPositions);
+        this.aggressiveness = aggressiveness;
+        this.towerIsBlockedPenalty = blockedPenalty;
+        this.towerCouldFinishBonus = couldFinishBonus;
+
+         // estimate freedom of combinations
+        const freedom = Object.keys(towerPositions).map(player =>
+            Object.keys(towerPositions[player]).map(color =>
+                Board.getDegreesOfFreedomForTower(this.board, player, color)
+            )
+        ).reduce(
+            (a, b) => a.concat(b)
+        ).reduce(
+            (a, b) => a + b
+        );
+        Logger.debug('measured freedom:', freedom);
+        
+        // choose iterations based on the estimated freedom
+        this.iterations = 3 + ~~((250 - freedom) / 20);
+    }
+
+    getNextMove() {
+        const outcomes = this.rateMoves(this.board, this.currentColor, this.currentPlayer, this.currentPlayer, this.iterations);
+        Logger.debug('found', outcomes.length, 'possible moves using', this.iterations, 'iterations.');
+
+        outcomes.sort((a, b) => a.score < b.score ? 1 : -1);
+        Logger.debug('outcomes:', outcomes);
+
+        if (outcomes.length > 0) {
+            return outcomes[0];
         } else {
             results.sort((a, b) => a.score < b.score ? 1 : -1);
         }
