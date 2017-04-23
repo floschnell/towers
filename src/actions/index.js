@@ -399,7 +399,6 @@ export function clickOnField(field, playerID, opponentID, currentGame) {
 
             if (oldState.game.isAIGame) {
                 while (newState.game.currentPlayer === 'computer') {
-
                     const computerPlayer = new AI(newState.game, newState.app.player.id, newState.game.ai);
                     const chosenMove = computerPlayer.getNextMove();
 
