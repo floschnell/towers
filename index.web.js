@@ -13,8 +13,6 @@ if (__DEV__) {
   Logger.setVerbosity(LOG_LEVELS.INFO);
 }
 
-Logger.log(LOG_LEVELS.DEBUG, 'hello');
-
 const store = createStore(reducer, applyMiddleware(thunk, reduxLogger(LOG_LEVELS.DEBUG)));
 
 ReactDOM.render(

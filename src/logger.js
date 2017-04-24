@@ -15,12 +15,10 @@ export const reduxLogger = verbosity => store => next => action => {
 export default class Logger {
 
     static setVerbosity(verbosity) {
-        console.log(verbosity);
         _verbosity = verbosity;
     }
 
     static log(verbosity, ...args) {
-        console.log(verbosity);
         switch(verbosity) {
             case LOG_LEVELS.DEBUG:
                 Logger.debug.apply(null, args);

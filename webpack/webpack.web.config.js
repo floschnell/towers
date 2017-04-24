@@ -4,8 +4,8 @@ var path = require('path');
 module.exports = env => ({
   entry: './index.web.js',
   output: {
-    publicPath: '/game/',
-    filename: './dist/towers.js'
+    publicPath: '/dist/',
+    filename: './public/dist/towers.js'
   },
   resolve: {
     extensions: [ '.js', '.jsx' ],
