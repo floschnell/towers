@@ -1,10 +1,31 @@
-.dashboard__start-button
-    display: inline-block
+.dashboard
+    display: flex
+    flex-direction: column
+    align-items: center
+
+.dashboard__button
+    font-size: 20px
+    font-weight: bold
+    display: block
     cursor: pointer
     border: 1px solid grey
     padding: 5px;
-    background-color: #ccc
+    background-color: darkblue
+    margin: 5px
+    color: white
 
 .dashboard__game
+    display: block
+    background-color: darkred
+    color: white
+    margin: 5px
+    padding: 5px
     cursor: pointer
-    text-decoration: underline
+    font-size: 20px
+
+.dashboard__list
+    margin: 0
+    padding: 0
+    display: flex;
+    flex-direction: column;
+    align-items: center

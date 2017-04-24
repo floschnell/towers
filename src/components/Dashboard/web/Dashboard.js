@@ -56,9 +56,10 @@ export default class Dashboard extends React.Component {
     const startNewGame = () => {
       this.props.startNewGame();
     };
-    
+
     return <div className="dashboard">
-            <div className="dashboard__start-button" onClick={startNewGame}>Start new game</div>
+            <div className="dashboard__button" onClick={this.props.startNewGame}>Start new game</div>
+            <div className="dashboard__button" onClick={this.props.playAgainstPC.bind(null, this.props.player)}>Start game against AI</div>
             {renderGamelist()}
           </div>;
   }

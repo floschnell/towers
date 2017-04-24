@@ -45,7 +45,7 @@ const BIT_MASK_FIELD = BIT_MASK_HAS_TOWER | BIT_MASK_COLOR;
 export function convertTowerPositionsToBoard(towerPositions) {
     const players = Object.keys(towerPositions);
     const newPositions = [];
-    coordToTower = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
+    const coordToTower = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
     for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
         newPositions[playerNumber] = [];        
 

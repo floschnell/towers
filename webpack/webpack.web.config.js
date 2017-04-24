@@ -4,7 +4,7 @@ var path = require('path');
 module.exports = env => ({
   entry: './index.web.js',
   output: {
-    publicPath: '/dist/',
+    publicPath: '/dev/',
     filename: './public/dist/towers.js'
   },
   resolve: {

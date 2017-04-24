@@ -45,18 +45,12 @@ export default class Game extends React.Component {
     let dialog = '';
     if (this.props.won) {
       const dialogButtons = [{
-        text: 'Again',
-        action: event => Logger.debug('play again...')
-      },{
         text: 'End',
         action: event => this.props.endGame(this.props.game, this.props.playerID)
       }]
       dialog = <Dialog zIndex="10" message="You have won!" buttons={dialogButtons} />
     } else if (this.props.lost) {
       const dialogButtons = [{
-        text: 'Again',
-        action: event => Logger.debug('play again...')
-      },{
         text: 'End',
         action: event => this.props.endGame(this.props.game, this.props.playerID)
       }]

@@ -15,6 +15,7 @@ import CreateGameContainer from '../../CreateGame/CreateGameContainer';
 import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 import Logger from '../../../logger';
 import { PAGES } from '../../../models/Page';
+import styles from './App.styl';
 
 export default class App extends React.Component {
 
