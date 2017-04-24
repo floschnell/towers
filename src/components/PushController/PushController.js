@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Platform } from 'react-native';
 import FCM, { FCMEvent, RemoteNotificationResult, WillPresentNotificationResult, NotificationType } from "react-native-fcm";
+import Logger from '../../logger';
 
 export default class PushController extends Component {
     constructor() {
@@ -13,7 +14,7 @@ export default class PushController extends Component {
         FCM.requestPermissions();
 
         FCM.getFCMToken().then(token => {
-            console.log("TOKEN (getFCMToken)", token);
+            Logger.debug("TOKEN (getFCMToken)", token);
             this.props.onChangeToken(token);
         });
 
@@ -24,32 +25,32 @@ export default class PushController extends Component {
         });
 
         this.notificationListner = FCM.on(FCMEvent.Notification, notif => {
-            console.log("Notification", notif);
+            Logger.debug("Notification", notif);
             if (notif.local_notification) {
                 if (notif.opened_from_tray && notif.game) {
-                    console.log("has game");
+                    Logger.debug("has game");
                     this.props.goToGame(notif.game);
                 }
                 return;
             }
 
             if (notif.opened_from_tray) {
-                console.log("opened from tray");
+                Logger.debug("opened from tray");
                 if (notif.game) {
-                    console.log("has game");
+                    Logger.debug("has game");
                     this.props.goToGame(notif.game);
                 }
                 return;
             }
 
             if (!notif.game || notif.game !== this.props.game) {
-                console.log('display local notif:', notif);
+                Logger.debug('display local notif:', notif);
                 this.showLocalNotification(notif);
             }
         });
 
         this.refreshTokenListener = FCM.on(FCMEvent.RefreshToken, token => {
-            console.log("TOKEN (refreshUnsubscribe)", token);
+            Logger.debug("TOKEN (refreshUnsubscribe)", token);
             this.props.onChangeToken(token);
         });
     }

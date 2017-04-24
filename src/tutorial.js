@@ -2,6 +2,7 @@ import Game from './models/Game';
 import { getColor } from './utils';
 import GameLogic from './gamelogic';
 import { MOVE_RESULTS } from './actions/index';
+import Logger from './logger';
 
 export const TUTORIAL_MESSAGE_POSITION = {
     TOP: 'TOP',
@@ -92,7 +93,7 @@ export function nextTutorialState(gameState) {
         case 4:
             const shouldFieldFirst = getPlayerField(7, 3);
             const isFieldFirst = gameState.moves[gameState.moves.length - 1].targetField;
-            console.log('should', shouldFieldFirst, 'but is', isFieldFirst);
+            Logger.debug('should', shouldFieldFirst, 'but is', isFieldFirst);
             if (isFieldFirst.x === shouldFieldFirst.x && isFieldFirst.y === shouldFieldFirst.y) {
                 gameState.tutorial.message = `Awesome! Your opponent could not move, because his yellow tower is blocked.
                                               So it's your turn again and you are only one move away from winning the game.
@@ -111,7 +112,7 @@ export function nextTutorialState(gameState) {
         case 5:
             const shouldFieldSecond = getPlayerField(4, 0);
             const isFieldSecond = gameState.moves[gameState.moves.length - 1].targetField;
-            console.log('should', shouldFieldSecond, 'but is', isFieldSecond);
+            Logger.debug('should', shouldFieldSecond, 'but is', isFieldSecond);
             if (isFieldSecond.x !== shouldFieldSecond.x || isFieldSecond.y !== shouldFieldSecond.y) {
                 gameState.tutorial.step--;
                 gameState.moves.pop();
@@ -129,5 +130,5 @@ export function nextTutorialState(gameState) {
 
     gameState.moveResult = MOVE_RESULTS.OK;
     gameState.tutorial.step++;
-    console.debug('tutorial step:', gameState.tutorial.step);
+    Logger.debug('tutorial step:', gameState.tutorial.step);
 }

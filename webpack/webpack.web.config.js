@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 var path = require('path');
 
-module.exports = {
+module.exports = env => ({
   entry: './index.web.js',
   output: {
     publicPath: '/game/',
@@ -65,7 +65,7 @@ module.exports = {
       return resource;
     }),
     new webpack.DefinePlugin({
-        '__DEV__': true
+        '__DEV__': env === 'dev'
     })
   ]
-};
+});

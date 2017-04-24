@@ -187,8 +187,6 @@ export default class Board {
         for (const y in board.coordToTower) {
             const rowString = Board._lpad.bind((board.coordToTower[y] >>> 0).toString(2), '0', 8 * BITS_PER_TOWER)();
             const fields = rowString.match(new RegExp(`(.{1,${BITS_PER_TOWER}})`, 'g')).reverse();
-
-            console.log(`${y}:`, fields);
         }
     }
 

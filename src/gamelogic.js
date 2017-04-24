@@ -1,3 +1,5 @@
+import Logger from './logger';
+
 /**
  * Copies a set of towers.
  * 
@@ -135,7 +137,7 @@ export default class GameLogic {
         const directionValid = (deltaY > 0 && moveDirection > 0) || (deltaY < 0 && moveDirection < 0);
         const moveInLine = moveStraight || moveDiagonally;
 
-        //console.debug('evaluating move:', towers, player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
+        Logger.debug('evaluating move:', towers, player, color, sourceField, targetField, towerIsOnSource, targetIsFree, directionValid, moveInLine);
 
         return towerIsOnSource
             && targetIsFree

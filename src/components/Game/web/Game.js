@@ -5,6 +5,9 @@ import PlayerPlateContainer from '../../PlayerPlate/PlayerPlateContainer';
 import Dialog from '../../Dialog/Dialog';
 import css from './Game.styl';
 import closeButton from '../../../../resources/close.png';
+import Logger from '../../../logger';
+
+let timeoutHandler = 0;
 
 export default class Game extends React.Component {
 
@@ -14,7 +17,12 @@ export default class Game extends React.Component {
   }
   
   onResize(e) {
-    this.props.resizeGameSurface(window.innerWidth, window.innerHeight);
+    if (timeoutHandler) {
+      clearTimeout(timeoutHandler);
+    }
+    timeoutHandler = setTimeout(() => {
+      this.props.resizeGameSurface(window.innerWidth, window.innerHeight);
+    }, 500);
   }
   
   componentWillMount() {
@@ -26,7 +34,6 @@ export default class Game extends React.Component {
   }
   
   componentWillUnmount() {
-    this.props.unsubscribeFromUpdates(this.props.game);
     window.removeEventListener('resize', this.resizeListener);
   }
   
@@ -39,7 +46,7 @@ export default class Game extends React.Component {
     if (this.props.won) {
       const dialogButtons = [{
         text: 'Again',
-        action: event => console.log('play again...')
+        action: event => Logger.debug('play again...')
       },{
         text: 'End',
         action: event => this.props.endGame(this.props.game, this.props.playerID)
@@ -48,7 +55,7 @@ export default class Game extends React.Component {
     } else if (this.props.lost) {
       const dialogButtons = [{
         text: 'Again',
-        action: event => console.log('play again...')
+        action: event => Logger.debug('play again...')
       },{
         text: 'End',
         action: event => this.props.endGame(this.props.game, this.props.playerID)
@@ -58,7 +65,7 @@ export default class Game extends React.Component {
     
     const calculateGameSurfaceSize = () => {
       const height = this.props.surfaceHeight - 150;
-      const width = this.props.surfaceWidth;
+      const width = this.props.surfaceWidth - 10;
 
       return height > width ? width : height;
     }
@@ -96,10 +103,12 @@ export default class Game extends React.Component {
       left: 0
     });
 
-    const goToDashboard = () => {
+    const orientationMode = playerPlateHorizontalOrientation ? 'horizontal' : 'vertical';
+
+    const suspendGame = () => {
+      this.props.suspendGame(this.props.game);
       this.props.goToDashboard();
     };
-    const orientationMode = playerPlateHorizontalOrientation ? 'horizontal' : 'vertical';
     
     return <div style={gameSurfaceStyles}>
       <BoardContainer surfaceSize={gameSurfaceSize} />
@@ -107,7 +116,7 @@ export default class Game extends React.Component {
       <div style={player2PlateStyles} ><PlayerPlateContainer mode={orientationMode} player={this.props.playerIDs[1]} height={topOffset} width={leftOffset} surface={gameSurfaceSize} /></div>
       <TowerSetContainer towers={playerOneTowers} size={gameSurfaceSize} />
       <TowerSetContainer towers={playerTwoTowers} size={gameSurfaceSize} />
-      <div className="close-button" onClick={goToDashboard}><img src={this.props.suspendGame(this.props.game)} /></div>
+      <div className="close-button" onClick={suspendGame.bind(this)}><img src={closeButton} /></div>
       {dialog}
     </div>;
   }

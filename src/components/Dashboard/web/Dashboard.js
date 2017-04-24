@@ -3,6 +3,7 @@ import { hashHistory } from 'react-router';
 import firebase from 'firebase';
 import { getOpponent } from '../../../gamelogic';
 import css from './Dashboard.styl';
+import Logger from '../../../logger';
 
 export default class Dashboard extends React.Component {
   
@@ -38,7 +39,7 @@ export default class Dashboard extends React.Component {
                 this.props.chooseGame(key);
             }
         };
-        console.debug('games:', this.props.games);
+        Logger.debug('games:', this.props.games);
         const game = this.props.games[key];
         const playerIDs = Object.keys(game.players);
         const playerID = this.props.player.id;

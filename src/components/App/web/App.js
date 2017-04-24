@@ -7,13 +7,13 @@ import {
 } from 'react-router';
 import firebase from 'firebase';
 import db from '../../../database';
-
 import GameContainer from '../../Game/GameContainer';
 import BoardContainer from '../../Board/BoardContainer';
 import LoginContainer from '../../Login/LoginContainer';
 import DashboardContainer from '../../Dashboard/DashboardContainer';
 import CreateGameContainer from '../../CreateGame/CreateGameContainer';
 import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
+import Logger from '../../../logger';
 import { PAGES } from '../../../models/Page';
 
 export default class App extends React.Component {
@@ -23,7 +23,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        console.log('page is:', this.props.currentPage.getName());
+        Logger.debug('page is:', this.props.currentPage.getName());
         const width = window.innerWidth;
         const height = window.innerHeight;
 

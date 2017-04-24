@@ -52,13 +52,13 @@ export default (state, action) => {
             });
 
         case ACTION_TYPES.PUSH_PAGE:
-            console.log('setting page stack to: ', state.pageStack.concat(action.page));
+            Logger.debug('setting page stack to: ', state.pageStack.concat(action.page));
             return Object.assign(newState, {
                 pageStack: state.pageStack.concat(action.page.toJson())
             });
 
         case ACTION_TYPES.POP_PAGE:
-            console.log('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1));
+            Logger.debug('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1));
             return Object.assign(newState, {
                 pageStack: state.pageStack.slice(0, state.pageStack.length - 1)
             });
@@ -78,7 +78,7 @@ export default (state, action) => {
             });
 
         case ACTION_TYPES.REPLACE_PAGE:
-            console.log('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page));
+            Logger.debug('setting page stack to: ', state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page));
             return Object.assign(newState, {
                 pageStack: state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page.toJson())
             });

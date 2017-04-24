@@ -112,7 +112,7 @@ export function updateToken(token) {
 
         if (state.app.player && state.app.player.id) {
             db.child(`players/${state.app.player.id}/token`).set(token).then(() => {
-                console.debug('set app token on player.');
+                Logger.debug('set app token on player.');
             });
         }
         dispatch(setToken(token));
@@ -133,7 +133,7 @@ export function usernameChecked(result) {
 
 export function cancelLoading() {
     if (subscription) {
-        console.log(subscription);
+        Logger.debug('cancel subscription to:', subscription);
         subscription.unsubscribe();
     }
     return {
@@ -203,7 +203,7 @@ export function logout() {
         firebase.auth().signOut().then(() => {
             dispatch(deauthenticate());
         }).catch(e => {
-            console.error('Could not log out user, because: ', e);
+            Logger.error('Could not log out user, because: ', e);
         });
     };
 }
@@ -247,7 +247,7 @@ export function startListeningForGameUpdates(gameKey) {
 
 export function suspendGame(gameKey) {
     return (dispatch) => {
-        console.log(`suspending game: ${gameKey}`);
+        Logger.debug(`suspending game: ${gameKey}`);
         db.child(`games/${gameKey}`).off();
         dispatch(gameSuspended());
     };
@@ -289,7 +289,6 @@ export function loadGameFromKey(gameKey) {
             error => dispatch(showMessage(e)),
             () => dispatch(endLoading())
         );
-        console.log(subscription);
     };
 }
 
@@ -365,11 +364,10 @@ export function endLoading() {
     };
 }
 
-export const clickOnTower = (tower, playerID, currentGame) => ({
+export const clickOnTower = (tower, playerID) => ({
     type: ACTION_TYPES.CLICK_ON_TOWER,
     tower,
-    playerID,
-    currentGame
+    playerID
 });
 
 export function clickOnField(field, playerID, opponentID, currentGame) {
@@ -463,7 +461,7 @@ export function waitForLogin() {
         const state = getState();
 
         firebase.auth().onAuthStateChanged(user => {
-            console.debug('auth change: ', user);
+            Logger.debug('auth change: ', user);
             if (user) {
                 dispatch(authenticationInProgress());
                 db.child('players').orderByChild('uid').equalTo(user.uid).once('value').then(playersSnapshot => {
@@ -479,10 +477,10 @@ export function waitForLogin() {
                     const player = Object.assign(playersSnapshot.val()[playerID], {
                         id: playerID
                     });
-                    console.debug('setting user: ', player);
+                    Logger.debug('setting user: ', player);
                     dispatch(authenticate(player));
                     dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)))
-                    console.debug('you got logged in');
+                    Logger.debug('you got logged in');
                 }).catch(e => {
                     dispatch(deauthenticate())
                     firebase.auth().signOut();
@@ -508,7 +506,6 @@ export function startGame(playerID, opponentID, players) {
                 }
             });
         }
-        console.debug('playerscopy: ', playersCopy);
 
         const newGame = {
             players: playersCopy,
@@ -647,7 +644,7 @@ export function endGame(gameKey, player) {
         }).then(() => {
             dispatch(gameEnded(gameKey));
         }).catch(e => {
-            console.error('an error occured while ending the game:', e);
+            Logger.error('an error occured while ending the game:', e);
         }).then(() =>
             dispatch(popPage())
         );

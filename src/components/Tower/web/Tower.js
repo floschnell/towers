@@ -20,16 +20,18 @@ export default class Tower extends React.Component {
         };
         
         const onClick = event => {
-            this.props.clickOnTower(tower, this.props.playerUid);
+            if (this.props.belongsToMe) {
+                this.props.clickOnTower(tower, this.props.playerID);
+            }
         }
         
         const activeModifier = this.props.isActive ? 'tower--active' : 'tower--inactive';
         const selectedModifier = this.props.isSelected ? 'tower--selected' : '';
         const classname = `tower tower--color-${tower.color} tower--player${this.props.belongsToMe ? 1 : 2} ${activeModifier} ${selectedModifier}`;
         if (this.props.isActive) {
-            return <div className={classname} style={styles} onClick={onClick}>{towerElementPlayer2Active}</div>;
+            return <div className={classname} style={styles} onClick={onClick.bind(this)}>{towerElementPlayer2Active}</div>;
         } else {
-            return <div className={classname} style={styles} onClick={onClick}>{towerElementPlayer2}</div>;
+            return <div className={classname} style={styles} onClick={onClick.bind(this)}>{towerElementPlayer2}</div>;
         }
     }
 }

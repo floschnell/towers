@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import firebase from 'firebase';
 import { getOpponent } from '../../../gamelogic';
+import Logger from '../../../logger';
 
 export default class Login extends React.Component {
 
@@ -47,7 +48,7 @@ export default class Login extends React.Component {
         });
 
         const renderGames = () => Object.keys(this.props.games).map(gameKey => {
-            console.debug('games:', this.props.games);
+            Logger.debug('games:', this.props.games);
             const game = this.props.games[gameKey];
             const playerIDs = Object.keys(game.players);
             const playerID = this.props.player.id;

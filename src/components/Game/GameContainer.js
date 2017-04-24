@@ -5,13 +5,14 @@ import {
   endGame,
   resizeGameSurface,
   startListeningForGameUpdates,
-  goToPage,
   suspendGame,
-  nextTutorialStep
+  nextTutorialStep,
+  popPageUntil
 } from '../../actions/index';
 import { playerMoveDirection, getOpponent } from '../../gamelogic.js';
 import db from '../../database';
 import { PAGES } from '../../models/Page';
+import Logger from '../../logger';
 
 const mapStateToProps = (state, ownProps) => {
   const playerIDs = Object.keys(state.game.players);
@@ -59,17 +60,20 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   listenForGameUpdates: (gameKey) => {
-    console.log('listening for updates on ', gameKey)
+    Logger.debug('listening for updates on ', gameKey)
     dispatch(startListeningForGameUpdates(gameKey));
   },
   suspendGame: gameKey => {
     dispatch(suspendGame(gameKey));
   },
+  goToDashboard: () => {
+    dispatch(popPageUntil(PAGES.DASHBOARD))
+  },
   endGame: (gameKey, player) => {
     dispatch(endGame(gameKey, player));
   },
   resizeGameSurface: (width, height) => {
-    resizeGameSurface(dispatch, width, height);
+    dispatch(resizeGameSurface(width, height));
   },
   nextTutorialStep: () => {
     dispatch(nextTutorialStep())

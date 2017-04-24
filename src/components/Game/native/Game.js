@@ -10,6 +10,7 @@ import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import Arrow from '../../Arrow/native/Arrow';
 import { TUTORIAL_MESSAGE_POSITION } from '../../../tutorial';
+import Logger from '../../../logger';
 
 export default class Game extends React.Component {
 
@@ -82,7 +83,7 @@ export default class Game extends React.Component {
     });
 
     const renderTutorialMessage = () => {
-      console.debug('message pos', this.props.tutorialMessagePosition);
+      Logger.debug('message pos', this.props.tutorialMessagePosition);
       const messageTop = this.props.tutorialMessagePosition === TUTORIAL_MESSAGE_POSITION.BOARD_EDGE ?
         this.props.marginSize / 2 + this.props.fieldSize + 10 :
         10;
