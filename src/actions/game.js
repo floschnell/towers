@@ -9,6 +9,13 @@ export const GAME_ACTIONS = {
   GAME_ENDED: 'GAME_ENDED',
 };
 
+export const MOVE_RESULTS = {
+  OK: 'OK',
+  NOT_YOUR_TURN: 'NOT_YOUR_TURN',
+  INVALID: 'INVALID',
+  NO_TOWER_SELECTED: 'NO_TOWER_SELECTED',
+};
+
 export const gameSuspended = () => ({
   type: GAME_ACTIONS.SUSPEND_GAME,
 });
