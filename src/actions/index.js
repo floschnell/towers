@@ -6,8 +6,9 @@ export * from './app';
 export * from './game';
 export * from './navigation';
 
-export const ACTION_TYPES = {
-  APP: APP_ACTIONS,
-  GAME: GAME_ACTIONS,
-  NAVIGATION: NAVIGATION_ACTIONS,
-};
+export const ACTION_TYPES = Object.assign(
+  {},
+  APP_ACTIONS,
+  GAME_ACTIONS,
+  NAVIGATION_ACTIONS
+);

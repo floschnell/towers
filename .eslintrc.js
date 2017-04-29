@@ -1,10 +1,19 @@
 module.exports = {
-    "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module",
-        "ecmaFeatures": {
-            "jsx": true,
-        }
+  parserOptions: {
+    ecmaVersion: 6,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
     },
-    "extends": "google"
+  },
+  rules: {
+    'max-len': [
+      2,
+      {
+        code: 90,
+      },
+    ],
+  },
+  plugins: ['react'],
+  extends: ['google', 'plugin:react/recommended'],
 };

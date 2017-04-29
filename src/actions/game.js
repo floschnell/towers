@@ -77,9 +77,7 @@ export function loadGameFromKey(gameKey) {
           const game = gameSnapshot.val();
           const player = Game.getPlayer(game, currentState.app.player.id);
           const opponent = Game.getOpponent(game, currentState.app.player.id);
-          const gamePage = PAGES.GAME.withTitle(
-            `${player.name} vs ${opponent.name}`
-          );
+          const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
 
           dispatch(resumeGame(gameKey));
           dispatch(updateGame(game));
@@ -120,9 +118,7 @@ export const gameStarted = (game) => ({
  */
 export function startGame(playerID, opponentID, players) {
   return (dispatch) => {
-    dispatch(
-      startLoading(`starting game against ${players[opponentID].name}`)
-    );
+    dispatch(startLoading(`starting game against ${players[opponentID].name}`));
 
     const playersCopy = {};
     for (const id in players) {
@@ -171,25 +167,21 @@ export function startGame(playerID, opponentID, players) {
         };
 
         if (!opponent.exists()) {
-          throw 'Opponent does not exist in database!';
+          throw new Error('Opponent does not exist in database!');
         }
         if (!player.exists()) {
-          throw 'Player does not exist in database!';
+          throw new Error('Player does not exist in database!');
         }
         if (game.exists()) {
-          throw `You are already playing against ${opponent.val().name}!`;
+          throw new Error(`You are already playing against ${opponent.val().name}!`);
         }
 
         return gameRef
           .set(newGame)
           .then(() =>
             Promise.all([
-              db
-                .child(`players/${playerID}/games`)
-                .transaction(updatePlayerGames),
-              db
-                .child(`players/${opponentID}/games`)
-                .transaction(updatePlayerGames),
+              db.child(`players/${playerID}/games`).transaction(updatePlayerGames),
+              db.child(`players/${opponentID}/games`).transaction(updatePlayerGames),
             ])
           )
           .then(() => {
@@ -241,9 +233,7 @@ export function endGame(gameKey) {
       .once('value')
       .then((snapshot) => {
         const game = snapshot.val();
-        const opponent = Object.keys(game.players).find(
-          (uid) => uid !== player
-        );
+        const opponent = Object.keys(game.players).find((uid) => uid !== player);
 
         // remove game from player
         playerGameRef.remove();
@@ -333,11 +323,7 @@ export function clickOnField(field) {
           if (chosenMove) {
             Logger.info('will choose:', chosenMove);
             dispatch(
-              clickedOnField(
-                chosenMove.to,
-                newState.game.currentPlayer,
-                currentGame
-              )
+              clickedOnField(chosenMove.to, newState.game.currentPlayer, currentGame)
             );
             newState = getState();
           } else {
@@ -351,9 +337,7 @@ export function clickOnField(field) {
         dispatch(showMessage(`It's not your turn.`));
       } else if (newState.game.moveResult === MOVE_RESULTS.INVALID) {
         dispatch(showMessage('Move is not valid.'));
-      } else if (
-        newState.game.moveResult === MOVE_RESULTS.NO_TOWER_SELECTED
-      ) {
+      } else if (newState.game.moveResult === MOVE_RESULTS.NO_TOWER_SELECTED) {
         dispatch(showMessage('Select a tower first.'));
       }
     }

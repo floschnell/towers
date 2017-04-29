@@ -47,7 +47,7 @@ export const launchTutorial = (player) => ({
   player,
 });
 
-export function launchGameAgainstAI(player) {
+export const launchGameAgainstAI = (player) => {
   const aiCharacteristics = {
     blockedPenalty: 20 + (5 - Math.random() * 10),
     couldFinishBonus: 10 + (2 - Math.random() * 4),
@@ -61,12 +61,19 @@ export function launchGameAgainstAI(player) {
     couldFinishBonus: aiCharacteristics.couldFinishBonus,
     aggressiveness: aiCharacteristics.aggressiveness,
   };
-}
+};
 
 export const nextTutorialStep = () => ({
   type: APP_ACTIONS.NEXT_TUTORIAL_STEP,
 });
 
+/**
+ * Check whether a certain user name is correct and
+ * does not exist in the database.
+ *
+ * @param {string} playerName Player name that should be checked.
+ * @return {void}
+ */
 export function checkUsername(playerName) {
   return (dispatch) => {
     const playerID = playerName.toLowerCase();
@@ -81,6 +88,12 @@ export function checkUsername(playerName) {
   };
 }
 
+/**
+ * Updates the token for the current user's device.
+ *
+ * @param {string} token The user device's token.
+ * @return {void}
+ */
 export function updateToken(token) {
   return (dispatch, getState) => {
     const state = getState();
@@ -99,6 +112,12 @@ const setToken = (token) => ({
   token,
 });
 
+/**
+ * Set the result of the username check.
+ *
+ * @param {boolean} result Whether the entered username is valid.
+ * @return {void}
+ */
 export function usernameChecked(result) {
   return {
     type: APP_ACTIONS.USERNAME_CHECKED,
@@ -106,6 +125,11 @@ export function usernameChecked(result) {
   };
 }
 
+/**
+ * Aborts the current loading operation.
+ *
+ * @return {void}
+ */
 export function cancelLoading() {
   if (subscription) {
     Logger.debug('cancel subscription to:', subscription);
@@ -125,6 +149,11 @@ export const clearMessage = () => ({
   type: APP_ACTIONS.CLEAR_MESSAGE,
 });
 
+/**
+ * Logs out the current user.
+ *
+ * @return {void}
+ */
 export function logout() {
   return (dispatch) => {
     dispatch(initializeWithPage(PAGES.LOGIN.withTitle('Welcome to Towers')));
@@ -140,6 +169,13 @@ export function logout() {
   };
 }
 
+/**
+ * Logs in a new user.
+ *
+ * @param {string} id Name of the user.
+ * @param {string} password Password that matches the user name.
+ * @return {void}
+ */
 export function login(id, password) {
   return (dispatch, getState) => {
     const player = Rx.Observable.fromPromise(
@@ -150,7 +186,7 @@ export function login(id, password) {
     player.subscribe(
       (playerSnapshot) => {
         if (!playerSnapshot.exists()) {
-          throw 'This player does not exist!';
+          throw new Error('This player does not exist!');
         }
 
         firebase
@@ -168,6 +204,12 @@ export function login(id, password) {
   };
 }
 
+/**
+ * Listen for a player's currently running games.
+ *
+ * @param {string} playerID User name of the player.
+ * @return {void}
+ */
 export function startListeningForGamelistUpdates(playerID) {
   return (dispatch) => {
     const playerGamesRef = db.child(`players/${playerID}/games`);
@@ -179,6 +221,12 @@ export function startListeningForGamelistUpdates(playerID) {
   };
 }
 
+/**
+ * Stop receiving updates on the player's running games.
+ *
+ * @param {string} playerID User name of the player.
+ * @return {void}
+ */
 export function stopListeningForGamelistUpdates(playerID) {
   return (dispatch) => {
     const playerGamesRef = db.child(`players/${playerID}/games`);
@@ -187,6 +235,15 @@ export function stopListeningForGamelistUpdates(playerID) {
   };
 }
 
+/**
+ * Creates a new player within the database and authenticates
+ * him right away.
+ *
+ * @param {string} username Name of the new player.
+ * @param {string} email Mail address of the new player.
+ * @param {string} password Passwort of the new player's account.
+ * @return {void}
+ */
 export function createAccount(username, email, password) {
   return (dispatch) => {
     const playerID = username.toLowerCase();
@@ -223,10 +280,7 @@ export function createAccount(username, email, password) {
         }
       })
       .catch((error) => {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        alert(`Unknown error: ${errorCode} ${errorMessage}`);
+        alert(`Unknown error: ${error.code}: ${error.message}`);
       })
       .then(() => {
         dispatch(endLoading());
@@ -234,6 +288,12 @@ export function createAccount(username, email, password) {
   };
 }
 
+/**
+ * Indicate loading and show a message during the process.
+ *
+ * @param {string} message Message to show while loading is in progress.
+ * @return {void}
+ */
 export function startLoading(message) {
   return {
     type: APP_ACTIONS.START_LOADING,
@@ -241,6 +301,11 @@ export function startLoading(message) {
   };
 }
 
+/**
+ * Hide message and indicate that loading has finished.
+ *
+ * @return {void}
+ */
 export function endLoading() {
   return {
     type: APP_ACTIONS.END_LOADING,
@@ -265,10 +330,14 @@ export const updateGames = (games) => ({
   games,
 });
 
+/**
+ * Handles changes in the authentication state.
+ * For instance, when a user logs out or in.
+ *
+ * @return {void}
+ */
 export function waitForLogin() {
-  return (dispatch, getState) => {
-    const state = getState();
-
+  return (dispatch) => {
     firebase.auth().onAuthStateChanged((user) => {
       Logger.debug('auth change: ', user);
       if (user) {
@@ -280,12 +349,12 @@ export function waitForLogin() {
           .once('value')
           .then((playersSnapshot) => {
             if (!playersSnapshot.exists()) {
-              throw 'Player does not exist!';
+              throw new Error('Player does not exist!');
             }
 
             const matchingPlayers = Object.keys(playersSnapshot.val());
             if (matchingPlayers.length > 1) {
-              throw 'There exists more than one player with that UID!';
+              throw new Error('There exists more than one player with that UID!');
             }
             const playerID = matchingPlayers[0];
             const player = Object.assign(playersSnapshot.val()[playerID], {
@@ -293,9 +362,7 @@ export function waitForLogin() {
             });
             Logger.debug('setting user: ', player);
             dispatch(authenticate(player));
-            dispatch(
-              pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`))
-            );
+            dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)));
             Logger.debug('you got logged in');
           })
           .catch((e) => {
@@ -310,6 +377,12 @@ export function waitForLogin() {
   };
 }
 
+/**
+ * Search for players within our database.
+ *
+ * @param {string} searchStr Search expression to use.
+ * @return {void}
+ */
 export function searchForPlayers(searchStr) {
   return (dispatch) => {
     const searchStart = searchStr.toLowerCase();
