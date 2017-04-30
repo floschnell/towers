@@ -1,12 +1,18 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Text, View, Button} from 'react-native';
 import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import Arrow from '../../Arrow/native/Arrow';
 import {TUTORIAL_MESSAGE_POSITION} from '../../../tutorial';
 import Logger from '../../../logger';
 
+/**
+ * Renders the native view of a currently running game.
+ */
 export default class Game extends React.Component {
+  /**
+   * Creates a new instance of the game view.
+   */
   constructor() {
     super();
     this.state = {
@@ -14,23 +20,33 @@ export default class Game extends React.Component {
     };
   }
 
+  /**
+   * @override
+   */
   componentWillUnmount() {
     this.props.suspendGame(this.props.game);
-    this.state.tutorialMessageExpanded = true;
+    this.setState({tutorialMessageExpanded: true});
   }
 
+  /**
+   * @override
+   */
   componentWillReceiveProps(nextProps) {
     if (nextProps.tutorialMessage !== this.props.tutorialMessage) {
       this.setState({tutorialMessageExpanded: true});
     }
   }
 
+  /**
+   * @override
+   */
   render() {
+    const fieldSize = this.props.size / 8;
     const playerOneTowers = this.props.towerPositions[this.props.playerIDs[0]];
     const playerTwoTowers = this.props.towerPositions[this.props.playerIDs[1]];
     const gameHasEnded = this.props.won || this.props.lost;
     const endGame = () => {
-      this.props.endGame(this.props.game, this.props.playerID);
+      this.props.endGame(this.props.game, this.props.player.id);
     };
 
     const renderEndOfGame = () => {
@@ -140,11 +156,11 @@ export default class Game extends React.Component {
 
         return (
           <Arrow
-            key={`move-${move.sourceField.x}x${move.sourceField.y}y-${move.targetField.x}x${move.targetField.y}y`}
-            fromX={sourceX * this.props.fieldSize + this.props.fieldSize / 2}
-            fromY={sourceY * this.props.fieldSize + this.props.fieldSize / 2}
-            toX={targetX * this.props.fieldSize + this.props.fieldSize / 2}
-            toY={targetY * this.props.fieldSize + this.props.fieldSize / 2}
+            key={`arrow-${sourceX}.${sourceY}-${targetX}.${targetY}`}
+            fromX={sourceX * fieldSize + fieldSize / 2}
+            fromY={sourceY * fieldSize + fieldSize / 2}
+            toX={targetX * fieldSize + fieldSize / 2}
+            toY={targetY * fieldSize + fieldSize / 2}
             width={10}
             color={this.props.lastMoveByMe ? 'black' : 'white'}
           />
@@ -155,7 +171,7 @@ export default class Game extends React.Component {
       Logger.debug('message pos', this.props.tutorialMessagePosition);
       const messageTop = this.props.tutorialMessagePosition ===
         TUTORIAL_MESSAGE_POSITION.BOARD_EDGE
-        ? this.props.marginSize / 2 + this.props.fieldSize + 10
+        ? this.props.marginSize / 2 + fieldSize + 10
         : 10;
 
       const hideTutorialMessage = () => {
@@ -260,3 +276,30 @@ export default class Game extends React.Component {
     );
   }
 }
+
+Game.propTypes = {
+  playerIDs: React.PropTypes.arrayOf(React.PropTypes.string),
+  suspendGame: React.PropTypes.func,
+  endGame: React.PropTypes.func,
+  game: React.PropTypes.string,
+  surfaceWidth: React.PropTypes.number,
+  surfaceHeight: React.PropTypes.number,
+  resizeGameSurface: React.PropTypes.func,
+  goToDashboard: React.PropTypes.func,
+  won: React.PropTypes.bool,
+  myTurn: React.PropTypes.bool,
+  lost: React.PropTypes.bool,
+  rotateBoard: React.PropTypes.bool,
+  lastMoveByMe: React.PropTypes.bool,
+  inTutorial: React.PropTypes.bool,
+  player: React.PropTypes.object,
+  opponent: React.PropTypes.object,
+  towerPositions: React.PropTypes.array,
+  lastMoves: React.PropTypes.array,
+  tutorialMessage: React.PropTypes.string,
+  tutorialMessagePosition: React.PropTypes.number,
+  size: React.PropTypes.number,
+  marginSize: React.PropTypes.number,
+  nextTutorialStep: React.PropTypes.number,
+  tutorialContinueOnMessageClick: React.PropTypes.bool,
+};

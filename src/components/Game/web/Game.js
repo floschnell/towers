@@ -3,19 +3,43 @@ import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import PlayerPlateContainer from '../../PlayerPlate/PlayerPlateContainer';
 import Dialog from '../../Dialog/Dialog';
-import css from './Game.styl';
+import './Game.styl';
 import closeButton from '../../../../resources/close.png';
-import Logger from '../../../logger';
 
 let timeoutHandler = 0;
 
+/**
+ * Renders the web view of a currently running game.
+ */
 export default class Game extends React.Component {
-  constructor() {
-    super();
-    this.resizeListener = this.onResize.bind(this);
+  /**
+   * @override
+   */
+  componentWillMount() {
+    this.onResize();
   }
 
-  onResize(e) {
+  /**
+   * @override
+   */
+  componentDidMount() {
+    this.resizeListener = this.onResize.bind(this);
+    window.addEventListener('resize', this.resizeListener);
+  }
+
+  /**
+   * @override
+   */
+  componentWillUnmount() {
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
+  }
+
+  /**
+   * Whenever the rendering surface size changes.
+   */
+  onResize() {
     if (timeoutHandler) {
       clearTimeout(timeoutHandler);
     }
@@ -24,22 +48,10 @@ export default class Game extends React.Component {
     }, 500);
   }
 
-  componentWillMount() {
-    this.onResize();
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize', this.resizeListener);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeListener);
-  }
-
+  /**
+   * @override
+   */
   render() {
-    const size = this.props.width < this.props.height
-      ? this.props.width
-      : this.props.height;
     const playerOneTowers = this.props.towerPositions[this.props.playerIDs[0]];
     const playerTwoTowers = this.props.towerPositions[this.props.playerIDs[1]];
 
@@ -148,3 +160,18 @@ export default class Game extends React.Component {
     );
   }
 }
+
+Game.propTypes = {
+  playerIDs: React.PropTypes.arrayOf(React.PropTypes.string),
+  suspendGame: React.PropTypes.func,
+  endGame: React.PropTypes.func,
+  game: React.PropTypes.string,
+  surfaceWidth: React.PropTypes.number,
+  surfaceHeight: React.PropTypes.number,
+  resizeGameSurface: React.PropTypes.func,
+  goToDashboard: React.PropTypes.func,
+  won: React.PropTypes.bool,
+  lost: React.PropTypes.bool,
+  playerID: React.PropTypes.string,
+  towerPositions: React.PropTypes.array,
+};
