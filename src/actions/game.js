@@ -1,12 +1,16 @@
+import AI from '../ai';
 import Game from '../models/Game';
+import Logger from '../logger';
 
 export const GAME_ACTIONS = {
-  UPDATE_GAMES: 'UPDATE_GAMES',
   RESUME_GAME: 'RESUME_GAME',
   START_GAME: 'START_GAME',
   UPDATE_GAME: 'UPDATE_GAME',
   SUSPEND_GAME: 'SUSPEND_GAME',
   GAME_ENDED: 'GAME_ENDED',
+  LAUNCH_GAME_AGAINST_AI: 'LAUNCH_GAME_AGAINST_AI',
+  CLICK_ON_TOWER: 'CLICK_ON_TOWER',
+  CLICK_ON_FIELD: 'CLICK_ON_FIELD',
 };
 
 export const MOVE_RESULTS = {
@@ -15,6 +19,36 @@ export const MOVE_RESULTS = {
   INVALID: 'INVALID',
   NO_TOWER_SELECTED: 'NO_TOWER_SELECTED',
 };
+
+/**
+ * @type {AI}
+ */
+let computerPlayer = null;
+
+/**
+ * Launches a new game against the computer.
+ *
+ * @export
+ * @param {string} player ID of the player.
+ * @return {void}
+ */
+export function startGameAgainstAI(player) {
+  const aiCharacteristics = {
+    blockedPenalty: 20 + (5 - Math.random() * 10),
+    couldFinishBonus: 10 + (2 - Math.random() * 4),
+    aggressiveness: 0.5 + (0.1 - Math.random() * 0.2),
+  };
+
+  computerPlayer = new AI(aiCharacteristics);
+
+  return {
+    type: GAME_ACTIONS.LAUNCH_GAME_AGAINST_AI,
+    player,
+    blockedPenalty: aiCharacteristics.blockedPenalty,
+    couldFinishBonus: aiCharacteristics.couldFinishBonus,
+    aggressiveness: aiCharacteristics.aggressiveness,
+  };
+}
 
 export const gameSuspended = () => ({
   type: GAME_ACTIONS.SUSPEND_GAME,
@@ -98,12 +132,12 @@ export function loadGameFromKey(gameKey) {
 }
 
 export const resumeGame = (game) => ({
-  type: ACTION_TYPES.RESUME_GAME,
+  type: GAME_ACTIONS.RESUME_GAME,
   game,
 });
 
 export const gameStarted = (game) => ({
-  type: ACTION_TYPES.START_GAME,
+  type: GAME_ACTIONS.START_GAME,
   game,
 });
 
@@ -202,7 +236,7 @@ export function startGame(playerID, opponentID, players) {
 }
 
 export const updateGame = (game) => ({
-  type: ACTION_TYPES.UPDATE_GAME,
+  type: GAME_ACTIONS.UPDATE_GAME,
   game,
 });
 
@@ -265,12 +299,12 @@ export function endGame(gameKey) {
 }
 
 export const gameEnded = (gameKey, player) => ({
-  type: ACTION_TYPES.GAME_ENDED,
+  type: GAME_ACTIONS.GAME_ENDED,
   gameKey,
 });
 
 export const clickOnTower = (tower, playerID) => ({
-  type: ACTION_TYPES.CLICK_ON_TOWER,
+  type: GAME_ACTIONS.CLICK_ON_TOWER,
   tower,
   playerID,
 });
@@ -313,12 +347,7 @@ export function clickOnField(field) {
 
       if (oldState.game.isAIGame) {
         while (newState.game.currentPlayer === 'computer') {
-          const computerPlayer = new AI(
-            newState.game,
-            newState.app.player.id,
-            ewState.game.ai
-          );
-          const chosenMove = computerPlayer.getNextMove();
+          const chosenMove = computerPlayer.getNextMove(newState.game);
 
           if (chosenMove) {
             Logger.info('will choose:', chosenMove);
@@ -345,7 +374,7 @@ export function clickOnField(field) {
 }
 
 export const clickedOnField = (field, playerID, currentGame) => ({
-  type: ACTION_TYPES.CLICK_ON_FIELD,
+  type: GAME_ACTIONS.CLICK_ON_FIELD,
   field,
   playerID,
   currentGame,

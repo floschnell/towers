@@ -1,6 +1,7 @@
 import db from '../database';
 import firebase from 'firebase';
 import {PAGES} from '../models/Page';
+import {pushPage} from '../actions/navigation';
 import Rx from 'rxjs';
 import Logger from '../logger';
 
@@ -18,8 +19,6 @@ export const APP_ACTIONS = {
   UPDATE_TOKEN: 'UPDATE_TOKEN',
   START_LOADING: 'START_LOADING',
   END_LOADING: 'END_LOADING',
-  CLICK_ON_TOWER: 'CLICK_ON_TOWER',
-  CLICK_ON_FIELD: 'CLICK_ON_FIELD',
   USERNAME_CHECKED: 'USERNAME_CHECKED',
   AUTHENTICATE: 'AUTHENTICATE',
   AUTHENTICATION_IN_PROGRESS: 'AUTHENTICATION_IN_PROGRESS',
@@ -32,7 +31,7 @@ export const APP_ACTIONS = {
   CANCEL_LOADING: 'CANCEL_LOADING',
   LAUNCH_TUTORIAL: 'LAUNCH_TUTORIAL',
   NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP',
-  LAUNCH_GAME_AGAINST_AI: 'LAUNCH_GAME_AGAINST_AI',
+  UPDATE_GAMES: 'UPDATE_GAMES',
 };
 
 export const AUTH_STATE = {
@@ -46,22 +45,6 @@ export const launchTutorial = (player) => ({
   type: APP_ACTIONS.LAUNCH_TUTORIAL,
   player,
 });
-
-export const launchGameAgainstAI = (player) => {
-  const aiCharacteristics = {
-    blockedPenalty: 20 + (5 - Math.random() * 10),
-    couldFinishBonus: 10 + (2 - Math.random() * 4),
-    aggressiveness: 0.5 + (0.1 - Math.random() * 0.2),
-  };
-
-  return {
-    type: APP_ACTIONS.LAUNCH_GAME_AGAINST_AI,
-    player,
-    blockedPenalty: aiCharacteristics.blockedPenalty,
-    couldFinishBonus: aiCharacteristics.couldFinishBonus,
-    aggressiveness: aiCharacteristics.aggressiveness,
-  };
-};
 
 export const nextTutorialStep = () => ({
   type: APP_ACTIONS.NEXT_TUTORIAL_STEP,
@@ -366,6 +349,7 @@ export function waitForLogin() {
             Logger.debug('you got logged in');
           })
           .catch((e) => {
+            Logger.debug('error occured during login:', e);
             dispatch(deauthenticate());
             firebase.auth().signOut();
             dispatch(showMessage('Could not log you in.'));

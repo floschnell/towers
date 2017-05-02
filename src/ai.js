@@ -1,7 +1,8 @@
-import Board, {convertTowerPositionsToBoard} from './models/Board';
+import Board, {BoardFactory} from './models/Board';
 import Logger from './logger';
 
 const MAX_SCORE = 10000000;
+const boardFactory = new BoardFactory();
 
 /**
  * Game AI implements following strategy:
@@ -17,28 +18,12 @@ export default class AI {
   /**
    * Creates a new AI instance.
    *
-   * @param {string} me ID of the computer player.
    * @param {object} options Configures behaviour of the AI.
    */
-  constructor(me, {aggressiveness, blockedPenalty, couldFinishBonus}) {
-    this.me = me;
+  constructor({aggressiveness, blockedPenalty, couldFinishBonus}) {
     this.aggressiveness = aggressiveness;
     this.towerIsBlockedPenalty = blockedPenalty;
     this.towerCouldFinishBonus = couldFinishBonus;
-
-    // estimate freedom of combinations
-    const freedom = Object.keys(towerPositions)
-      .map((player) =>
-        Object.keys(towerPositions[player]).map((color) =>
-          Board.getDegreesOfFreedomForTower(this.board, player, color)
-        )
-      )
-      .reduce((a, b) => a.concat(b))
-      .reduce((a, b) => a + b);
-    Logger.debug('measured freedom:', freedom);
-
-    // choose iterations based on the estimated freedom
-    this.iterations = 3 + ~~((250 - freedom) / 20);
   }
 
   /**
@@ -50,28 +35,46 @@ export default class AI {
    * @param {string} currentPlayer ID of the player who's turn it is.
    * @return {{from: {x: number, y: number}, to: {x: number, y: number}}}
    */
-  getNextMove(towerPositions, currentColor, currentPlayer) {
-    this.board = convertTowerPositionsToBoard(towerPositions);
-    this.currentPlayer = currentPlayer;
-    this.currentColor = currentColor;
+  getNextMove({towerPositions, currentColor, currentPlayer}) {
+    const board = Board.convertTowerPositionsToBoard(towerPositions);
+
+    // boardFactory.dispose();
+
+    // estimate freedom of combinations
+    const freedom = Object.keys(towerPositions)
+      .map((player) =>
+        Object.keys(towerPositions[player]).map((color) =>
+          Board.getDegreesOfFreedomForTower(board, player, parseInt(color))
+        )
+      )
+      .reduce((a, b) => a.concat(b))
+      .reduce((a, b) => a + b);
+    Logger.debug('measured freedom:', freedom);
+
+    // choose iterations based on the estimated freedom
+    const iterations = 3 + ~~((250 - freedom) / 20);
+    console.log(iterations);
 
     const outcomes = this.rateMoves(
-      this.board,
-      this.currentColor,
-      this.currentPlayer,
-      this.currentPlayer,
-      this.iterations
+      board,
+      currentColor,
+      currentPlayer,
+      currentPlayer,
+      iterations
     );
     Logger.debug(
       'found',
       outcomes.length,
       'possible moves using',
-      this.iterations,
+      iterations,
       'iterations.'
     );
 
     outcomes.sort((a, b) => (a.score < b.score ? 1 : -1));
     Logger.debug('outcomes:', outcomes);
+
+    // clearing up memory
+    boardFactory.dispose();
 
     if (outcomes.length > 0) {
       return outcomes[0];
@@ -118,7 +121,7 @@ export default class AI {
       };
 
       if (!Board.coordHasTower(board, x, y)) {
-        const boardCopy = Board.copy(board);
+        const boardCopy = boardFactory.copyBoard(board);
         Board.moveTower(
           boardCopy,
           currentPlayer,
@@ -166,7 +169,7 @@ export default class AI {
       };
 
       if (!Board.coordHasTower(board, x, y)) {
-        const boardCopy = Board.copy(board);
+        const boardCopy = boardFactory.copyBoard(board);
         Board.moveTower(
           boardCopy,
           currentPlayer,
@@ -214,7 +217,7 @@ export default class AI {
       };
 
       if (!Board.coordHasTower(board, x, y)) {
-        const boardCopy = Board.copy(board);
+        const boardCopy = boardFactory.copyBoard(board);
         Board.moveTower(
           boardCopy,
           currentPlayer,

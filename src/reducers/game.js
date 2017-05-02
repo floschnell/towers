@@ -141,7 +141,7 @@ export default (state, action) => {
 
           try {
             newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
-            const nextPlayer = Game.getOpponentUID(state, currentPlayer);
+            const nextPlayer = Game.getOpponentID(state, currentPlayer);
             const nextColor = targetField.color;
 
             if (GameLogic.canMove(newState.towerPositions, nextPlayer, nextColor)) {

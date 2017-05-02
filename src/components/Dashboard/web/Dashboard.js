@@ -1,5 +1,5 @@
 import React from 'react';
-import {getOpponent} from '../../../gamelogic';
+import { getOpponent } from '../../../gamelogic';
 import './Dashboard.styl';
 import Logger from '../../../logger';
 
@@ -42,7 +42,7 @@ export default class Dashboard extends React.Component {
     };
 
     const renderGames = () => {
-      return Object.keys(this.props.games).map((key) => {
+      return Object.keys(this.props.games).map(key => {
         const chooseGame = () => {
           if (!this.props.isLoading) {
             this.props.chooseGame(key);
@@ -89,7 +89,7 @@ Dashboard.propTypes = {
   chooseGame: React.PropTypes.func.isRequired,
   subscribeOnGameUpdates: React.PropTypes.func.isRequired,
   unsubscribeFromGameUpdates: React.PropTypes.func.isRequired,
-  player: React.PropTypes.func.object,
-  games: React.PropTypes.func.object,
-  isLoading: React.PropTypes.func.bool,
+  player: React.PropTypes.object,
+  games: React.PropTypes.object,
+  isLoading: React.PropTypes.bool,
 };

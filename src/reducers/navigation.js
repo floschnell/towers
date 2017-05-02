@@ -1,4 +1,6 @@
 import {Page, PAGES} from '../models/Page';
+import {ACTION_TYPES} from '../actions/index';
+import Logger from '../logger';
 
 export default (state, action) => {
   if (typeof state === 'undefined') {
@@ -10,11 +12,14 @@ export default (state, action) => {
   const newState = JSON.parse(JSON.stringify(state));
 
   switch (action.type) {
+    case ACTION_TYPES.LAUNCH_GAME_AGAINST_AI:
+      const aiGamePage = PAGES.GAME.withTitle('Game vs. PC');
+      return Object.assign(newState, {
+        pageStack: state.pageStack.concat(aiGamePage.toJson()),
+      });
+
     case ACTION_TYPES.PUSH_PAGE:
-      Logger.debug(
-        'setting page stack to: ',
-        state.pageStack.concat(action.page)
-      );
+      Logger.debug('setting page stack to: ', state.pageStack.concat(action.page));
       return Object.assign(newState, {
         pageStack: state.pageStack.concat(action.page.toJson()),
       });
@@ -45,9 +50,7 @@ export default (state, action) => {
     case ACTION_TYPES.REPLACE_PAGE:
       Logger.debug(
         'setting page stack to: ',
-        state.pageStack
-          .slice(0, state.pageStack.length - 1)
-          .concat(action.page)
+        state.pageStack.slice(0, state.pageStack.length - 1).concat(action.page)
       );
       return Object.assign(newState, {
         pageStack: state.pageStack
@@ -59,5 +62,8 @@ export default (state, action) => {
       return Object.assign(newState, {
         pageStack: [action.page.toJson()],
       });
+
+    default:
+      return newState;
   }
 };

@@ -1,5 +1,6 @@
 import app from './app';
 import game from './game';
-import {combineReducers} from 'redux';
+import navigation from './navigation';
+import { combineReducers } from 'redux';
 
-export default combineReducers({app, game});
+export default combineReducers({ app, game, navigation });

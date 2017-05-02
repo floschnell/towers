@@ -45,7 +45,7 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     playerID: state.app.player.id,
-    opponentID: Game.getOpponentUID(state.game, state.app.player.id),
+    opponentID: Game.getOpponentID(state.game, state.app.player.id),
     currentGame: state.app.currentGame,
     myTurn: state.app.player.id === state.game.currentPlayer,
     canBeReached: checkIfFieldCanBeReached(),

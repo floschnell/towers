@@ -71,7 +71,7 @@ export default class Game {
    * @memberOf Game
    */
   static getOpponent(game, playerUID) {
-    const opponentUID = Game.getOpponentUID(game, playerUID);
+    const opponentUID = Game.getOpponentID(game, playerUID);
 
     return game.players[opponentUID];
   }

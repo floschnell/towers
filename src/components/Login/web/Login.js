@@ -1,4 +1,5 @@
 import React from 'react';
+import { AUTH_STATE } from '../../../actions/app';
 import './Login.styl';
 
 /**
@@ -9,7 +10,7 @@ export default class Login extends React.Component {
    * @override
    */
   render() {
-    const onLogin = (e) => {
+    const onLogin = e => {
       this.props.finalizeLogin(this.refs.email.value, this.refs.password.value);
     };
 
@@ -36,7 +37,7 @@ export default class Login extends React.Component {
 }
 
 Login.propTypes = {
-  authState: React.PropTypes.number,
+  authState: React.PropTypes.string,
   createAccount: React.PropTypes.func,
   finalizeLogin: React.PropTypes.func,
 };

@@ -1,3 +1,5 @@
+import Logger from '../logger';
+
 const boardColors = [
   [0, 1, 2, 3, 4, 5, 6, 7],
   [5, 0, 3, 6, 1, 4, 7, 2],
@@ -38,6 +40,7 @@ export class BoardFactory {
   copyBoard(board) {
     // allocate a new memory batch if needed
     if (this.size >= this.available) {
+      Logger.debug('reallocating new memory. (', this.size, '>=', this.available, ')');
       this.currentBufferWindow = new ArrayBuffer(
         REALLOC_BATCH_SIZE * BOARD_SIZE_IN_BYTES
       );
@@ -50,7 +53,8 @@ export class BoardFactory {
       this.currentBufferWindow,
       this.currentBufferWindowPosition,
       BOARD_SIZE_IN_BYTES
-    ).set(board.data);
+    );
+    data.set(board.data);
     this.size++;
     this.currentBufferWindowPosition += BOARD_SIZE_IN_BYTES;
     return {
@@ -105,8 +109,7 @@ export default class Board {
    */
   static convertTowerPositionsToBoard(towerPositions) {
     const players = Object.keys(towerPositions);
-    const arrayBuffer = new ArrayBuffer(80);
-    const data = new Uint8Array(arrayBuffer);
+    const data = new Uint8Array(80);
     for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
       for (let color = 0; color < 8; color++) {
         const tower = towerPositions[players[playerNumber]][color];
@@ -187,7 +190,7 @@ export default class Board {
       if (Board.coordHasTower(board, fromX, fromY)) {
         board.data[playerColorIndex] = (toY << 3) | toX;
         board.data[fromY * 8 + fromX + 16] = 0;
-        board.data[toY * 8 + fromX + 16] = color + 1;
+        board.data[toY * 8 + toX + 16] = color + 1;
         return true;
       }
     }
@@ -201,7 +204,7 @@ export default class Board {
 
     return {
       x: tower & 7,
-      y: tower >>> 3,
+      y: tower >> 3,
     };
   }
 

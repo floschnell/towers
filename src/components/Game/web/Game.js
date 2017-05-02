@@ -173,5 +173,5 @@ Game.propTypes = {
   won: React.PropTypes.bool,
   lost: React.PropTypes.bool,
   playerID: React.PropTypes.string,
-  towerPositions: React.PropTypes.array,
+  towerPositions: React.PropTypes.object,
 };
