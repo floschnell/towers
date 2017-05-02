@@ -3,9 +3,9 @@ import Logger from './logger';
 /**
  * Copies a set of towers.
  *
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towersA Tower positions.
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towersB Tower positions.
- * @returns {{x: integer, y: integer, color: integer, player: integer}[][]} A copy of the incoming tower positions.
+ * @param {{x: number, y: number, color: number, player: number}[][]} towersA Tower positions.
+ * @param {{x: number, y: number, color: number, player: number}[][]} towersB Tower positions.
+ * @return {{x: number, y: number, color: number, player: number}[][]} A copy of the incoming tower positions.
  */
 export const towerPositionsAreEqual = (towersA, towersB) => {
   for (const player in towersA) {
@@ -55,10 +55,10 @@ export const fieldsAreEqual = (fieldA, fieldB) =>
  * Returns undefined if there is no tower on that field.
  * You can pass the owner of the tower to speed up search.
  *
- * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers.
- * @param {{x: integer, y: integer}} field Field where we want to get the tower from.
- * @param {integer|null} [player] Index of the player this tower belongs to.
- * @returns {{x: integer, y: integer, player: integer, color: integer}}
+ * @param {{x: number, y: number, color: number, player: number}[][]} towers Data structure containing the towers.
+ * @param {{x: number, y: number}} field Field where we want to get the tower from.
+ * @param {number|null} [player] Index of the player this tower belongs to.
+ * @return {{x: number, y: number, player: number, color: number}}
  */
 export const getTowerFromField = (towers, field, player = null) => {
   let arrayOfTowers = [];
@@ -116,7 +116,7 @@ export default class GameLogic {
       towerToMove.y = y;
       return newTowers;
     } else {
-      throw 'Move is not valid and could not be executed!';
+      throw new Error('Move is not valid and could not be executed!');
     }
   }
 
@@ -125,7 +125,7 @@ export default class GameLogic {
      *
      * @param {{x: integer, y: integer, color: integer, player: integer}[][]} towers Data structure containing the towers and their positions.
      * @param {{player:integer,color:integer,sourceField:{x:integer, y:integer},targetField:{x:integer, y:integer}}} move What tower of which player should be moved.
-     * @returns {boolean} Whether this is a valid move.
+     * @return {boolean} Whether this is a valid move.
      */
   static checkMove(towers, {player, color, sourceField, targetField}) {
     const tower = towers[player][color];

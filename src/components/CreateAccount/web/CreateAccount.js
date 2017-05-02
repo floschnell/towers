@@ -6,6 +6,19 @@ import './CreateAccount.styl';
  */
 export default class CreateAccount extends React.Component {
   /**
+   * Instantiates a new create account form.
+   */
+  constructor() {
+    super();
+    this.state = {
+      username: '',
+      mail: '',
+      password: '',
+      repeatPassword: '',
+    };
+  }
+
+  /**
    * @override
    */
   render() {
@@ -15,10 +28,10 @@ export default class CreateAccount extends React.Component {
 
     const createAccount = (event) => {
       this.props.createAccount(
-        this.refs.username.value,
-        this.refs.email.value,
-        this.refs.password.value,
-        this.refs.repeatPassword.value
+        this.state.username,
+        this.state.mail,
+        this.state.password,
+        this.state.repeatPassword
       );
     };
 
@@ -28,19 +41,39 @@ export default class CreateAccount extends React.Component {
         <div className="dashboard__fields">
           <div className="dashboard__field">
             <div className="dashboard__field-text">Username:</div>
-            <input ref="username" type="text" value={this.props.userName} />
+            <input
+              ref="username"
+              type="text"
+              value={this.state.username}
+              onChange={(username) => this.setState({username})}
+            />
           </div>
           <div className="dashboard__field">
             <div className="dashboard__field-text">Email:</div>
-            <input ref="email" type="text" value={this.props.mail} />
+            <input
+              ref="email"
+              type="text"
+              value={this.state.mail}
+              onChange={(mail) => this.setState({mail})}
+            />
           </div>
           <div className="dashboard__field">
             <div className="dashboard__field-text">Password:</div>
-            <input ref="password" type="password" />
+            <input
+              ref="password"
+              type="password"
+              value={this.state.password}
+              onChange={(password) => this.setState({password})}
+            />
           </div>
           <div className="dashboard__field">
             <div className="dashboard__field-text">Repeat Password:</div>
-            <input ref="repeatPassword" type="password" />
+            <input
+              ref="repeatPassword"
+              type="password"
+              value={this.state.repeatPassword}
+              onChange={(repeatPassword) => this.setState({repeatPassword})}
+            />
           </div>
         </div>
         <input type="button" value="Create Account" onClick={createAccount} />
@@ -48,3 +81,11 @@ export default class CreateAccount extends React.Component {
     );
   }
 }
+
+CreateAccount.propTypes = {
+  checkUsername: React.PropTypes.func,
+  usernameValid: React.PropTypes.bool,
+  createAccount: React.PropTypes.func,
+  isLoading: React.PropTypes.bool,
+  goBack: React.PropTypes.func,
+};

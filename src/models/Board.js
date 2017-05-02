@@ -9,78 +9,127 @@ const boardColors = [
   [7, 6, 5, 4, 3, 2, 1, 0],
 ];
 
-function createInitialTowerPositions(playerUIDs) {
-  const towers = {
-    [playerUIDs[0]]: [],
-    [playerUIDs[1]]: [],
-  };
-  const keys = Object.keys(towers).sort((a, b) => (a < b ? -1 : 1));
+const BOARD_SIZE_IN_BYTES = 80;
+const REALLOC_BATCH_EXP = 12; // that means, we will allocate 320 kb batches
+const REALLOC_BATCH_SIZE = 1 << REALLOC_BATCH_EXP;
 
-  for (let color = 0; color < 8; color++) {
-    towers[keys[0]].push({
-      color,
-      belongsToPlayer: keys[0],
-      x: color,
-      y: 0,
-    });
+/**
+ * The board factory manages memory.
+ */
+export class BoardFactory {
+  /**
+   * Creates a new Facotry with its own memory.
+   */
+  constructor() {
+    this.size = 0;
+    this.available = 0;
+    this.buffers = [];
+    this.currentBufferWindow = null;
+    this.currentBufferWindowPosition = 0;
+    this._reset();
   }
 
-  for (let color = 0; color < 8; color++) {
-    towers[keys[1]].push({
-      color,
-      belongsToPlayer: keys[1],
-      x: 7 - color,
-      y: 7,
-    });
-  }
-
-  return towers;
-}
-
-const BITS_PER_TOWER = 4;
-const BIT_MASK_HAS_TOWER = 8;
-const BIT_MASK_COLOR = 7;
-const BIT_MASK_FIELD = BIT_MASK_HAS_TOWER | BIT_MASK_COLOR;
-
-export function convertTowerPositionsToBoard(towerPositions) {
-  const players = Object.keys(towerPositions);
-  const newPositions = [];
-  const coordToTower = [0, 0, 0, 0, 0, 0, 0, 0];
-  for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
-    newPositions[playerNumber] = [];
-
-    for (let color = 0; color < 8; color++) {
-      const tower = towerPositions[players[playerNumber]][color];
-      const towerBitMask =
-        (tower.color | BIT_MASK_HAS_TOWER) << (tower.x * BITS_PER_TOWER);
-
-      newPositions[playerNumber][color] = (tower.y << 3) | tower.x;
-      coordToTower[tower.y] |= towerBitMask;
+  /**
+   * Copies a board into a new memory location.
+   *
+   * @param {{playerA: string, playerB: string, data: ArrayBuffer}} board Board to copy.
+   * @return {{playerA: string, playerB: string, data: ArrayBuffer}}
+   */
+  copyBoard(board) {
+    // allocate a new memory batch if needed
+    if (this.size >= this.available) {
+      this.currentBufferWindow = new ArrayBuffer(
+        REALLOC_BATCH_SIZE * BOARD_SIZE_IN_BYTES
+      );
+      this.buffers.push(this.currentBufferWindow);
+      this.available += REALLOC_BATCH_SIZE;
+      this.currentBufferWindowPosition = 0;
     }
-  }
-
-  return {
-    playerA: players[0],
-    playerB: players[1],
-    coordToTower: coordToTower,
-    playerToColorToTower: newPositions,
-  };
-}
-
-export default class Board {
-  static copy(board) {
-    const playerToColorToTowerCopy = [];
-    for (let i = 0; i < 2; i++) {
-      playerToColorToTowerCopy[i] = board.playerToColorToTower[i].slice();
-    }
+    // create view on memory fragment
+    const data = new Uint8Array(
+      this.currentBufferWindow,
+      this.currentBufferWindowPosition,
+      BOARD_SIZE_IN_BYTES
+    ).set(board.data);
+    this.size++;
+    this.currentBufferWindowPosition += BOARD_SIZE_IN_BYTES;
     return {
       playerA: board.playerA,
       playerB: board.playerB,
-      playerToColorToTower: playerToColorToTowerCopy,
-      coordToTower: board.coordToTower.slice(),
+      data,
     };
   }
 
+  /**
+   * releases all memory and also all boards that have been
+   * created by this facotry.
+   */
+  dispose() {
+    this._reset();
+  }
+
+  /**
+   * Resets the factory.
+   */
+  _reset() {
+    delete this.buffers;
+    this.currentBufferWindow = new ArrayBuffer(
+      REALLOC_BATCH_SIZE * BOARD_SIZE_IN_BYTES
+    );
+    this.buffers = [this.currentBufferWindow];
+    this.currentBufferWindowPosition = 0;
+    this.available = REALLOC_BATCH_SIZE;
+    this.size = 0;
+  }
+}
+
+/**
+ * @typedef BoardStructure
+ * @property {string} playerA
+ * @property {string} playerB
+ * @property {ArrayBuffer} data
+ */
+
+/**
+ * This is an abstraction of the database model.
+ */
+export default class Board {
+  /**
+   * Converts the database's data structure into a structure that is
+   * optimized for processing certain operations like:
+   * copying or querying tower positions.
+   *
+   * @param {object} towerPositions Database model.
+   * @return {BoardStructure}
+   * The optimized data structure.
+   */
+  static convertTowerPositionsToBoard(towerPositions) {
+    const players = Object.keys(towerPositions);
+    const arrayBuffer = new ArrayBuffer(80);
+    const data = new Uint8Array(arrayBuffer);
+    for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
+      for (let color = 0; color < 8; color++) {
+        const tower = towerPositions[players[playerNumber]][color];
+
+        data[playerNumber * 8 + color] = (tower.y << 3) | tower.x;
+        data[tower.y * 8 + tower.x + 16] = tower.color + 1;
+      }
+    }
+
+    return {
+      playerA: players[0],
+      playerB: players[1],
+      data,
+    };
+  }
+
+  /**
+   * Retrieves the player's opponent in the give game.
+   *
+   * @param {BoardStructure} board The game board.
+   * @param {string} player The player's name.
+   * @return {string} The opponent's name.
+   */
   static getOpponentOf(board, player) {
     if (player === board.playerA) {
       return board.playerB;
@@ -89,6 +138,13 @@ export default class Board {
     }
   }
 
+  /**
+   * Retrieves the player's move direction on the given board.
+   *
+   * @param {BoardStructure} board The game board.
+   * @param {string} player The player's name.
+   * @return {number} The move direction: 1 for downwards and -1 for upwards.
+   */
   static getMoveDirectionOf(board, player) {
     if (player > Board.getOpponentOf(board, player)) {
       return -1;
@@ -97,6 +153,14 @@ export default class Board {
     }
   }
 
+  /**
+   * Retrieves the player's target row on the given board.
+   * Target row is the starting row of the opponent at the same time.
+   *
+   * @param {BoardStructure} board The game board.
+   * @param {string} player The player's name.
+   * @return {number} The target row which is either 0 or 7.
+   */
   static getTargetRowOf(board, player) {
     if (player > Board.getOpponentOf(board, player)) {
       return 0;
@@ -106,52 +170,34 @@ export default class Board {
   }
 
   /**
-     *
-     * @param {String} player
-     * @param {Number} color
-     * @param {{x: Number, y: Number}} from
-     * @param {{x: Number, y: Number}} to
-     */
+   *
+   * @param {String} player
+   * @param {Number} color
+   * @param {{x: Number, y: Number}} from
+   * @param {{x: Number, y: Number}} to
+   */
   static moveTower(board, player, color, fromX, fromY, toX, toY) {
     const playerNumber = player === board.playerA ? 0 : 1;
-    const towerToMove = board.playerToColorToTower[playerNumber][color];
+    const playerColorIndex = playerNumber * 8 + color;
+    const towerToMove = board.data[playerColorIndex];
     const towerToMoveX = towerToMove & 7;
     const towerToMoveY = towerToMove >>> 3;
 
     if (towerToMoveX === fromX && towerToMoveY === fromY) {
       if (Board.coordHasTower(board, fromX, fromY)) {
-        board.playerToColorToTower[playerNumber][color] = (toY << 3) | toX;
-        Board._clearFieldBits(board, fromX, fromY);
-        Board._setFieldBits(board, toX, toY, color);
+        board.data[playerColorIndex] = (toY << 3) | toX;
+        board.data[fromY * 8 + fromX + 16] = 0;
+        board.data[toY * 8 + fromX + 16] = color + 1;
         return true;
       }
     }
 
-    throw 'there is no tower that could be moved!';
-  }
-
-  static _clearFieldBits(board, x, y) {
-    const negatedFieldBits = ~(Board._getFieldBits(board, x, y) <<
-      (x * BITS_PER_TOWER));
-
-    board.coordToTower[y] &= negatedFieldBits;
-  }
-
-  static _setFieldBits(board, x, y, color) {
-    const fieldBits = BIT_MASK_HAS_TOWER | color;
-
-    board.coordToTower[y] |= fieldBits << (x * BITS_PER_TOWER);
-  }
-
-  static _getFieldBits(board, x, y) {
-    const shift = x * BITS_PER_TOWER;
-
-    return (board.coordToTower[y] & (BIT_MASK_FIELD << shift)) >>> shift;
+    throw new Error('there is no tower that could be moved!');
   }
 
   static getTowerForPlayerAndColor(board, player, color) {
     const playerNumber = player === board.playerA ? 0 : 1;
-    const tower = board.playerToColorToTower[playerNumber][color];
+    const tower = board.data[playerNumber === 1 ? 8 + color : color];
 
     return {
       x: tower & 7,
@@ -160,14 +206,13 @@ export default class Board {
   }
 
   static coordHasTower(board, x, y) {
-    return (
-      (Board._getFieldBits(board, x, y) & BIT_MASK_HAS_TOWER) === BIT_MASK_HAS_TOWER
-    );
+    return board.data[y * 8 + x + 16] > 0;
   }
 
   static getTowerColorAtCoord(board, x, y) {
-    if (Board.coordHasTower(board, x, y)) {
-      return Board._getFieldBits(board, x, y) & BIT_MASK_COLOR;
+    const color = board.data[y * 8 + x + 16];
+    if (color > 0) {
+      return color - 1;
     } else {
       return null;
     }
@@ -177,23 +222,13 @@ export default class Board {
     return boardColors[y][x];
   }
 
-  static _lpad(padString, length) {
-    var str = this;
-    while (str.length < length)
-      str = padString + str;
-    return str;
-  }
-
   static printBoard(board) {
-    for (const y in board.coordToTower) {
-      const rowString = Board._lpad.bind(
-        (board.coordToTower[y] >>> 0).toString(2),
-        '0',
-        8 * BITS_PER_TOWER
-      )();
-      const fields = rowString
-        .match(new RegExp(`(.{1,${BITS_PER_TOWER}})`, 'g'))
-        .reverse();
+    for (let y = 0; y < 8; y++) {
+      let row = '[';
+      for (let x = 0; x < 8; x++) {
+        row += board.data[y * 8 + x + 16] + ',';
+      }
+      console.log(row + ']');
     }
   }
 
@@ -240,3 +275,6 @@ export default class Board {
     return degreesOfFreedom;
   }
 }
+
+Board.buffers = new ArrayBuffer(80 * 1000);
+Board.count = 0;

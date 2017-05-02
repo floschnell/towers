@@ -1,24 +1,37 @@
 import Game from '../src/models/Game';
-import Board, {convertTowerPositionsToBoard} from '../src/models/Board';
+import Board, {convertTowerPositionsToBoard, BoardFactory} from '../src/models/Board';
 import Benchmark from 'benchmark';
+import fs from 'fs';
 
-const board = convertTowerPositionsToBoard(Game.createInitialTowerPositions(['playerA', 'playerB']))
+const board = convertTowerPositionsToBoard(
+  Game.createInitialTowerPositions(['playerA', 'playerB'])
+);
 const suite = new Benchmark.Suite('Board');
 const results = [];
+const boardFactory = new BoardFactory();
+const oldResults = JSON.parse(
+  fs.readFileSync('./dist/benchmark_results_reference.json').toString()
+);
 
-suite.add('coordHasTower', () => {
+console.log('Benchmark running ...');
+
+suite
+  .add('coordHasTower', () => {
     const x = ~~(Math.random() * 8);
     const y = ~~(Math.random() * 8);
 
     Board.coordHasTower(board, x, y);
-}).add('copy', () => {
-    const boardCopy = Board.copy(board);
-}).add('getTowerForPlayerAndColor', () => {
+  })
+  .add('copy', () => {
+    const boardCopy = boardFactory.copyBoard(board);
+  })
+  .add('getTowerForPlayerAndColor', () => {
     const player = Math.random() < 0.5 ? 'playerA' : 'playerB';
     const color = ~~(Math.random() * 8);
 
     Board.getTowerForPlayerAndColor(board, player, color);
-}).add('moveTower', () => {
+  })
+  .add('moveTower', () => {
     const fromX = 3;
     const fromY = 0;
     const toX = 3;
@@ -26,11 +39,28 @@ suite.add('coordHasTower', () => {
 
     Board.moveTower(board, 'playerA', 3, fromX, fromY, toX, toY);
     Board.moveTower(board, 'playerA', 3, toX, toY, fromX, fromY);
-}).add('getOpponentOf', () => {
+  })
+  .add('getOpponentOf', () => {
     Board.getOpponentOf(board, 'playerA');
     Board.getOpponentOf(board, 'playerB');
-}).on('cycle', event => {
+  })
+  .on('cycle', (event) => {
+    console.log('---------------------------');
+    console.log(event.target.name);
+    console.log('---------------------------');
+    console.log('ops/sec:\t', Math.floor(event.target.hz));
+    const comparable = oldResults.find(
+      (oldResult) => oldResult.name === event.target.name
+    );
+    if (comparable) {
+      const ratio = event.target.hz / comparable.hz - 1;
+      console.log('improvement:\t', `${Math.round(ratio * 100)}%`);
+    }
+    console.log('');
     results.push(event.target);
-}).on('complete', () => {
-    console.log(JSON.stringify(results, null, 2));
-}).run({ 'async': false });
+  })
+  .on('complete', () => {
+    console.log(boardFactory.size, 'used from', boardFactory.available);
+    fs.writeFileSync('./dist/benchmark_results.json', JSON.stringify(results, null, 2));
+  })
+  .run({async: false});

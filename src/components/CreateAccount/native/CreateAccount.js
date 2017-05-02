@@ -127,3 +127,10 @@ export default class CreateAccount extends React.Component {
     );
   }
 }
+
+CreateAccount.propTypes = {
+  checkUsername: React.PropTypes.func,
+  usernameValid: React.PropTypes.bool,
+  createAccount: React.PropTypes.func,
+  isLoading: React.PropTypes.bool,
+};

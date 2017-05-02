@@ -226,3 +226,17 @@ export default class App extends React.Component {
     }
   }
 }
+
+App.propTypes = {
+  message: React.PropTypes.string,
+  loadingMessage: React.PropTypes.string,
+  cancelLoading: React.PropTypes.func,
+  isLoading: React.PropTypes.bool,
+  currentPage: React.PropTypes.object,
+  player: React.PropTypes.object,
+  navigateBack: React.PropTypes.func,
+  logOut: React.PropTypes.func,
+  clearMessage: React.PropTypes.func,
+  waitForLogin: React.PropTypes.func,
+  resizeGameSurface: React.PropTypes.func,
+};

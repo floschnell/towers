@@ -44,3 +44,8 @@ export default class App extends React.Component {
     }
   }
 }
+
+App.propTypes = {
+  currentPage: React.PropTypes.object,
+  waitForLogin: React.PropTypes.func,
+};
