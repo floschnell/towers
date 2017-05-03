@@ -1,9 +1,8 @@
 {
-    "compilerOptions": {
-        "target": "ES6"
-    },
-    "include": [
-        "src/**/*",
-        "node_modules/rxjs/Rx.js"
-    ]
+  "compilerOptions": {
+    "target": "es6"
+  },
+  "include": [
+    "./src/**/*"
+  ]
 }

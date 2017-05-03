@@ -1,98 +1,125 @@
 import React from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    Button,
-    Keyboard,
-    ScrollView,
-    ActivityIndicator
-} from 'react-native';
-import firebase from 'firebase';
-import { getOpponent } from '../../../gamelogic';
+import {Text, View, Button, Keyboard, ScrollView} from 'react-native';
+import {getOpponent} from '../../../gamelogic';
 import Logger from '../../../logger';
 
-export default class Login extends React.Component {
+/**
+ * Native dashboard component.
+ * This is where a new game can be started
+ * or currently running games can be resumed.
+ */
+export default class Dashboard extends React.Component {
+  /**
+   * @override
+   */
+  componentWillMount() {
+    Keyboard.dismiss();
+    this.props.subscribeOnGameUpdates(this.props.player.id);
+  }
 
-    constructor() {
-        super();
-    }
+  /**
+   * @override
+   */
+  componentWillUnmount() {
+    this.props.unsubscribeFromGameUpdates(this.props.player.id);
+  }
 
-    componentWillMount() {
-        Keyboard.dismiss();
-        this.props.subscribeOnGameUpdates(this.props.player.id);
-    }
+  /**
+   * @override
+   */
+  render() {
+    const renderGames = () =>
+      Object.keys(this.props.games).map((gameKey) => {
+        Logger.debug('games:', this.props.games);
+        const game = this.props.games[gameKey];
+        const playerIDs = Object.keys(game.players);
+        const playerID = this.props.player.id;
+        const opponentID = getOpponent(playerID, playerIDs);
+        const opponentName = game.players[opponentID].name;
+        const chooseGame = () => {
+          if (!this.props.isLoading) {
+            this.props.chooseGame(gameKey);
+          }
+        };
+        const myTurn = game.currentPlayer === playerID;
+        const turnDesc = myTurn ? '(your turn)' : '(waiting)';
 
-    componentWillUnmount() {
-        this.props.unsubscribeFromGameUpdates(this.props.player.id);
-    }
+        return (
+          <View
+            key={gameKey + '-view'}
+            style={{paddingHorizontal: 15, paddingVertical: 5}}
+          >
+            <Button
+              key={`button-${gameKey}`}
+              onPress={chooseGame}
+              title={`You vs. ${opponentName} ${turnDesc}`}
+            />
+          </View>
+        );
+      });
 
-    render() {
-        const styles = StyleSheet.create({
-            container: {
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#F5FCFF',
-            },
-            fieldContainer: {
-                margin: 5,
-                flexDirection: 'row',
-                alignItems: 'center'
-            },
-            inputField: {
-                height: 40,
-                width: 150
-            }
-        });
+    const renderGamelist = () => {
+      const thereAreAnyGames = Object.keys(this.props.games).length > 0;
 
-        const renderGames = () => Object.keys(this.props.games).map(gameKey => {
-            Logger.debug('games:', this.props.games);
-            const game = this.props.games[gameKey];
-            const playerIDs = Object.keys(game.players);
-            const playerID = this.props.player.id;
-            const opponentID = getOpponent(playerID, playerIDs);
-            const opponentName = game.players[opponentID].name;
-            const chooseGame = () => {
-                if (!this.props.isLoading) {
-                    this.props.chooseGame(gameKey);
-                }
-            };
-            const myTurn = game.currentPlayer === playerID;
-            const turnDesc = myTurn ? '(your turn)' : '(waiting)';
+      if (thereAreAnyGames) {
+        return (
+          <View style={{flex: 1}}>
+            <Text style={{margin: 15, marginBottom: 5}}>
+              These are your currently running Games:
+            </Text>
+            <ScrollView style={{flex: 1}}>
+              {renderGames()}
+            </ScrollView>
+          </View>
+        );
+      } else {
+        return (
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{margin: 5}}>
+              You do not have any games currently, let's start one!
+            </Text>
+          </View>
+        );
+      }
+    };
 
-            return <View key={gameKey+'-view'} style={{ paddingHorizontal: 15, paddingVertical: 5 }}><Button key={`button-${gameKey}`} onPress={chooseGame} title={`You vs. ${opponentName} ${turnDesc}`}></Button></View>
-        });
+    return (
+      <View style={{flex: 1}}>
+        <View style={{margin: 5}}>
+          <Button
+            onPress={this.props.playTutorial.bind(null, this.props.player)}
+            title="Play Tutorial"
+            color="red"
+          />
+        </View>
+        <View style={{margin: 5, marginTop: 0}}>
+          <Button
+            onPress={this.props.startNewGame}
+            title="Start New Game"
+            color="red"
+          />
+        </View>
+        <View style={{margin: 5, marginTop: 0}}>
+          <Button
+            onPress={this.props.playAgainstPC.bind(null, this.props.player)}
+            title="Play Against PC"
+            color="red"
+          />
+        </View>
+        {renderGamelist()}
+      </View>
+    );
+  }
+}
 
-        const renderGamelist = () => {
-            const thereAreAnyGames = Object.keys(this.props.games).length > 0;
-
-            if (thereAreAnyGames) {
-                return <View style={{flex: 1}} >
-                    <Text style={{ margin: 15, marginBottom: 5 }}>These are your currently running Games:</Text>
-                    <ScrollView style={{ flex: 1 }}>
-                        {renderGames()}
-                    </ScrollView>
-                </View>;
-            } else {
-                return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ margin: 5 }}>You do not have any games currently, let's start one!</Text>
-                </View>;
-            }
-        }
-
-        return <View style={{ flex: 1 }}>
-            <View style={{ margin: 5 }}>
-                <Button onPress={this.props.playTutorial.bind(null, this.props.player)} title="Play Tutorial" color="red" ></Button>
-            </View>
-            <View style={{ margin: 5, marginTop: 0 }}>
-                <Button onPress={this.props.startNewGame} title="Start New Game" color="red" ></Button>
-            </View>
-            <View style={{ margin: 5, marginTop: 0 }}>
-                <Button onPress={this.props.playAgainstPC.bind(null, this.props.player)} title="Play Against PC" color="red" ></Button>
-            </View>
-            {renderGamelist()}
-        </View>;
-    }
+Dashboard.propTypes = {
+  playAgainstPC: React.PropTypes.func.isRequired,
+  startNewGame: React.PropTypes.func.isRequired,
+  playTutorial: React.PropTypes.func.isRequired,
+  chooseGame: React.PropTypes.func.isRequired,
+  subscribeOnGameUpdates: React.PropTypes.func.isRequired,
+  unsubscribeFromGameUpdates: React.PropTypes.func.isRequired,
+  player: React.PropTypes.object,
+  games: React.PropTypes.object,
+  isLoading: React.PropTypes.bool,
 };

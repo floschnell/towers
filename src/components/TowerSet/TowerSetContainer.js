@@ -1,13 +1,8 @@
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import TowerSet from './native/TowerSet';
 
-const mapStateToProps = (state, ownProps) => ({
-});
+const mapStateToProps = (state, ownProps) => ({});
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-});
+const mapDispatchToProps = (dispatch, ownProps) => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TowerSet);
+export default connect(mapStateToProps, mapDispatchToProps)(TowerSet);

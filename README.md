@@ -1,5 +1,5 @@
 # Towers
-Towers is an OS independent board game. Currently there is a multiplayer mode that enables player to compete online and a simple single player variant, where one can play agains an AI. The game runs on almost any operating system. There is a web version and also a native Android and iOS version available. So far only web and Android have been tested regularly though. Towers is an open source implementation of the original game [Kamisado](https://en.wikipedia.org/wiki/Kamisado). The game is chess-flavored, but with simplified rules and an intelligent twist.
+Towers is an OS independent board game. Currently there is a multiplayer mode that enables player to compete online and a simple single player variant, where one can play against an AI. The game runs on almost any operating system. There is a web version and also a native Android and iOS version available. So far only web and Android have been tested regularly though. Towers is an open source implementation of the original game [Kamisado](https://en.wikipedia.org/wiki/Kamisado). The game is chess-flavored, but with simplified rules and an intelligent twist.
 
 Rules taken from Wikipedia:
 > The players’ towers start the game on the row nearest to them. The players take turns moving one tower any number of spaces in a straight line, either directly forwards or diagonally forwards, but not into or through a square already containing another dragon tower.
@@ -9,7 +9,7 @@ Rules taken from Wikipedia:
 >Games may be played as single rounds, or as more advanced ‘Match’ formats. Matches are played up to 3 points (Standard Match), 7 points (Long Match) or 15 points (Marathon Match). During a match, each time a round is won, a special ‘Sumo Ring’ is added to the dragon tower that has fought its way through to the opponent’s Home Row. The sumo rings provide the scoring system for the game, and also endow special powers to the dragon towers that carry them. These towers are known as Sumo towers and have the ability to push opponent’s towers back one space, by using a move known as a ‘Sumo Push’.
 
 ## Development
-Written completely in Javascript on top of React and React Native it is compatible with a wide range of operating systems. Furthermore the whole application state is managed via Redux and thus makes use of the advantages of the [Flux architecture](https://facebook.github.io/flux/docs/in-depth-overview.html#content). To overcome the challenges of the synchronous nature of Flux, the thunk middleware is used to execute asynchronous code. Callbacks are either handled via Promises or - if they need to be cancelable for instance - by RxJS. Game data is stored within a [Firebase database](https://firebase.google.com/docs/database/). Therefor clients will be automatically synchronized and this application does not need any own backend code.
+Written completely in Javascript on top of React and React Native it is compatible with a wide range of operating systems. Furthermore the whole application state is managed via Redux and thus makes use of the advantages of the [Flux architecture](https://facebook.github.io/flux/docs/in-depth-overview.html#content). To overcome the challenges of the synchronous nature of Flux, the [thunk middleware](https://github.com/gaearon/redux-thunk) is used to execute asynchronous code. Callbacks are either handled via Promises or - if they need to be cancelable for instance - by [RxJS](http://reactivex.io/rxjs). Game data is stored within a [Firebase database](https://firebase.google.com/docs/database/). Therefor clients will be automatically synchronized and this application does not need any own backend code.
 
 ### Architecture
 Currently the application is still taking form. There are a few general concepts though.
@@ -37,7 +37,7 @@ try {
 If you want to develop for an Android device, you will need to setup some tools first. [Facebook's React Native "Getting Started Guide"](https://facebook.github.io/react-native/docs/getting-started.html) will help you with that. To make use of the **npm scripts** you will have to name your virtual device "ReactNative" (or modify the package.json and replace it with your choosing).
 
 #### Build for Development
-If you want to run the application for development, it is as simple as executing ```npm run andoird:dev```. This will then startup the android virtual device, install the application on it and run the React Native dev-server.
+If you want to run the application for development, it is as simple as executing ```npm run android:dev```. This will then startup the android virtual device, install the application on it and run the React Native dev-server.
 
 #### Build for Production
 If you want to build a distributable application bundle, you will have to create a keystore first. Then modify the gradle properties (./android/gradle.properties) that start with **MYAPP_RELEASE_** to match your environment.
