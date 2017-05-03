@@ -10,7 +10,15 @@ import Logger from '../logger';
  *
  * @type {Rx.Subscription}
  */
-let subscription = null;
+export let subscription = null;
+
+export const setSubscription = (inSubscription) => {
+  subscription = inSubscription;
+};
+
+export const getSubscription = () => {
+  return subscription;
+};
 
 /**
  * All the different actions this application consists of.

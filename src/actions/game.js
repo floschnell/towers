@@ -1,6 +1,11 @@
 import AI from '../ai';
 import Game from '../models/Game';
 import Logger from '../logger';
+import Rx from 'rxjs';
+import db from '../database';
+import {startLoading, endLoading, setSubscription, showMessage} from './app';
+import {pushPage} from './navigation';
+import {PAGES} from '../models/Page';
 
 export const GAME_ACTIONS = {
   RESUME_GAME: 'RESUME_GAME',
@@ -103,7 +108,7 @@ export function loadGameFromKey(gameKey) {
     );
 
     dispatch(startLoading(`Resuming game ...`));
-    subscription = gameObserver.subscribe(
+    const subscription = gameObserver.subscribe(
       (gameSnapshot) => {
         const currentState = getState();
 
@@ -128,6 +133,7 @@ export function loadGameFromKey(gameKey) {
       (error) => dispatch(showMessage(e)),
       () => dispatch(endLoading())
     );
+    setSubscription(subscription);
   };
 }
 

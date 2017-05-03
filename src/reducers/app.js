@@ -10,7 +10,7 @@ export default (state, action) => {
       token: null,
       isLoading: false,
       loadingMessage: '',
-      players: [],
+      players: {},
       games: {},
       player: null,
       user: null,
