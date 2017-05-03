@@ -50,5 +50,5 @@ Arrow.propTypes = {
   toY: React.PropTypes.number.isRequired,
   toX: React.PropTypes.number.isRequired,
   width: React.PropTypes.number.isRequired,
-  color: React.PropTypes.number.isRequired,
+  color: React.PropTypes.string.isRequired,
 };

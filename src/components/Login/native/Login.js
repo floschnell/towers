@@ -117,7 +117,7 @@ export default class Login extends React.Component {
 }
 
 Login.propTypes = {
-  authState: React.PropTypes.number,
+  authState: React.PropTypes.string,
   createAccount: React.PropTypes.func,
   finalizeLogin: React.PropTypes.func,
 };

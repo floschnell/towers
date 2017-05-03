@@ -1,6 +1,5 @@
 import {ACTION_TYPES, AUTH_STATE} from '../actions/index';
 import Game from '../models/Game';
-import {PAGES} from '../models/Page';
 import Logger from '../logger';
 
 export default (state, action) => {
@@ -19,7 +18,6 @@ export default (state, action) => {
       surfaceHeight: 0,
       surfaceMinSize: 0,
       message: null,
-      pageStack: [PAGES.LOGIN],
       authState: AUTH_STATE.INITIALIZING,
     };
   }
@@ -27,12 +25,6 @@ export default (state, action) => {
   const newState = JSON.parse(JSON.stringify(state));
 
   switch (action.type) {
-    case ACTION_TYPES.LAUNCH_TUTORIAL:
-      const gamePage = PAGES.GAME.withTitle('Tutorial');
-      return Object.assign(newState, {
-        pageStack: state.pageStack.concat(gamePage.toJson()),
-      });
-
     case ACTION_TYPES.USERNAME_CHECKED:
       return Object.assign(newState, {
         usernameValid: action.result,

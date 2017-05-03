@@ -3,7 +3,7 @@ import {
   View,
   Dimensions,
   Alert,
-  BackAndroid,
+  BackHandler,
   StatusBar,
   ActivityIndicator,
   Modal,
@@ -29,7 +29,7 @@ export default class App extends React.Component {
   componentWillMount() {
     this.props.waitForLogin();
 
-    BackAndroid.addEventListener('hardwareBackPress', this.onBack.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.onBack.bind(this));
   }
 
   /**
@@ -110,7 +110,7 @@ export default class App extends React.Component {
         {
           text: 'Yes',
           onPress: () => {
-            BackAndroid.exitApp();
+            BackHandler.exitApp();
           },
         },
       ],

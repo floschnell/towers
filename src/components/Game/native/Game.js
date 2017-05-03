@@ -116,7 +116,9 @@ export default class Game extends React.Component {
           alignItems: 'center',
         }}
       >
-        <Text style={{color: 'white', fontSize: 22}}>{this.props.player.name}</Text>
+        <Text style={{color: 'white', fontSize: 22}}>
+          {this.props.player.name}
+        </Text>
         <Text style={{color: 'white', fontSize: 14}}>
           {this.props.myTurn ? 'about to move' : 'is waiting ...'}
         </Text>
@@ -132,7 +134,9 @@ export default class Game extends React.Component {
           alignItems: 'center',
         }}
       >
-        <Text style={{color: 'black', fontSize: 22}}>{this.props.opponent.name}</Text>
+        <Text style={{color: 'black', fontSize: 22}}>
+          {this.props.opponent.name}
+        </Text>
         <Text style={{color: 'black', fontSize: 14}}>
           {this.props.myTurn ? 'is waiting ...' : 'about to move'}
         </Text>
@@ -200,7 +204,9 @@ export default class Game extends React.Component {
                 opacity: 0.9,
               }}
             >
-              <Text style={{color: 'black'}}>{this.props.tutorialMessage}</Text>
+              <Text style={{color: 'black'}}>
+                {this.props.tutorialMessage}
+              </Text>
               {this.props.tutorialContinueOnMessageClick
                 ? <View style={{marginTop: 5}}>
                     <Button
@@ -236,7 +242,10 @@ export default class Game extends React.Component {
                 backgroundColor: 'white',
               }}
             >
-              <Text numberOfLines={1} style={{color: 'black', padding: 5, flex: 1}}>
+              <Text
+                numberOfLines={1}
+                style={{color: 'black', padding: 5, flex: 1}}
+              >
                 {this.props.tutorialMessage}
               </Text>
               <Button
@@ -253,10 +262,15 @@ export default class Game extends React.Component {
     };
 
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}>
+      <View
+        style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}
+      >
         {renderOpponent()}
         <View style={{width: this.props.size, height: this.props.size}}>
-          <BoardContainer size={this.props.size} reverse={this.props.rotateBoard} />
+          <BoardContainer
+            size={this.props.size}
+            reverse={this.props.rotateBoard}
+          />
           {visualizeLastMoves()}
           <TowerSetContainer
             towers={playerOneTowers}
@@ -294,12 +308,12 @@ Game.propTypes = {
   inTutorial: React.PropTypes.bool,
   player: React.PropTypes.object,
   opponent: React.PropTypes.object,
-  towerPositions: React.PropTypes.array,
+  towerPositions: React.PropTypes.object,
   lastMoves: React.PropTypes.array,
   tutorialMessage: React.PropTypes.string,
-  tutorialMessagePosition: React.PropTypes.number,
+  tutorialMessagePosition: React.PropTypes.string,
   size: React.PropTypes.number,
   marginSize: React.PropTypes.number,
-  nextTutorialStep: React.PropTypes.number,
+  nextTutorialStep: React.PropTypes.func,
   tutorialContinueOnMessageClick: React.PropTypes.bool,
 };

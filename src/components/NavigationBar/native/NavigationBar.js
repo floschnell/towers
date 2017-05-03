@@ -113,6 +113,6 @@ NavigationBar.propTypes = {
   backgroundColor: React.PropTypes.string,
   rightButtonColor: React.PropTypes.string,
   leftButtonColor: React.PropTypes.string,
-  onLeftButtonPress: React.PropTypes.funct,
-  onRightButtonPress: React.PropTypes.funct,
+  onLeftButtonPress: React.PropTypes.func,
+  onRightButtonPress: React.PropTypes.func,
 };

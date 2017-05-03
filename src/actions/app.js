@@ -1,7 +1,7 @@
 import db from '../database';
 import firebase from 'firebase';
 import {PAGES} from '../models/Page';
-import {pushPage} from '../actions/navigation';
+import {pushPage, initializeWithPage} from '../actions/navigation';
 import Rx from 'rxjs';
 import Logger from '../logger';
 
@@ -49,7 +49,22 @@ export const AUTH_STATE = {
   UNAUTHENTICATED: 'UNAUTHENTICATED',
 };
 
-export const launchTutorial = (player) => ({
+/**
+ * Starts the tutorial game.
+ *
+ * @export
+ * @param {string} player Name of the tutorial player.
+ * @return {void}
+ */
+export function launchTutorial(player) {
+  return (dispatch) => {
+    const gamePage = PAGES.GAME.withTitle('Tutorial');
+    dispatch(pushPage(gamePage));
+    dispatch(tutorialLaunched(player));
+  };
+}
+
+export const tutorialLaunched = (player) => ({
   type: APP_ACTIONS.LAUNCH_TUTORIAL,
   player,
 });
@@ -345,7 +360,9 @@ export function waitForLogin() {
 
             const matchingPlayers = Object.keys(playersSnapshot.val());
             if (matchingPlayers.length > 1) {
-              throw new Error('There exists more than one player with that UID!');
+              throw new Error(
+                'There exists more than one player with that UID!'
+              );
             }
             const playerID = matchingPlayers[0];
             const player = Object.assign(playersSnapshot.val()[playerID], {
@@ -353,7 +370,9 @@ export function waitForLogin() {
             });
             Logger.debug('setting user: ', player);
             dispatch(authenticate(player));
-            dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)));
+            dispatch(
+              pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`))
+            );
             Logger.debug('you got logged in');
           })
           .catch((e) => {

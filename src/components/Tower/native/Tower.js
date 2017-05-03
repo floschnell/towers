@@ -68,7 +68,7 @@ Tower.propTypes = {
   size: React.PropTypes.number,
   x: React.PropTypes.number,
   y: React.PropTypes.number,
-  playerID: React.PropTypes.number,
+  playerID: React.PropTypes.string,
   tower: React.PropTypes.object,
   isActive: React.PropTypes.bool,
   isSelected: React.PropTypes.bool,
