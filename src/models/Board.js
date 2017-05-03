@@ -40,7 +40,13 @@ export class BoardFactory {
   copyBoard(board) {
     // allocate a new memory batch if needed
     if (this.size >= this.available) {
-      Logger.debug('reallocating new memory. (', this.size, '>=', this.available, ')');
+      Logger.debug(
+        'reallocating new memory. (',
+        this.size,
+        '>=',
+        this.available,
+        ')'
+      );
       this.currentBufferWindow = new ArrayBuffer(
         REALLOC_BATCH_SIZE * BOARD_SIZE_IN_BYTES
       );
@@ -173,11 +179,16 @@ export default class Board {
   }
 
   /**
+   * Moves a tower from one field to another.
    *
-   * @param {String} player
-   * @param {Number} color
-   * @param {{x: Number, y: Number}} from
-   * @param {{x: Number, y: Number}} to
+   * @param {BoardStructure} board Board on which the move should be performed.
+   * @param {string} player Player the tower belongs to.
+   * @param {number} color Color that the tower has.
+   * @param {number} fromX X coord of the source field.
+   * @param {number} fromY Y coord of the source field.
+   * @param {number} toX X coord of the target field.
+   * @param {number} toY Y coord of the target field.
+   * @return {bool} Whether the tower could be moved.
    */
   static moveTower(board, player, color, fromX, fromY, toX, toY) {
     const playerNumber = player === board.playerA ? 0 : 1;
@@ -198,6 +209,17 @@ export default class Board {
     throw new Error('there is no tower that could be moved!');
   }
 
+  /**
+   * Retrieves the tower position for a certain color and a player.
+   *
+   * @static
+   * @param {BoardStructure} board Board, which holds the towers.
+   * @param {string} player ID of the player.
+   * @param {number} color Color of the tower.
+   * @return {{x: number, y: number}}
+   *
+   * @memberof Board
+   */
   static getTowerForPlayerAndColor(board, player, color) {
     const playerNumber = player === board.playerA ? 0 : 1;
     const tower = board.data[playerNumber === 1 ? 8 + color : color];
@@ -208,10 +230,32 @@ export default class Board {
     };
   }
 
+  /**
+   * Checks if there is a tower on the give board coordinate.
+   *
+   * @static
+   * @param {BoardStructure} board The board on which the towers stand.
+   * @param {number} x X coordinate of the position that should be checked for a tower.
+   * @param {number} y Y coordinate of the position that should be checked for a tower.
+   * @return {bool}
+   *
+   * @memberof Board
+   */
   static coordHasTower(board, x, y) {
     return board.data[y * 8 + x + 16] > 0;
   }
 
+  /**
+   * Retrieves the color of the tower at the given coord.
+   *
+   * @static
+   * @param {BoardStructure} board The board on which the towers stand.
+   * @param {number} x X coordinate of the field on which the tower is.
+   * @param {number} y Y coordinate of the field on which the tower is.
+   * @return {number|null} Color of the tower or null if there is no tower.
+   *
+   * @memberof Board
+   */
   static getTowerColorAtCoord(board, x, y) {
     const color = board.data[y * 8 + x + 16];
     if (color > 0) {
@@ -221,10 +265,28 @@ export default class Board {
     }
   }
 
+  /**
+   * Gets the color of the board patch at the given position.
+   *
+   * @static
+   * @param {number} x X coord of the patch.
+   * @param {number} y Y coord of the patch.
+   * @return {number}
+   *
+   * @memberof Board
+   */
   static getBoardColorAtCoord(x, y) {
     return boardColors[y][x];
   }
 
+  /**
+   * Prints the give board to the console for easier debugging.
+   *
+   * @static
+   * @param {BoardStructure} board The board which should be printed.
+   *
+   * @memberof Board
+   */
   static printBoard(board) {
     for (let y = 0; y < 8; y++) {
       let row = '[';
@@ -235,6 +297,18 @@ export default class Board {
     }
   }
 
+  /**
+   * Gets the number of moves a player can perform from a given position.
+   *
+   * @static
+   * @param {BoardStructure} board Board on which the towers stand.
+   * @param {any} player Player that can move.
+   * @param {any} color Color that can be moved.
+   * @return {number} Number of moves that the player can perform
+   *                  with the tower of the given color.
+   *
+   * @memberof Board
+   */
   static getDegreesOfFreedomForTower(board, player, color) {
     const tower = Board.getTowerForPlayerAndColor(board, player, color);
     const moveDirection = Board.getMoveDirectionOf(board, player);
