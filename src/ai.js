@@ -36,9 +36,8 @@ export default class AI {
    * @return {{from: {x: number, y: number}, to: {x: number, y: number}}}
    */
   getNextMove({towerPositions, currentColor, currentPlayer}) {
-    const board = Board.convertTowerPositionsToBoard(towerPositions);
-
-    // boardFactory.dispose();
+    const board = boardFactory.createBoard();
+    Board.convertTowerPositionsToBoard(towerPositions, board);
 
     // estimate freedom of combinations
     const freedom = Object.keys(towerPositions)
@@ -49,11 +48,11 @@ export default class AI {
       )
       .reduce((a, b) => a.concat(b))
       .reduce((a, b) => a + b);
-    Logger.debug('measured freedom:', freedom);
 
     // choose iterations based on the estimated freedom
-    const iterations = 3 + ~~((250 - freedom) / 20);
-    console.log(iterations);
+    const iterations = 3 + ~~(Math.pow(250 - freedom, 1.8) / 1000);
+    Logger.debug('measured freedom:', freedom);
+    Logger.debug('chosen number of iterations:', iterations);
 
     const outcomes = this.rateMoves(
       board,
@@ -279,7 +278,11 @@ export default class AI {
       if (results.length === 0) {
         iterations--;
         if (iterations >= 1) {
-          const blockedTower = Board.getTowerForPlayerAndColor(board, player, to.color);
+          const blockedTower = Board.getTowerForPlayerAndColor(
+            board,
+            player,
+            to.color
+          );
           player = Board.getOpponentOf(board, player);
           const blockedTowerFieldColor = Board.getBoardColorAtCoord(
             blockedTower.x,
@@ -321,7 +324,8 @@ export default class AI {
    */
   rateBoard(board, me) {
     const opponent = Board.getOpponentOf(board, me);
-    const opponentRating = this.aggressiveness * this.rateBoardFor(board, opponent);
+    const opponentRating =
+      this.aggressiveness * this.rateBoardFor(board, opponent);
     const myRating = (1 - this.aggressiveness) * this.rateBoardFor(board, me);
 
     return myRating - opponentRating;
@@ -352,7 +356,10 @@ export default class AI {
       }
 
       for (
-        let distance = 1, moveStraight = true, moveLeft = true, moveRight = true;
+        let distance = 1,
+          moveStraight = true,
+          moveLeft = true,
+          moveRight = true;
         moveStraight || moveLeft || moveRight;
         distance++
       ) {

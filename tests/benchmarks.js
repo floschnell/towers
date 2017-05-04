@@ -1,16 +1,21 @@
 import Game from '../src/models/Game';
-import Board, {convertTowerPositionsToBoard, BoardFactory} from '../src/models/Board';
+import Board, {BoardFactory} from '../src/models/Board';
 import Benchmark from 'benchmark';
 import fs from 'fs';
 
-const board = convertTowerPositionsToBoard(
-  Game.createInitialTowerPositions(['playerA', 'playerB'])
-);
 const suite = new Benchmark.Suite('Board');
 const results = [];
 const boardFactory = new BoardFactory();
-const oldResults = JSON.parse(
-  fs.readFileSync('./dist/benchmark_results_reference.json').toString()
+const oldResults = [];
+if (fs.existsSync('./dist/benchmark_results_reference.json')) {
+  JSON.parse(
+    fs.readFileSync('./dist/benchmark_results_reference.json').toString()
+  ).forEach((result) => oldResults.push(result));
+}
+const board = boardFactory.createBoard();
+Board.convertTowerPositionsToBoard(
+  Game.createInitialTowerPositions(['playerA', 'playerB']),
+  board
 );
 
 console.log('Benchmark running ...');
@@ -61,6 +66,9 @@ suite
   })
   .on('complete', () => {
     console.log(boardFactory.size, 'used from', boardFactory.available);
-    fs.writeFileSync('./dist/benchmark_results.json', JSON.stringify(results, null, 2));
+    fs.writeFileSync(
+      './dist/benchmark_results.json',
+      JSON.stringify(results, null, 2)
+    );
   })
   .run({async: false});

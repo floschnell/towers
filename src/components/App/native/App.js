@@ -7,6 +7,7 @@ import {
   StatusBar,
   ActivityIndicator,
   Modal,
+  ToastAndroid,
 } from 'react-native';
 import React from 'react';
 import LoginContainer from '../../Login/LoginContainer';

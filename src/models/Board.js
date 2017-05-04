@@ -1,5 +1,3 @@
-import Logger from '../logger';
-
 const boardColors = [
   [0, 1, 2, 3, 4, 5, 6, 7],
   [5, 0, 3, 6, 1, 4, 7, 2],
@@ -32,21 +30,14 @@ export class BoardFactory {
   }
 
   /**
-   * Copies a board into a new memory location.
+   * Creates an empty board.
    *
-   * @param {{playerA: string, playerB: string, data: ArrayBuffer}} board Board to copy.
-   * @return {{playerA: string, playerB: string, data: ArrayBuffer}}
+   * @memberof BoardFactory
+   * @return {BoardStructure}
    */
-  copyBoard(board) {
+  createBoard() {
     // allocate a new memory batch if needed
     if (this.size >= this.available) {
-      Logger.debug(
-        'reallocating new memory. (',
-        this.size,
-        '>=',
-        this.available,
-        ')'
-      );
       this.currentBufferWindow = new ArrayBuffer(
         REALLOC_BATCH_SIZE * BOARD_SIZE_IN_BYTES
       );
@@ -60,14 +51,27 @@ export class BoardFactory {
       this.currentBufferWindowPosition,
       BOARD_SIZE_IN_BYTES
     );
-    data.set(board.data);
     this.size++;
     this.currentBufferWindowPosition += BOARD_SIZE_IN_BYTES;
     return {
-      playerA: board.playerA,
-      playerB: board.playerB,
+      playerA: null,
+      playerB: null,
       data,
     };
+  }
+
+  /**
+   * Copies a board into a new memory location.
+   *
+   * @param {{playerA: string, playerB: string, data: ArrayBuffer}} board Board to copy.
+   * @return {{playerA: string, playerB: string, data: ArrayBuffer}}
+   */
+  copyBoard(board) {
+    const newBoard = this.createBoard();
+    newBoard.playerA = board.playerA;
+    newBoard.playerB = board.playerB;
+    newBoard.data.set(board.data);
+    return newBoard;
   }
 
   /**
@@ -109,27 +113,23 @@ export default class Board {
    * optimized for processing certain operations like:
    * copying or querying tower positions.
    *
-   * @param {object} towerPositions Database model.
-   * @return {BoardStructure}
+   * @param {object} towerPositions Database model of the board.
+   * @param {BoardStructure} board The target board instance.
    * The optimized data structure.
    */
-  static convertTowerPositionsToBoard(towerPositions) {
+  static convertTowerPositionsToBoard(towerPositions, board) {
     const players = Object.keys(towerPositions);
-    const data = new Uint8Array(80);
     for (let playerNumber = 0; playerNumber < 2; playerNumber++) {
       for (let color = 0; color < 8; color++) {
         const tower = towerPositions[players[playerNumber]][color];
 
-        data[playerNumber * 8 + color] = (tower.y << 3) | tower.x;
-        data[tower.y * 8 + tower.x + 16] = tower.color + 1;
+        board.data[playerNumber * 8 + color] = (tower.y << 3) | tower.x;
+        board.data[tower.y * 8 + tower.x + 16] = tower.color + 1;
       }
     }
 
-    return {
-      playerA: players[0],
-      playerB: players[1],
-      data,
-    };
+    board.playerA = players[0];
+    board.playerB = players[1];
   }
 
   /**
