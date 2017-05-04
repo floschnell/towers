@@ -33,7 +33,7 @@ export default class AI {
    * @param {object} towerPositions Current tower positions.
    * @param {number} currentColor The color of the tower that needs to be moved.
    * @param {string} currentPlayer ID of the player who's turn it is.
-   * @return {{from: {x: number, y: number}, to: {x: number, y: number}}}
+   * @return {{from: Field, to: Field}}
    */
   getNextMove({towerPositions, currentColor, currentPlayer}) {
     const board = boardFactory.createBoard();
@@ -257,8 +257,8 @@ export default class AI {
   /**
    * Rates a move's possible sub trees.
    *
-   * @param {{x: number, y: number}} from
-   * @param {{x: number, y: number}} to
+   * @param {Field} from
+   * @param {Field} to
    * @param {Board} board
    * @param {*} player
    * @param {*} me

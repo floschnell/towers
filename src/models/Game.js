@@ -23,14 +23,12 @@ export default class Game {
    */
   constructor() {
     /**
-     * @type{Object.<String, Player>}
+     * @type{Object.<string, Player>}
      */
     this.players = {};
     this.currentColor = 0;
     this.currentPlayer = '';
     this.moves = [];
-    this.board = [[]];
-    this.towerPositions = [[]];
   }
 
   /**
@@ -90,8 +88,8 @@ export default class Game {
 
   /**
    * @static
-   * @param {array<string>} playerUIDs
-   * @return {Array<Array<object>>}
+   * @param {Array<string>} playerUIDs
+   * @return {Array<Array<Tower>>}
    *
    * @memberOf Game
    */

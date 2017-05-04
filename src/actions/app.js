@@ -276,9 +276,6 @@ export function createAccount(username, email, password) {
               playerObj.uid = user.uid;
 
               return playerRef.set(playerObj);
-            })
-            .then((playerSnapshot) => {
-              dispatch(setPlayer(playerObj));
             });
         } else {
           alert('Username is already taken.');

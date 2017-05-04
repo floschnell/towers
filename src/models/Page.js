@@ -84,7 +84,7 @@ export class Page {
    * Checks whether two pages are equal.
    *
    * @param {Page} page
-   * @return {bool}
+   * @return {boolean}
    */
   equals(page) {
     return page && this._name === page.getName();

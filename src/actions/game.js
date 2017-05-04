@@ -4,7 +4,7 @@ import Logger from '../logger';
 import Rx from 'rxjs';
 import db from '../database';
 import {startLoading, endLoading, setSubscription, showMessage} from './app';
-import {pushPage, popPage} from './navigation';
+import {pushPage, popPage, replacePage} from './navigation';
 import {PAGES} from '../models/Page';
 
 export const GAME_ACTIONS = {
@@ -132,7 +132,7 @@ export function loadGameFromKey(gameKey) {
           }
         }
       },
-      (error) => dispatch(showMessage(e)),
+      (error) => dispatch(showMessage(error)),
       () => dispatch(endLoading())
     );
     setSubscription(subscription);
@@ -176,6 +176,7 @@ export function startGame(playerID, opponentID, players) {
     const newGame = {
       players: playersCopy,
       currentPlayer: playerID,
+      currentColor: undefined,
       moves: [],
     };
     const gameName = Game.getKey(newGame);

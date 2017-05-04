@@ -63,8 +63,8 @@ export class BoardFactory {
   /**
    * Copies a board into a new memory location.
    *
-   * @param {{playerA: string, playerB: string, data: ArrayBuffer}} board Board to copy.
-   * @return {{playerA: string, playerB: string, data: ArrayBuffer}}
+   * @param {BoardStructure} board Board to copy.
+   * @return {BoardStructure}
    */
   copyBoard(board) {
     const newBoard = this.createBoard();
@@ -101,7 +101,7 @@ export class BoardFactory {
  * @typedef BoardStructure
  * @property {string} playerA
  * @property {string} playerB
- * @property {ArrayBuffer} data
+ * @property {Uint8Array} data
  */
 
 /**
@@ -188,7 +188,7 @@ export default class Board {
    * @param {number} fromY Y coord of the source field.
    * @param {number} toX X coord of the target field.
    * @param {number} toY Y coord of the target field.
-   * @return {bool} Whether the tower could be moved.
+   * @return {boolean} Whether the tower could be moved.
    */
   static moveTower(board, player, color, fromX, fromY, toX, toY) {
     const playerNumber = player === board.playerA ? 0 : 1;
@@ -237,7 +237,7 @@ export default class Board {
    * @param {BoardStructure} board The board on which the towers stand.
    * @param {number} x X coordinate of the position that should be checked for a tower.
    * @param {number} y Y coordinate of the position that should be checked for a tower.
-   * @return {bool}
+   * @return {boolean}
    *
    * @memberof Board
    */
@@ -352,6 +352,3 @@ export default class Board {
     return degreesOfFreedom;
   }
 }
-
-Board.buffers = new ArrayBuffer(80 * 1000);
-Board.count = 0;

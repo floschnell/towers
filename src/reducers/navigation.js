@@ -19,7 +19,10 @@ export default (state, action) => {
       });
 
     case ACTION_TYPES.PUSH_PAGE:
-      Logger.debug('setting page stack to: ', state.pageStack.concat(action.page));
+      Logger.debug(
+        'setting page stack to: ',
+        state.pageStack.concat(action.page)
+      );
       return Object.assign(newState, {
         pageStack: state.pageStack.concat(action.page.toJson()),
       });
