@@ -193,8 +193,7 @@ export function startGame(playerID, opponentID, players) {
         const player = results[1];
         const game = results[2];
         const updatePlayerGames = (gamesObj) => {
-          gamesObj = gamesObj || {};
-          gamesObj[gameName] = {
+          return {
             players: {
               [player.key]: {
                 name: player.val().name,
@@ -205,7 +204,6 @@ export function startGame(playerID, opponentID, players) {
             },
             currentPlayer: newGame.currentPlayer,
           };
-          return gamesObj;
         };
 
         if (!opponent.exists()) {
@@ -225,10 +223,10 @@ export function startGame(playerID, opponentID, players) {
           .then(() =>
             Promise.all([
               db
-                .child(`players/${playerID}/games`)
+                .child(`players/${playerID}/games/${gameName}`)
                 .transaction(updatePlayerGames),
               db
-                .child(`players/${opponentID}/games`)
+                .child(`players/${opponentID}/games/${gameName}`)
                 .transaction(updatePlayerGames),
             ])
           )
