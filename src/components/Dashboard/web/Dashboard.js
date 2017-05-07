@@ -1,5 +1,5 @@
 import React from 'react';
-import { getOpponent } from '../../../gamelogic';
+import Game from '../../../models/Game';
 import './Dashboard.styl';
 import Logger from '../../../logger';
 
@@ -32,17 +32,21 @@ export default class Dashboard extends React.Component {
       if (gameKeys.length > 0) {
         return (
           <div>
-            <p>These are your currently running games, click on one to continue:</p>
+            <p>
+              These are your currently running games, click on one to continue:
+            </p>
             <ul className="dashboard__list">{renderGames()}</ul>
           </div>
         );
       } else {
-        return <div><p>You currently do not have any games, start one!</p></div>;
+        return (
+          <div><p>You currently do not have any games, start one!</p></div>
+        );
       }
     };
 
     const renderGames = () => {
-      return Object.keys(this.props.games).map(key => {
+      return Object.keys(this.props.games).map((key) => {
         const chooseGame = () => {
           if (!this.props.isLoading) {
             this.props.chooseGame(key);
@@ -50,9 +54,8 @@ export default class Dashboard extends React.Component {
         };
         Logger.debug('games:', this.props.games);
         const game = this.props.games[key];
-        const playerIDs = Object.keys(game.players);
         const playerID = this.props.player.id;
-        const opponentID = getOpponent(playerID, playerIDs);
+        const opponentID = Game.getOpponent(game, playerID);
         const opponentName = game.players[opponentID].name;
         const myTurn = game.currentPlayer === playerID;
 

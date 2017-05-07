@@ -1,5 +1,6 @@
 import {connect} from 'react-redux';
 import Game from './native/Game';
+import GameModel from '../../models/Game';
 import {
   endGame,
   resizeGameSurface,
@@ -8,56 +9,63 @@ import {
   nextTutorialStep,
   popPageUntil,
 } from '../../actions/index';
-import {playerMoveDirection, getOpponent} from '../../gamelogic.js';
 import {PAGES} from '../../models/Page';
 import Logger from '../../logger';
 
 const mapStateToProps = (state, ownProps) => {
-  const playerIDs = Object.keys(state.game.players);
   const playerID = state.app.player.id;
-  const opponentID = getOpponent(playerID, playerIDs);
-  const targetRow = (playerA, playerB) =>
-    (playerMoveDirection(playerA, [playerA, playerB]) === 1 ? 7 : 0);
+  const opponentID = GameModel.getOpponentID(state.game, playerID);
+  const player = GameModel.getPlayer(state.game, playerID);
+  const opponent = GameModel.getOpponent(state.game, playerID);
+  console.log('players', player, opponent, state.game.players);
   const size = state.app.surfaceWidth < state.app.surfaceHeight
     ? state.app.surfaceWidth
     : state.app.surfaceHeight;
   const marginSize = state.app.surfaceWidth < state.app.surfaceHeight
     ? state.app.surfaceHeight - state.app.surfaceWidth
     : state.app.surfaceWidth - state.app.surfaceHeight;
+  const gameHasEnded = GameModel.hasEnded(state.game);
 
   const lastMoves = [];
-  let player = null;
+  let lastActingPlayer = null;
   if (state.game.moves) {
     for (let i = state.game.moves.length - 1; i >= 0; i--) {
-      if (player === null || state.game.moves[i].player === player) {
-        player = state.game.moves[i].player;
+      if (
+        lastActingPlayer === null ||
+        state.game.moves[i].player === lastActingPlayer
+      ) {
+        lastActingPlayer = state.game.moves[i].player;
       } else {
         break;
       }
       lastMoves.push(state.game.moves[i]);
     }
   }
+  console.log('winner', GameModel.getWinner(state.game));
 
   return {
-    won: state.game.towerPositions[playerID].some(
-      (tower) => tower.y === targetRow(playerID, opponentID)
-    ),
-    lost: state.game.towerPositions[opponentID].some(
-      (tower) => tower.y === targetRow(opponentID, playerID)
-    ),
+    won: gameHasEnded && GameModel.getWinner(state.game) === playerID,
+    lost: gameHasEnded && GameModel.getWinner(state.game) !== playerID,
     game: state.app.currentGame,
     playerID,
-    player: state.game.players[playerID],
-    opponent: state.game.players[opponentID],
+    player,
+    opponent,
     playerIDs: Object.keys(state.game.players),
-    towerPositions: state.game.towerPositions,
+    towerPositionsForPlayer: GameModel.getTowersForPlayer(
+      state.game,
+      player.id
+    ),
+    towerPositionsForOpponent: GameModel.getTowersForPlayer(
+      state.game,
+      opponent.id
+    ),
     rotateBoard: playerID < opponentID,
     myTurn: state.game.currentPlayer === playerID,
     size,
     marginSize,
     lastMoves,
     fieldSize: size / 8,
-    lastMoveByMe: lastMoves.length > 0 && playerID === player,
+    lastMoveByMe: lastMoves.length > 0 && playerID === lastActingPlayer,
     inTutorial: state.game.isTutorial,
     tutorialMessage: state.game.tutorial.message,
     tutorialContinueOnMessageClick: state.game.tutorial.continueOnMessageClick,

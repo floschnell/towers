@@ -10,6 +10,7 @@ export default class TowerSet extends React.Component {
    * @override
    */
   render() {
+    console.log('towers', this.props.towers);
     const towers = this.props.towers.map((tower) => {
       const fieldSize = this.props.size / 8;
 

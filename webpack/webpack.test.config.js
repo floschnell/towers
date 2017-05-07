@@ -1,5 +1,4 @@
-var webpack = require('webpack');
-var path = require('path');
+const path = require('path');
 
 module.exports = {
   entry: './tests/tests.js',
@@ -8,7 +7,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx'],
-    modules: [ path.resolve('./src'), 'node_modules' ]
+    modules: [path.resolve('./src'), 'node_modules'],
   },
   devtool: 'inline-source-map',
   module: {
@@ -18,14 +17,14 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-        }
+        },
       },
       {
         test: /\.json$/,
         use: {
           loader: 'json-loader',
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  },
 };

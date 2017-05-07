@@ -42,8 +42,8 @@ export default class Game extends React.Component {
    */
   render() {
     const fieldSize = this.props.size / 8;
-    const playerOneTowers = this.props.towerPositions[this.props.playerIDs[0]];
-    const playerTwoTowers = this.props.towerPositions[this.props.playerIDs[1]];
+    const playerOneTowers = this.props.towerPositionsForPlayer;
+    const playerTwoTowers = this.props.towerPositionsForOpponent;
     const gameHasEnded = this.props.won || this.props.lost;
     const endGame = () => {
       this.props.endGame(this.props.game, this.props.player.id);
@@ -120,7 +120,7 @@ export default class Game extends React.Component {
           {this.props.player.name}
         </Text>
         <Text style={{color: 'white', fontSize: 14}}>
-          {this.props.myTurn ? 'about to move' : 'is waiting ...'}
+          {this.props.myTurn ? 'your turn!' : 'is waiting ...'}
         </Text>
       </View>
     );
@@ -138,7 +138,7 @@ export default class Game extends React.Component {
           {this.props.opponent.name}
         </Text>
         <Text style={{color: 'black', fontSize: 14}}>
-          {this.props.myTurn ? 'is waiting ...' : 'about to move'}
+          {this.props.myTurn ? 'is waiting ...' : 'is thinking ...'}
         </Text>
       </View>
     );
@@ -308,7 +308,8 @@ Game.propTypes = {
   inTutorial: React.PropTypes.bool,
   player: React.PropTypes.object,
   opponent: React.PropTypes.object,
-  towerPositions: React.PropTypes.object,
+  towerPositionsForPlayer: React.PropTypes.array,
+  towerPositionsForOpponent: React.PropTypes.array,
   lastMoves: React.PropTypes.array,
   tutorialMessage: React.PropTypes.string,
   tutorialMessagePosition: React.PropTypes.string,

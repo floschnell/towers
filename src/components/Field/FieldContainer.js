@@ -1,8 +1,7 @@
 import {connect} from 'react-redux';
 import Field from './native/Field';
 import {clickOnField} from '../../actions/index';
-import Game from '../../models/Game';
-import GameLogic from '../../gamelogic';
+import Game, {CHECK_MOVE_RESULT} from '../../models/Game';
 
 const mapStateToProps = (state, ownProps) => {
   const getCurrentColor = () => {
@@ -16,9 +15,11 @@ const mapStateToProps = (state, ownProps) => {
   };
   const getSourceField = () => {
     if (typeof state.game.currentColor === 'number') {
-      return state.game.towerPositions[state.game.currentPlayer][
+      return Game.getTowerForPlayerAndColor(
+        state.game,
+        state.game.currentPlayer,
         state.game.currentColor
-      ];
+      );
     } else if (state.game.selectedTower) {
       return state.game.selectedTower;
     } else {
@@ -32,12 +33,13 @@ const mapStateToProps = (state, ownProps) => {
       y: ownProps.y,
     };
     if (sourceField) {
-      return GameLogic.checkMove(state.game.towerPositions, {
+      const moveResult = Game.checkMoveForValidity(state.game, {
         player: state.game.currentPlayer,
         color: getCurrentColor(),
         sourceField,
         targetField,
       });
+      return moveResult === CHECK_MOVE_RESULT.VALID;
     } else {
       false;
     }

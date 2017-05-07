@@ -13,24 +13,31 @@ interface Player {
   games: Array<Object>
 }
 
-interface Field {
+interface FieldStructure {
   x: number,
   y: number,
   color: number
 }
 
-interface Move {
+interface MoveStructure {
   color: number,
   player: string,
-  sourceField: Field,
-  targetField: Field
+  sourceField: FieldStructure,
+  targetField: FieldStructure
 }
 
-interface Game {
+interface BoardStructure {
+  playerA: string,
+  playerB: string,
+  data: Uint8Array
+}
+
+interface GameStructure {
   currentColor: number,
   currentPlayer: string,
   moves: Array<Move>,
-  players: Object
+  players: Object,
+  board: BoardStructure
 }
 
 declare interface Page {

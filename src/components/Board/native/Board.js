@@ -16,7 +16,7 @@ export default class Board extends React.Component {
       return (
         <FieldContainer
           key={key}
-          color={field.color}
+          color={field}
           x={x}
           y={y}
           surfaceSize={this.props.size}
@@ -32,7 +32,8 @@ export default class Board extends React.Component {
         return renderField(field, fieldX, fieldY);
       });
 
-    const renderRows = () => this.props.fields.map((row, y) => renderRow(row, y));
+    const renderRows = () =>
+      this.props.fields.map((row, y) => renderRow(row, y));
 
     return (
       <View

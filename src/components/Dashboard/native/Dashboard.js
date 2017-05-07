@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, View, Button, Keyboard, ScrollView} from 'react-native';
-import {getOpponent} from '../../../gamelogic';
+import Game from '../../../models/Game';
 import Logger from '../../../logger';
 
 /**
@@ -32,9 +32,8 @@ export default class Dashboard extends React.Component {
       Object.keys(this.props.games).map((gameKey) => {
         Logger.debug('games:', this.props.games);
         const game = this.props.games[gameKey];
-        const playerIDs = Object.keys(game.players);
         const playerID = this.props.player.id;
-        const opponentID = getOpponent(playerID, playerIDs);
+        const opponentID = Game.getOpponentID(game, playerID);
         const opponentName = game.players[opponentID].name;
         const chooseGame = () => {
           if (!this.props.isLoading) {
@@ -74,7 +73,9 @@ export default class Dashboard extends React.Component {
         );
       } else {
         return (
-          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          >
             <Text style={{margin: 5}}>
               You do not have any games currently, let's start one!
             </Text>

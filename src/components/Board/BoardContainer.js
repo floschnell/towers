@@ -1,8 +1,9 @@
 import {connect} from 'react-redux';
 import Board from './native/Board';
+import {BOARD_COLORS} from '../../models/Board';
 
 const mapStateToProps = (state) => ({
-  fields: state.game.board,
+  fields: BOARD_COLORS,
   currentGame: state.app.currentGame,
 });
 

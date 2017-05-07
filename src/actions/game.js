@@ -176,7 +176,6 @@ export function startGame(playerID, opponentID, players) {
     const newGame = {
       players: playersCopy,
       currentPlayer: playerID,
-      currentColor: undefined,
       moves: [],
     };
     const gameName = Game.getKey(newGame);
@@ -361,24 +360,26 @@ export function clickOnField(field) {
       }
 
       if (oldState.game.isAIGame) {
-        while (newState.game.currentPlayer === 'computer') {
-          const chosenMove = computerPlayer.getNextMove(newState.game);
+        setTimeout(() => {
+          while (newState.game.currentPlayer === 'computer') {
+            const chosenMove = computerPlayer.getNextMove(newState.game);
 
-          if (chosenMove) {
-            Logger.info('will choose:', chosenMove);
-            dispatch(
-              clickedOnField(
-                chosenMove.to,
-                newState.game.currentPlayer,
-                currentGame
-              )
-            );
-            newState = getState();
-          } else {
-            Logger.info('Computer has won.');
-            break;
+            if (chosenMove) {
+              Logger.info('will choose:', chosenMove);
+              dispatch(
+                clickedOnField(
+                  chosenMove.to,
+                  newState.game.currentPlayer,
+                  currentGame
+                )
+              );
+              newState = getState();
+            } else {
+              Logger.info('Computer has won.');
+              break;
+            }
           }
-        }
+        }, 0);
       }
     } else {
       if (newState.game.moveResult === MOVE_RESULTS.NOT_YOUR_TURN) {

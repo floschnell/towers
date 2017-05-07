@@ -1,6 +1,6 @@
 import {ACTION_TYPES, MOVE_RESULTS} from '../actions/index';
-import GameLogic, {copyTowers} from '../gamelogic';
 import Game from '../models/Game';
+import Board from '../models/Board';
 import {nextTutorialState, TUTORIAL_MESSAGE_POSITION} from '../tutorial';
 import Logger from '../logger';
 
@@ -9,13 +9,12 @@ export default (state, action) => {
     const initialPlayers = {'0': {}, '1': {}};
 
     return {
-      board: Game.createInitialBoard(),
+      board: [],
       players: initialPlayers,
       currentPlayer: null,
       currentColor: null,
       selectedTower: null,
       moves: [],
-      towerPositions: Game.createInitialTowerPositions(Object.keys(initialPlayers)),
       valid: true,
       moveResult: MOVE_RESULTS.OK,
       isTutorial: false,
@@ -36,7 +35,14 @@ export default (state, action) => {
     };
   }
 
-  const newState = JSON.parse(JSON.stringify(state));
+  const newState = JSON.parse(
+    JSON.stringify(state, (k, v) => {
+      if (v instanceof Uint32Array) {
+        return Array.from(v);
+      }
+      return v;
+    })
+  );
   const currentPlayer = state.currentPlayer;
   const currentColor = state.currentColor;
 
@@ -48,17 +54,14 @@ export default (state, action) => {
         },
         [action.player.id]: action.player,
       };
-      const aiGameTowers = Game.createInitialTowerPositions(Object.keys(aiGamePlayers));
-      const aiGameBoard = Game.createInitialBoard();
 
       Object.assign(newState, {
         selectedTower: undefined,
         currentColor: undefined,
         moves: [],
-        board: aiGameBoard,
+        board: [],
         players: aiGamePlayers,
         currentPlayer: action.player.id,
-        towerPositions: aiGameTowers,
         valid: true,
         isAIGame: true,
         isTutorial: false,
@@ -68,7 +71,8 @@ export default (state, action) => {
           aggressiveness: action.aggressiveness,
         },
       });
-      return newState;
+
+      return Game.initialize(newState);
 
     case ACTION_TYPES.NEXT_TUTORIAL_STEP:
       Logger.debug('tutorial click on message');
@@ -82,17 +86,14 @@ export default (state, action) => {
         },
         [action.player.id]: action.player,
       };
-      const towerPositions = Game.createInitialTowerPositions(Object.keys(players));
-      const board = Game.createInitialBoard();
 
       Object.assign(newState, {
         selectedTower: undefined,
         currentColor: undefined,
         moves: [],
-        board,
+        board: [],
         players,
         currentPlayer: action.player.id,
-        towerPositions,
         valid: true,
         isTutorial: true,
         tutorial: {
@@ -128,7 +129,11 @@ export default (state, action) => {
         if (typeof currentColor === 'undefined') {
           towerToMove = state.selectedTower;
         } else {
-          towerToMove = state.towerPositions[currentPlayer][currentColor];
+          towerToMove = Game.getTowerForPlayerAndColor(
+            state,
+            currentPlayer,
+            currentColor
+          );
         }
 
         if (towerToMove && towerToMove.belongsToPlayer === currentPlayer) {
@@ -140,20 +145,26 @@ export default (state, action) => {
           };
 
           try {
-            newState.towerPositions = GameLogic.executeMove(state.towerPositions, move);
-            const nextPlayer = Game.getOpponentID(state, currentPlayer);
+            Game.executeMove(newState, move);
+
+            const nextPlayer = Game.getOpponentID(newState, currentPlayer);
             const nextColor = targetField.color;
 
-            if (GameLogic.canMove(newState.towerPositions, nextPlayer, nextColor)) {
+            if (Game.canMove(newState, nextPlayer, nextColor)) {
               newState.currentPlayer = nextPlayer;
               newState.currentColor = nextColor;
             } else {
-              const blockedTower =
-                newState.towerPositions[nextPlayer][targetField.color];
-              const fieldOfBlockedTower =
-                newState.board[blockedTower.y][blockedTower.x];
+              const blockedTower = Game.getTowerForPlayerAndColor(
+                newState,
+                nextPlayer,
+                nextColor
+              );
+              const fieldColorOfBlockedTower = Board.getBoardColorAtCoord(
+                blockedTower.x,
+                blockedTower.y
+              );
 
-              newState.currentColor = fieldOfBlockedTower.color;
+              newState.currentColor = fieldColorOfBlockedTower;
             }
             newState.selectedTower = null;
             if (!newState.moves) newState.moves = [];
@@ -171,7 +182,6 @@ export default (state, action) => {
               newState.currentColor = currentColor;
             }
             newState.selectedTower = towerToMove;
-            newState.towerPositions = copyTowers(state.towerPositions);
           }
         } else {
           newState.moveResult = MOVE_RESULTS.NO_TOWER_SELECTED;
@@ -179,34 +189,17 @@ export default (state, action) => {
       } else {
         newState.moveResult = MOVE_RESULTS.NOT_YOUR_TURN;
       }
-      break;
+      return newState;
 
     case ACTION_TYPES.UPDATE_GAME:
+      Logger.info('game state: ');
       try {
-        const updatedState = Object.assign(newState, action.game);
-        const initialTowers = Game.createInitialTowerPositions(
-          Object.keys(action.game.players)
-        );
-        const moves = action.game.moves;
+        const game = Game.initialize(action.game);
+        const updatedState = Object.assign(newState, game, {valid: true});
 
-        if (moves && moves.length > 0) {
-          const finalTowers = GameLogic.executeMoves(initialTowers, moves);
-          const currentColor = moves[moves.length - 1].targetField.color;
-
-          Object.assign(updatedState, {
-            towerPositions: finalTowers,
-            valid: true,
-            currentColor,
-          });
-          return updatedState;
-        } else {
-          Object.assign(updatedState, {
-            towerPositions: initialTowers,
-            valid: true,
-          });
-          return updatedState;
-        }
+        return updatedState;
       } catch (e) {
+        Logger.warn('error during game update:', e);
         newState.valid = false;
         return newState;
       }
@@ -219,7 +212,7 @@ export default (state, action) => {
         isAIGame: false,
         selectedTower: undefined,
         moves: [],
-        board: Game.createInitialBoard(),
+        board: [],
         tutorial: {
           message: '',
         },
@@ -236,10 +229,7 @@ export default (state, action) => {
         },
         currentColor: undefined,
         selectedTower: undefined,
-        board: Game.createInitialBoard(),
-        towerPositions: Game.createInitialTowerPositions(
-          Object.keys(action.game.players)
-        ),
+        board: [],
       });
 
     default:

@@ -1,6 +1,5 @@
 import Game from './models/Game';
 import {getColor} from './utils';
-import GameLogic from './gamelogic';
 import {MOVE_RESULTS} from './actions/index';
 import Logger from './logger';
 
@@ -17,9 +16,8 @@ export const TUTORIAL_MESSAGE_POSITION = {
  * @return {void}
  */
 export function nextTutorialState(gameState) {
-  const initialTowers = Game.createInitialTowerPositions(
-    Object.keys(gameState.players)
-  );
+  gameState = Game.initialize(gameState);
+
   const playerID = Object.keys(gameState.players).find((id) => id !== 'computer');
   const computerID = 'computer';
   const getPlayerField = (x, y) =>
@@ -102,7 +100,7 @@ export function nextTutorialState(gameState) {
       ];
       gameState.currentPlayer = playerID;
       gameState.currentColor = 4;
-      gameState.towerPositions = GameLogic.executeMoves(initialTowers, gameState.moves);
+      Game.initialize(gameState);
       gameState.tutorial.messagePosition = TUTORIAL_MESSAGE_POSITION.TOP;
       gameState.tutorial.message = `
         In some cases the tower of the active player is blocked and can not move.
@@ -117,10 +115,12 @@ export function nextTutorialState(gameState) {
       break;
     case 4:
       const shouldFieldFirst = getPlayerField(7, 3);
-      const isFieldFirst = gameState.moves[gameState.moves.length - 1].targetField;
+      const isFieldFirst =
+        gameState.moves[gameState.moves.length - 1].targetField;
       Logger.debug('should', shouldFieldFirst, 'but is', isFieldFirst);
       if (
-        isFieldFirst.x === shouldFieldFirst.x && isFieldFirst.y === shouldFieldFirst.y
+        isFieldFirst.x === shouldFieldFirst.x &&
+        isFieldFirst.y === shouldFieldFirst.y
       ) {
         gameState.tutorial.message = `
           Awesome! Your opponent could not move, because his yellow tower is blocked.
@@ -144,7 +144,8 @@ export function nextTutorialState(gameState) {
       break;
     case 5:
       const shouldFieldSecond = getPlayerField(4, 0);
-      const isFieldSecond = gameState.moves[gameState.moves.length - 1].targetField;
+      const isFieldSecond =
+        gameState.moves[gameState.moves.length - 1].targetField;
       Logger.debug('should', shouldFieldSecond, 'but is', isFieldSecond);
       if (
         isFieldSecond.x !== shouldFieldSecond.x ||
@@ -152,10 +153,7 @@ export function nextTutorialState(gameState) {
       ) {
         gameState.tutorial.step--;
         gameState.moves.pop();
-        gameState.towerPositions = GameLogic.executeMoves(
-          initialTowers,
-          gameState.moves
-        );
+        Game.initialize(gameState);
         gameState.currentPlayer = playerID;
         gameState.currentColor = 4;
         gameState.tutorial.message = `

@@ -1,4 +1,5 @@
 import Board, {BoardFactory} from './models/Board';
+import Game from './models/Game';
 import Logger from './logger';
 
 const MAX_SCORE = 10000000;
@@ -30,21 +31,31 @@ export default class AI {
    * This method will rate all different opporunities which there are
    * under given circumstances.
    *
-   * @param {object} towerPositions Current tower positions.
+   * @param {BoardStructure} board Current tower positions.
    * @param {number} currentColor The color of the tower that needs to be moved.
    * @param {string} currentPlayer ID of the player who's turn it is.
+   * @param {Object} players Object structure containing information on both players.
    * @return {{from: Field, to: Field}}
    */
-  getNextMove({towerPositions, currentColor, currentPlayer}) {
-    const board = boardFactory.createBoard();
-    Board.convertTowerPositionsToBoard(towerPositions, board);
+  getNextMove({board, currentColor, currentPlayer, players}) {
+    const boardCopy = boardFactory.copyBoard(board);
+    const currentPlayerNumber = Game.getPlayerNumber(
+      {players},
+      currentPlayer
+    );
 
     // estimate freedom of combinations
-    const freedom = Object.keys(towerPositions)
-      .map((player) =>
-        Object.keys(towerPositions[player]).map((color) =>
-          Board.getDegreesOfFreedomForTower(board, player, parseInt(color))
-        )
+    const freedom = [0, 1]
+      .map((playerNumber) =>
+        [0, 1, 2, 3, 4, 5, 6, 7].map((color) => {
+          const moves = Board.getDegreesOfFreedomForTower(
+            boardCopy,
+            playerNumber,
+            color
+          );
+
+          return moves;
+        })
       )
       .reduce((a, b) => a.concat(b))
       .reduce((a, b) => a + b);
@@ -55,10 +66,10 @@ export default class AI {
     Logger.debug('chosen number of iterations:', iterations);
 
     const outcomes = this.rateMoves(
-      board,
+      boardCopy,
       currentColor,
-      currentPlayer,
-      currentPlayer,
+      currentPlayerNumber,
+      currentPlayerNumber,
       iterations
     );
     Logger.debug(
@@ -98,8 +109,8 @@ export default class AI {
       currentPlayer,
       currentColor
     );
-    const otherPlayer = Board.getOpponentOf(board, currentPlayer);
-    const moveDirection = Board.getMoveDirectionOf(board, currentPlayer);
+    const otherPlayer = Board.getOpponentFor(currentPlayer);
+    const moveDirection = Board.getMoveDirectionFor(currentPlayer);
     const targetY = moveDirection === 1 ? 7 : 0;
     const outcomes = [];
     const fromField = {
@@ -283,7 +294,7 @@ export default class AI {
             player,
             to.color
           );
-          player = Board.getOpponentOf(board, player);
+          player = Board.getOpponentFor(player);
           const blockedTowerFieldColor = Board.getBoardColorAtCoord(
             blockedTower.x,
             blockedTower.y
@@ -323,7 +334,7 @@ export default class AI {
    * @return {number} Board's score.
    */
   rateBoard(board, me) {
-    const opponent = Board.getOpponentOf(board, me);
+    const opponent = Board.getOpponentFor(me);
     const opponentRating =
       this.aggressiveness * this.rateBoardFor(board, opponent);
     const myRating = (1 - this.aggressiveness) * this.rateBoardFor(board, me);
@@ -341,8 +352,8 @@ export default class AI {
    */
   rateBoardFor(board, player) {
     let points = 0;
-    const moveDirection = Board.getMoveDirectionOf(board, player);
-    const targetY = Board.getTargetRowOf(board, player);
+    const moveDirection = Board.getMoveDirectionFor(player);
+    const targetY = Board.getTargetRowFor(player);
 
     // check all towers
     for (let color = 0; color < 8; color++) {

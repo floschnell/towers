@@ -13,7 +13,7 @@ export default class Field extends React.Component {
     const fieldSize = this.props.surfaceSize / 8;
 
     const renderReachableHint = () => {
-      if (this.props.canBeReached) {
+      if (this.props.myTurn && this.props.canBeReached) {
         return (
           <View
             style={{
