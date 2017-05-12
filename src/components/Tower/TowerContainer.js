@@ -11,11 +11,10 @@ const mapStateToProps = (state, ownProps) => {
       typeof state.game.currentColor === 'undefined') &&
       tower.belongsToPlayer === state.game.currentPlayer,
     isSelected: (tower.color === state.game.currentColor ||
-      typeof state.game.currentColor === 'undefined') &&
-      ((state.game.selectedTower &&
-        state.game.selectedTower.x === tower.x &&
-        state.game.selectedTower.y === tower.y) ||
-        !state.game.selectedTower) &&
+      (typeof state.game.currentColor === 'undefined' &&
+        (state.game.selectedTower &&
+          state.game.selectedTower.x === tower.x &&
+          state.game.selectedTower.y === tower.y))) &&
       tower.belongsToPlayer === state.game.currentPlayer,
     playerID: state.app.player.id,
     belongsToMe: state.app.player.id === tower.belongsToPlayer,

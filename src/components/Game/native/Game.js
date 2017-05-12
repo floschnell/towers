@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View, Button} from 'react-native';
+import {Text, View, Button, AsyncStorage, Alert} from 'react-native';
 import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import Arrow from '../../Arrow/native/Arrow';
@@ -26,6 +26,58 @@ export default class Game extends React.Component {
   componentWillUnmount() {
     this.props.suspendGame(this.props.game);
     this.setState({tutorialMessageExpanded: true});
+
+    if (this.props.inAIGame) {
+      if (this.props.won || this.props.lost || this.props.moves.length === 0) {
+        AsyncStorage.removeItem('savedGame');
+      } else {
+        const serializedGameState = JSON.stringify({
+          moves: this.props.moves,
+          currentPlayer: this.props.currentPlayer,
+          currentColor: this.props.currentColor,
+          players: {
+            [this.props.player.id]: {
+              name: this.props.player.name,
+            },
+            computer: {
+              name: 'Computer',
+            },
+          },
+        });
+
+        Logger.info('saving game', serializedGameState);
+        AsyncStorage.setItem('savedGame', serializedGameState);
+      }
+    }
+  }
+
+  /**
+   * @override
+   */
+  componentDidMount() {
+    if (this.props.inAIGame) {
+      AsyncStorage.getItem('savedGame').then((serializedGameState) => {
+        if (serializedGameState) {
+          Alert.alert(
+            'Resume Game',
+            'A saved game has been found, do you want to continue playing?',
+            [
+              {text: 'Discard', onPress: () => {}, style: 'cancel'},
+              {
+                text: 'Resume',
+                onPress: () => {
+                  const gameState = JSON.parse(serializedGameState);
+
+                  Logger.info('recovered game state', gameState);
+                  this.props.updateGame(gameState);
+                },
+              },
+            ],
+            {cancelable: false}
+          );
+        }
+      });
+    }
   }
 
   /**
@@ -61,6 +113,7 @@ export default class Game extends React.Component {
               bottom: 0,
               justifyContent: 'center',
               alignItems: 'center',
+              elevation: 20,
             }}
           >
             <View
@@ -306,6 +359,7 @@ Game.propTypes = {
   rotateBoard: React.PropTypes.bool,
   lastMoveByMe: React.PropTypes.bool,
   inTutorial: React.PropTypes.bool,
+  inAIGame: React.PropTypes.bool,
   player: React.PropTypes.object,
   opponent: React.PropTypes.object,
   towerPositionsForPlayer: React.PropTypes.array,
@@ -317,4 +371,8 @@ Game.propTypes = {
   marginSize: React.PropTypes.number,
   nextTutorialStep: React.PropTypes.func,
   tutorialContinueOnMessageClick: React.PropTypes.bool,
+  moves: React.PropTypes.array,
+  currentPlayer: React.PropTypes.string,
+  currentColor: React.PropTypes.number,
+  updateGame: React.PropTypes.func,
 };

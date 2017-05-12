@@ -8,6 +8,7 @@ import {
   suspendGame,
   nextTutorialStep,
   popPageUntil,
+  updateGame,
 } from '../../actions/index';
 import {PAGES} from '../../models/Page';
 import Logger from '../../logger';
@@ -64,9 +65,13 @@ const mapStateToProps = (state, ownProps) => {
     size,
     marginSize,
     lastMoves,
+    moves: state.game.moves,
+    currentPlayer: state.game.currentPlayer,
+    currentColor: state.game.currentColor,
     fieldSize: size / 8,
     lastMoveByMe: lastMoves.length > 0 && playerID === lastActingPlayer,
     inTutorial: state.game.isTutorial,
+    inAIGame: state.game.isAIGame,
     tutorialMessage: state.game.tutorial.message,
     tutorialContinueOnMessageClick: state.game.tutorial.continueOnMessageClick,
     tutorialMessagePosition: state.game.tutorial.messagePosition,
@@ -92,6 +97,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
   nextTutorialStep: () => {
     dispatch(nextTutorialStep());
+  },
+  updateGame: (newGameState) => {
+    dispatch(updateGame(newGameState));
   },
 });
 

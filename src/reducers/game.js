@@ -96,6 +96,7 @@ export default (state, action) => {
         currentPlayer: action.player.id,
         valid: true,
         isTutorial: true,
+        isAIGame: false,
         tutorial: {
           step: 0,
         },

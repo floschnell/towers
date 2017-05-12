@@ -67,9 +67,12 @@ export const gameSuspended = () => ({
  * @return {void}
  */
 export function suspendGame(gameKey) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     Logger.debug(`suspending game: ${gameKey}`);
-    db.child(`games/${gameKey}`).off();
+    const appState = getState();
+    if (!appState.game.isAIGame) {
+      db.child(`games/${gameKey}`).off();
+    }
     dispatch(gameSuspended());
   };
 }

@@ -19,9 +19,8 @@ export default class Field extends React.Component {
             style={{
               width: fieldSize * 0.6,
               height: fieldSize * 0.6,
-              borderColor: this.props.myTurn ? 'black' : 'white',
-              borderWidth: 3,
-              opacity: 0.5,
+              backgroundColor: this.props.myTurn ? 'black' : 'white',
+              opacity: 0.2,
             }}
           />
         );
@@ -44,6 +43,7 @@ export default class Field extends React.Component {
             height: fieldSize,
             alignItems: 'center',
             justifyContent: 'center',
+            opacity: 0.8,
           }}
         >
           {renderReachableHint()}
