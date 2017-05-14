@@ -7,6 +7,8 @@ import {
   resizeGameSurface,
   clearMessage,
   cancelLoading,
+  executeBackButtonAction,
+  executeForwardButtonAction,
 } from '../../actions/index';
 import {Page} from '../../models/Page';
 
@@ -40,6 +42,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
   cancelLoading: () => {
     dispatch(cancelLoading());
+  },
+  executeBackButtonAction: (page) => {
+    dispatch(executeBackButtonAction(page));
+  },
+  executeForwardButtonAction: (page) => {
+    dispatch(executeForwardButtonAction(page));
   },
 });
 

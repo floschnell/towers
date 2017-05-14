@@ -9,6 +9,7 @@ import Logger, {LOG_LEVELS, reduxLogger} from './src/logger';
 
 if (__DEV__) {
   Logger.setVerbosity(LOG_LEVELS.DEBUG);
+  console.ignoredYellowBox = ['Setting a timer for a long period'];
 } else {
   Logger.setVerbosity(LOG_LEVELS.INFO);
 }

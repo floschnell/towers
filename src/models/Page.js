@@ -1,3 +1,6 @@
+import {popPage, pushPage} from '../actions/navigation';
+import {launchTutorial, logout} from '../actions/app';
+
 /**
  * Represents a page within our navigation logic.
  */
@@ -22,6 +25,9 @@ export class Page {
       name: this._name,
       title: this._title,
       backButton: this._backButton,
+      backButtonAction: this._backButtonAction,
+      forwardButton: this._forwardButton,
+      forwardButtonAction: this._forwardButtonAction,
     };
   }
 
@@ -33,8 +39,18 @@ export class Page {
    * @param {string} backButton Title of the back button.
    * @return {Page}
    */
-  static fromJson({name, title, backButton}) {
-    return new Page(name).withTitle(title).withBackButton(backButton);
+  static fromJson({
+    name,
+    title,
+    backButton,
+    backButtonAction,
+    forwardButton,
+    forwardButtonAction,
+  }) {
+    return new Page(name)
+      .withTitle(title)
+      .withBackButton(backButton, backButtonAction)
+      .withForwardButton(forwardButton, forwardButtonAction);
   }
 
   /**
@@ -52,10 +68,25 @@ export class Page {
    * Sets a back button title on the current page and returns it again.
    *
    * @param {string} button Set this title on the current page's back button.
+   * @param {function} action Action to execute when the back button is clicked.
    * @return {Page}
    */
-  withBackButton(button) {
+  withBackButton(button, action) {
     this._backButton = button;
+    this._backButtonAction = action;
+    return this;
+  }
+
+  /**
+   * Sets a forward button title on the current page and returns it again.
+   *
+   * @param {string} button Set this title on the current page's back button.
+   * @param {function} action Action to execute when the back button is clicked.
+   * @return {Page}
+   */
+  withForwardButton(button, action) {
+    this._forwardButton = button;
+    this._forwardButtonAction = action;
     return this;
   }
 
@@ -71,6 +102,27 @@ export class Page {
    */
   getBackButton() {
     return this._backButton;
+  }
+
+  /**
+   * @return {function} The page's back button's action.
+   */
+  getBackButtonAction() {
+    return this._backButtonAction;
+  }
+
+  /**
+   * @return {string} The page's forward button's title.
+   */
+  getForwardButton() {
+    return this._forwardButton;
+  }
+
+  /**
+   * @return {function} The page's forward button's action.
+   */
+  getForwardButtonAction() {
+    return this._forwardButtonAction;
   }
 
   /**
@@ -93,8 +145,23 @@ export class Page {
 
 export const PAGES = {
   LOGIN: new Page('login').withTitle('Welcome to Towers'),
-  REGISTRATION: new Page('register').withBackButton('back'),
-  DASHBOARD: new Page('dashboard').withBackButton('logout'),
-  CREATE_GAME: new Page('createGame').withBackButton('back'),
-  GAME: new Page('game').withBackButton('back'),
+  REGISTRATION: new Page('register').withBackButton('back', goBackOnePage),
+  DASHBOARD: new Page('dashboard')
+    .withBackButton('logout', goBackOnePage)
+    .withForwardButton('tutorial', startTutorial),
+  CREATE_GAME: new Page('createGame').withBackButton('back', goBackOnePage),
+  GAME: new Page('game').withBackButton('back', goBackOnePage),
 };
+
+function startTutorial(dispatch) {
+  dispatch(pushPage(PAGES.GAME.withTitle('Tutorial')));
+  dispatch(launchTutorial());
+}
+
+function goBackOnePage(dispatch) {
+  dispatch(popPage());
+}
+
+function logOut(dispatch) {
+  dispatch(logout());
+}

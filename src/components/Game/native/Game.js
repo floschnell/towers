@@ -160,6 +160,20 @@ export default class Game extends React.Component {
       }
     };
 
+    const renderText = (isOpponent) => {
+      if (this.props.won) {
+        return isOpponent ? 'Lost' : 'Won';
+      } else if (this.props.lost) {
+        return isOpponent ? 'Won' : 'Lost';
+      } else {
+        if (isOpponent) {
+          return this.props.myTurn ? 'waiting for you ...' : 'is thinking ...';
+        } else {
+          return this.props.myTurn ? 'your turn!' : 'waiting ...';
+        }
+      }
+    };
+
     const renderPlayer = () => (
       <View
         style={{
@@ -173,7 +187,7 @@ export default class Game extends React.Component {
           {this.props.player.name}
         </Text>
         <Text style={{color: 'white', fontSize: 14}}>
-          {this.props.myTurn ? 'your turn!' : 'is waiting ...'}
+          {renderText(false)}
         </Text>
       </View>
     );
@@ -191,7 +205,7 @@ export default class Game extends React.Component {
           {this.props.opponent.name}
         </Text>
         <Text style={{color: 'black', fontSize: 14}}>
-          {this.props.myTurn ? 'is waiting ...' : 'is thinking ...'}
+          {renderText(true)}
         </Text>
       </View>
     );
@@ -255,6 +269,7 @@ export default class Game extends React.Component {
                 right: 10,
                 backgroundColor: 'white',
                 opacity: 0.9,
+                elevation: 15,
               }}
             >
               <Text style={{color: 'black'}}>
@@ -295,10 +310,7 @@ export default class Game extends React.Component {
                 backgroundColor: 'white',
               }}
             >
-              <Text
-                numberOfLines={1}
-                style={{color: 'black', padding: 5, flex: 1}}
-              >
+              <Text numberOfLines={1} style={{color: 'black', padding: 5, flex: 1}}>
                 {this.props.tutorialMessage}
               </Text>
               <Button
@@ -315,15 +327,10 @@ export default class Game extends React.Component {
     };
 
     return (
-      <View
-        style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}
-      >
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}>
         {renderOpponent()}
         <View style={{width: this.props.size, height: this.props.size}}>
-          <BoardContainer
-            size={this.props.size}
-            reverse={this.props.rotateBoard}
-          />
+          <BoardContainer size={this.props.size} reverse={this.props.rotateBoard} />
           {visualizeLastMoves()}
           <TowerSetContainer
             towers={playerOneTowers}

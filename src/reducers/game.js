@@ -61,7 +61,7 @@ export default (state, action) => {
         moves: [],
         board: [],
         players: aiGamePlayers,
-        currentPlayer: action.player.id,
+        currentPlayer: newState.player.id,
         valid: true,
         isAIGame: true,
         isTutorial: false,
@@ -74,6 +74,16 @@ export default (state, action) => {
 
       return Game.initialize(newState);
 
+    case ACTION_TYPES.AUTHENTICATE:
+      return Object.assign(newState, {
+        player: action.player,
+      });
+
+    case ACTION_TYPES.DEAUTHENTICATE:
+      return Object.assign(newState, {
+        player: null,
+      });
+
     case ACTION_TYPES.NEXT_TUTORIAL_STEP:
       Logger.debug('tutorial click on message');
       nextTutorialState(newState);
@@ -84,7 +94,9 @@ export default (state, action) => {
         computer: {
           name: 'Computer',
         },
-        [action.player.id]: action.player,
+        [newState.player.id]: {
+          name: newState.player.name,
+        },
       };
 
       Object.assign(newState, {
@@ -93,7 +105,7 @@ export default (state, action) => {
         moves: [],
         board: [],
         players,
-        currentPlayer: action.player.id,
+        currentPlayer: newState.player.id,
         valid: true,
         isTutorial: true,
         isAIGame: false,
@@ -228,6 +240,7 @@ export default (state, action) => {
         tutorial: {
           message: '',
         },
+        player: newState.player,
         currentColor: undefined,
         selectedTower: undefined,
         board: [],

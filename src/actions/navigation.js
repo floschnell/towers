@@ -1,3 +1,5 @@
+import {PAGES} from '../models/Page';
+
 export const NAVIGATION_ACTIONS = {
   PUSH_PAGE: 'PUSH_PAGE',
   POP_PAGE: 'POP_PAGE',
@@ -15,7 +17,7 @@ export const NAVIGATION_ACTIONS = {
 export function pushPage(page) {
   return {
     type: NAVIGATION_ACTIONS.PUSH_PAGE,
-    page,
+    page: page.toJson(),
   };
 }
 
@@ -28,7 +30,7 @@ export function pushPage(page) {
 export function replacePage(page) {
   return {
     type: NAVIGATION_ACTIONS.REPLACE_PAGE,
-    page,
+    page: page.toJson(),
   };
 }
 
@@ -53,7 +55,7 @@ export function popPage() {
 export function popPageUntil(page) {
   return {
     type: NAVIGATION_ACTIONS.POP_UNTIL_PAGE,
-    page,
+    page: page.toJson(),
   };
 }
 
@@ -66,6 +68,42 @@ export function popPageUntil(page) {
 export function initializeWithPage(page) {
   return {
     type: NAVIGATION_ACTIONS.INIT_PAGE,
-    page,
+    page: page.toJson(),
+  };
+}
+
+/**
+ * Executes the back button action for the given page.
+ *
+ * @param {Page} currentPage
+ * @return {void}
+ */
+export function executeBackButtonAction(currentPage) {
+  return (dispatch, getState) => {
+    for (const page in PAGES) {
+      if (currentPage.equals(PAGES[page])) {
+        const backButtonAction = PAGES[page].getBackButtonAction();
+
+        backButtonAction(dispatch, getState);
+      }
+    }
+  };
+}
+
+/**
+ * Executes the forward button action for the given page.
+ *
+ * @param {Page} currentPage
+ * @return {void}
+ */
+export function executeForwardButtonAction(currentPage) {
+  return (dispatch, getState) => {
+    for (const page in PAGES) {
+      if (currentPage.equals(PAGES[page])) {
+        const forwardButtonAction = PAGES[page].getForwardButtonAction();
+
+        forwardButtonAction(dispatch, getState);
+      }
+    }
   };
 }

@@ -38,20 +38,25 @@ let computerPlayer = null;
  * @return {void}
  */
 export function startGameAgainstAI(player) {
-  const aiCharacteristics = {
-    blockedPenalty: 20 + (5 - Math.random() * 10),
-    couldFinishBonus: 10 + (2 - Math.random() * 4),
-    aggressiveness: 0.5 + (0.1 - Math.random() * 0.2),
-  };
+  return (dispatch) => {
+    const aiCharacteristics = {
+      blockedPenalty: 20 + (5 - Math.random() * 10),
+      couldFinishBonus: 10 + (2 - Math.random() * 4),
+      aggressiveness: 0.5 + (0.1 - Math.random() * 0.2),
+    };
 
-  computerPlayer = new AI(aiCharacteristics);
+    const aiGamePage = PAGES.GAME.withTitle('Game vs. PC');
+    dispatch(pushPage(aiGamePage));
 
-  return {
-    type: GAME_ACTIONS.LAUNCH_GAME_AGAINST_AI,
-    player,
-    blockedPenalty: aiCharacteristics.blockedPenalty,
-    couldFinishBonus: aiCharacteristics.couldFinishBonus,
-    aggressiveness: aiCharacteristics.aggressiveness,
+    computerPlayer = new AI(aiCharacteristics);
+
+    dispatch({
+      type: GAME_ACTIONS.LAUNCH_GAME_AGAINST_AI,
+      player,
+      blockedPenalty: aiCharacteristics.blockedPenalty,
+      couldFinishBonus: aiCharacteristics.couldFinishBonus,
+      aggressiveness: aiCharacteristics.aggressiveness,
+    });
   };
 }
 
@@ -119,9 +124,7 @@ export function loadGameFromKey(gameKey) {
           const game = gameSnapshot.val();
           const player = Game.getPlayer(game, currentState.app.player.id);
           const opponent = Game.getOpponent(game, currentState.app.player.id);
-          const gamePage = PAGES.GAME.withTitle(
-            `${player.name} vs ${opponent.name}`
-          );
+          const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
 
           dispatch(resumeGame(gameKey));
           dispatch(updateGame(game));
@@ -216,9 +219,7 @@ export function startGame(playerID, opponentID, players) {
           throw new Error('Player does not exist in database!');
         }
         if (game.exists()) {
-          throw new Error(
-            `You are already playing against ${opponent.val().name}!`
-          );
+          throw new Error(`You are already playing against ${opponent.val().name}!`);
         }
 
         return gameRef
@@ -362,17 +363,15 @@ export function clickOnField(field) {
 
       if (oldState.game.isAIGame) {
         setTimeout(() => {
-          while (newState.game.currentPlayer === 'computer') {
+          while (
+            !Game.hasEnded(newState.game) && newState.game.currentPlayer === 'computer'
+          ) {
             const chosenMove = computerPlayer.getNextMove(newState.game);
 
             if (chosenMove) {
               Logger.info('will choose:', chosenMove);
               dispatch(
-                clickedOnField(
-                  chosenMove.to,
-                  newState.game.currentPlayer,
-                  currentGame
-                )
+                clickedOnField(chosenMove.to, newState.game.currentPlayer, currentGame)
               );
               newState = getState();
             } else {

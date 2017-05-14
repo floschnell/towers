@@ -73,9 +73,7 @@ export default class Dashboard extends React.Component {
         );
       } else {
         return (
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
-          >
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
             <Text style={{margin: 5}}>
               You do not have any games currently, let's start one!
             </Text>
@@ -87,13 +85,6 @@ export default class Dashboard extends React.Component {
     return (
       <View style={{flex: 1}}>
         <View style={{margin: 5}}>
-          <Button
-            onPress={this.props.playTutorial.bind(null, this.props.player)}
-            title="Play Tutorial"
-            color="red"
-          />
-        </View>
-        <View style={{margin: 5, marginTop: 0}}>
           <Button
             onPress={this.props.startNewGame}
             title="Start New Game"

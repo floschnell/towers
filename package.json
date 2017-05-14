@@ -43,7 +43,6 @@
     "mocha": "^2.5.3",
     "mocha-better-spec-reporter": "^3.0.2",
     "react": "^16.0.0-alpha.6",
-    "react-dom": "^15.5.4",
     "react-inline-svg": "^1.1.0",
     "react-native": "^0.44.0",
     "react-native-fcm": "^6.1.0",

@@ -49,24 +49,8 @@ export const AUTH_STATE = {
   UNAUTHENTICATED: 'UNAUTHENTICATED',
 };
 
-/**
- * Starts the tutorial game.
- *
- * @export
- * @param {string} player Name of the tutorial player.
- * @return {void}
- */
-export function launchTutorial(player) {
-  return (dispatch) => {
-    const gamePage = PAGES.GAME.withTitle('Tutorial');
-    dispatch(pushPage(gamePage));
-    dispatch(tutorialLaunched(player));
-  };
-}
-
-export const tutorialLaunched = (player) => ({
+export const launchTutorial = () => ({
   type: APP_ACTIONS.LAUNCH_TUTORIAL,
-  player,
 });
 
 export const nextTutorialStep = () => ({
@@ -357,9 +341,7 @@ export function waitForLogin() {
 
             const matchingPlayers = Object.keys(playersSnapshot.val());
             if (matchingPlayers.length > 1) {
-              throw new Error(
-                'There exists more than one player with that UID!'
-              );
+              throw new Error('There exists more than one player with that UID!');
             }
             const playerID = matchingPlayers[0];
             const player = Object.assign(playersSnapshot.val()[playerID], {
@@ -367,9 +349,7 @@ export function waitForLogin() {
             });
             Logger.debug('setting user: ', player);
             dispatch(authenticate(player));
-            dispatch(
-              pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`))
-            );
+            dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)));
             Logger.debug('you got logged in');
           })
           .catch((e) => {

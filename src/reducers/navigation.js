@@ -12,19 +12,10 @@ export default (state, action) => {
   const newState = JSON.parse(JSON.stringify(state));
 
   switch (action.type) {
-    case ACTION_TYPES.LAUNCH_GAME_AGAINST_AI:
-      const aiGamePage = PAGES.GAME.withTitle('Game vs. PC');
-      return Object.assign(newState, {
-        pageStack: state.pageStack.concat(aiGamePage.toJson()),
-      });
-
     case ACTION_TYPES.PUSH_PAGE:
-      Logger.debug(
-        'setting page stack to: ',
-        state.pageStack.concat(action.page)
-      );
+      Logger.debug('setting page stack to: ', state.pageStack.concat(action.page));
       return Object.assign(newState, {
-        pageStack: state.pageStack.concat(action.page.toJson()),
+        pageStack: state.pageStack.concat(action.page),
       });
 
     case ACTION_TYPES.POP_PAGE:
@@ -58,12 +49,12 @@ export default (state, action) => {
       return Object.assign(newState, {
         pageStack: state.pageStack
           .slice(0, state.pageStack.length - 1)
-          .concat(action.page.toJson()),
+          .concat(action.page),
       });
 
     case ACTION_TYPES.INIT_PAGE:
       return Object.assign(newState, {
-        pageStack: [action.page.toJson()],
+        pageStack: [action.page],
       });
 
     default:

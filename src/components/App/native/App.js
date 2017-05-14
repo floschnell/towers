@@ -74,29 +74,6 @@ export default class App extends React.Component {
   }
 
   /**
-   * Handles a user's request to logout.
-   */
-  onLogOut() {
-    Alert.alert(
-      'Log Out',
-      'Are you sure that you want to log out?',
-      [
-        {
-          text: 'No',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes',
-          onPress: () => {
-            this.props.logOut();
-          },
-        },
-      ],
-      {cancelable: false}
-    );
-  }
-
-  /**
    * Handles a user's request to exit the game.
    */
   onExit() {
@@ -126,7 +103,7 @@ export default class App extends React.Component {
    */
   onBack() {
     if (this.props.currentPage.getName() === PAGES.DASHBOARD.getName()) {
-      this.onLogOut();
+      BackHandler.exitApp();
     } else if (this.props.currentPage.getName() === PAGES.LOGIN.getName()) {
       this.onExit();
     } else {
@@ -172,6 +149,34 @@ export default class App extends React.Component {
     }
   }
 
+  pressForwardButton() {
+    this.props.executeForwardButtonAction(this.props.currentPage);
+  }
+
+  pressBackButton() {
+    if (this.props.currentPage.equals(PAGES.DASHBOARD)) {
+      Alert.alert(
+        'Log Out',
+        'Are you sure that you want to log out?',
+        [
+          {
+            text: 'No',
+            onPress: () => {},
+          },
+          {
+            text: 'Yes',
+            onPress: () => {
+              this.props.executeBackButtonAction(this.props.currentPage);
+            },
+          },
+        ],
+        {cancelable: false}
+      );
+    } else {
+      this.props.executeBackButtonAction(this.props.currentPage);
+    }
+  }
+
   /**
    * Renders the navigation bar.
    *
@@ -186,7 +191,10 @@ export default class App extends React.Component {
         backgroundColor={'#149be0'}
         leftButtonTitle={this.props.currentPage.getBackButton()}
         leftButtonTitleColor={'#fff'}
-        onLeftButtonPress={this.onBack.bind(this)}
+        onLeftButtonPress={this.pressBackButton.bind(this)}
+        rightButtonTitle={this.props.currentPage.getForwardButton()}
+        rightButtonTitleColor={'#fff'}
+        onRightButtonPress={this.pressForwardButton.bind(this)}
       />
     );
   }
@@ -240,4 +248,6 @@ App.propTypes = {
   clearMessage: React.PropTypes.func,
   waitForLogin: React.PropTypes.func,
   resizeGameSurface: React.PropTypes.func,
+  executeBackButtonAction: React.PropTypes.func,
+  executeForwardButtonAction: React.PropTypes.func,
 };
