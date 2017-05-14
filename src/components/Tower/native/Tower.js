@@ -1,8 +1,6 @@
 import React from 'react';
-import {View, TouchableOpacity, Animated} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import {getColor} from '../../../utils';
-
-let sequence = null;
 
 /**
  * Renders a game tower for the native game version.
@@ -12,7 +10,6 @@ export default class Tower extends React.Component {
    * @override
    */
   render() {
-    console.log('render tower');
     const tower = this.props.tower;
     const color = this.props.belongsToMe ? 'black' : 'white';
     const bgStyles = {};
@@ -31,12 +28,6 @@ export default class Tower extends React.Component {
       alignContent: 'center',
     };
 
-    if (!this.props.belongsToMe) {
-      Object.assign(styles, {
-        transform: [{rotate: '45deg'}],
-      });
-    }
-
     if (this.props.isSelected) {
       Object.assign(bgStyles, {
         margin: this.props.size * 0.1,
@@ -44,23 +35,6 @@ export default class Tower extends React.Component {
         opacity: 0.4,
       });
     }
-
-    const renderActiveMark = () => {
-      if (this.props.isSelected) {
-        return null;
-        /* (
-          <View
-            style={{
-              backgroundColor: color,
-              width: '40%',
-              height: '40%',
-            }}
-          />
-        );*/
-      } else {
-        return null;
-      }
-    };
 
     const onClick = (event) => {
       if (this.props.belongsToMe) {
@@ -82,6 +56,7 @@ export default class Tower extends React.Component {
       >
         <TouchableOpacity
           activeOpacity={0.5}
+          focusedOpacity={0.8}
           onPress={onClick.bind(this)}
           style={styles}
         >

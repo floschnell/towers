@@ -18,7 +18,6 @@ const mapStateToProps = (state, ownProps) => {
   const opponentID = GameModel.getOpponentID(state.game, playerID);
   const player = GameModel.getPlayer(state.game, playerID);
   const opponent = GameModel.getOpponent(state.game, playerID);
-  console.log('players', player, opponent, state.game.players);
   const size = state.app.surfaceWidth < state.app.surfaceHeight
     ? state.app.surfaceWidth
     : state.app.surfaceHeight;
@@ -32,8 +31,7 @@ const mapStateToProps = (state, ownProps) => {
   if (state.game.moves) {
     for (let i = state.game.moves.length - 1; i >= 0; i--) {
       if (
-        lastActingPlayer === null ||
-        state.game.moves[i].player === lastActingPlayer
+        lastActingPlayer === null || state.game.moves[i].player === lastActingPlayer
       ) {
         lastActingPlayer = state.game.moves[i].player;
       } else {
@@ -42,7 +40,6 @@ const mapStateToProps = (state, ownProps) => {
       lastMoves.push(state.game.moves[i]);
     }
   }
-  console.log('winner', GameModel.getWinner(state.game));
 
   return {
     won: gameHasEnded && GameModel.getWinner(state.game) === playerID,
@@ -52,14 +49,8 @@ const mapStateToProps = (state, ownProps) => {
     player,
     opponent,
     playerIDs: Object.keys(state.game.players),
-    towerPositionsForPlayer: GameModel.getTowersForPlayer(
-      state.game,
-      player.id
-    ),
-    towerPositionsForOpponent: GameModel.getTowersForPlayer(
-      state.game,
-      opponent.id
-    ),
+    towerPositionsForPlayer: GameModel.getTowersForPlayer(state.game, player.id),
+    towerPositionsForOpponent: GameModel.getTowersForPlayer(state.game, opponent.id),
     rotateBoard: playerID < opponentID,
     myTurn: state.game.currentPlayer === playerID,
     size,
