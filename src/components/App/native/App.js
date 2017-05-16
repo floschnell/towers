@@ -18,6 +18,7 @@ import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 import NavigationBar from '../../NavigationBar/native/NavigationBar';
 import PushController from '../../PushController/PushControllerContainer';
 import {PAGES} from '../../../models/Page';
+import Logger from '../../../logger';
 
 /**
  * Wrapper for the native application.
@@ -183,6 +184,7 @@ export default class App extends React.Component {
    * @return {NavigationBar}
    */
   renderNavigationBar() {
+    Logger.debug('currentPage', this.props.currentPage);
     return (
       <NavigationBar
         title={this.props.currentPage.getTitle()}

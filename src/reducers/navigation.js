@@ -5,7 +5,7 @@ import Logger from '../logger';
 export default (state, action) => {
   if (typeof state === 'undefined') {
     return {
-      pageStack: [PAGES.LOGIN],
+      pageStack: [PAGES.LOGIN.toJson()],
     };
   }
 
@@ -13,7 +13,10 @@ export default (state, action) => {
 
   switch (action.type) {
     case ACTION_TYPES.PUSH_PAGE:
-      Logger.debug('setting page stack to: ', state.pageStack.concat(action.page));
+      Logger.debug(
+        'setting page stack to: ',
+        state.pageStack.concat(action.page)
+      );
       return Object.assign(newState, {
         pageStack: state.pageStack.concat(action.page),
       });

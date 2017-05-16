@@ -63,6 +63,11 @@ export default (state, action) => {
         authState: AUTH_STATE.AUTHENTICATED,
       });
 
+    case ACTION_TYPES.SET_PLAYER:
+      return Object.assign(newState, {
+        player: action.player,
+      });
+
     case ACTION_TYPES.AUTHENTICATION_IN_PROGRESS:
       return Object.assign(newState, {
         authState: AUTH_STATE.PENDING,

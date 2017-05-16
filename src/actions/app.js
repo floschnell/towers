@@ -40,6 +40,7 @@ export const APP_ACTIONS = {
   LAUNCH_TUTORIAL: 'LAUNCH_TUTORIAL',
   NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP',
   UPDATE_GAMES: 'UPDATE_GAMES',
+  SET_PLAYER: 'SET_PLAYER',
 };
 
 export const AUTH_STATE = {
@@ -67,6 +68,16 @@ export const nextTutorialStep = () => ({
 export function checkUsername(playerName) {
   return (dispatch) => {
     const playerID = playerName.toLowerCase();
+
+    if (playerID.length < 3) {
+      dispatch(usernameChecked(false));
+      return;
+    }
+
+    if (playerID.match(/[.$\[\]#\/]/)) {
+      dispatch(usernameChecked(false));
+      return;
+    }
 
     Rx.Observable
       .fromPromise(db.child(`players/${playerID}`).once('value'))
@@ -146,7 +157,7 @@ export const clearMessage = () => ({
  */
 export function logout() {
   return (dispatch) => {
-    dispatch(initializeWithPage(PAGES.LOGIN.withTitle('Welcome to Towers')));
+    dispatch(initializeWithPage(PAGES.LOGIN));
     firebase
       .auth()
       .signOut()
@@ -168,29 +179,26 @@ export function logout() {
  */
 export function login(id, password) {
   return (dispatch, getState) => {
-    const player = Rx.Observable.fromPromise(
-      db.child(`players/${id.toLowerCase()}`).once('value')
-    );
+    dispatch(startLoading('Login in progress'));
     dispatch(authenticationInProgress());
 
-    player.subscribe(
-      (playerSnapshot) => {
+    db
+      .child(`players/${id.toLowerCase()}`)
+      .once('value')
+      .then((playerSnapshot) => {
         if (!playerSnapshot.exists()) {
           throw new Error('This player does not exist!');
         }
 
-        firebase
+        return firebase
           .auth()
-          .signInWithEmailAndPassword(playerSnapshot.val().mail, password)
-          .catch((error) => {
-            throw error.message;
-          });
-      },
-      (error) => {
+          .signInWithEmailAndPassword(playerSnapshot.val().mail, password);
+      })
+      .catch((error) => {
         dispatch(deauthenticate());
-        dispatch(showMessage(error));
-      }
-    );
+        dispatch(endLoading());
+        dispatch(showMessage(error.message));
+      });
   };
 }
 
@@ -237,39 +245,27 @@ export function stopListeningForGamelistUpdates(playerID) {
 export function createAccount(username, email, password) {
   return (dispatch) => {
     const playerID = username.toLowerCase();
-    const playerObj = {
-      name: username,
-      mail: email,
-    };
 
     dispatch(startLoading(`Creating account ${username}`));
 
     db
       .child(`players/${playerID}`)
       .once('value')
-      .then((snapshot) => {
-        return !snapshot.exists();
-      })
-      .then((valid) => {
-        if (valid) {
-          return firebase
-            .auth()
-            .createUserWithEmailAndPassword(email, password)
-            .then((user) => {
-              const playerRef = db.child(`players/${playerID}`);
-              playerObj.uid = user.uid;
-
-              return playerRef.set(playerObj);
-            });
-        } else {
-          alert('Username is already taken.');
-          return Promise.resolve();
+      .then((player) => {
+        if (player.exists()) {
+          throw new Error('Username has already been taken!');
         }
+
+        dispatch(
+          setPlayer({
+            name: username,
+            mail: email,
+          })
+        );
+        return firebase.auth().createUserWithEmailAndPassword(email, password);
       })
       .catch((error) => {
-        alert(`Unknown error: ${error.code}: ${error.message}`);
-      })
-      .then(() => {
+        alert(error.message);
         dispatch(endLoading());
       });
   };
@@ -299,6 +295,11 @@ export function endLoading() {
   };
 }
 
+export const setPlayer = (player) => ({
+  type: APP_ACTIONS.SET_PLAYER,
+  player,
+});
+
 export const authenticate = (player) => ({
   type: APP_ACTIONS.AUTHENTICATE,
   player,
@@ -324,38 +325,67 @@ export const updateGames = (games) => ({
  * @return {void}
  */
 export function waitForLogin() {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     firebase.auth().onAuthStateChanged((user) => {
       Logger.debug('auth change: ', user);
       if (user) {
+        dispatch(startLoading(`Login in progress ...`));
+        const authRef = db.child(`authentication/${user.uid}`);
         dispatch(authenticationInProgress());
-        db
-          .child('players')
-          .orderByChild('uid')
-          .equalTo(user.uid)
-          .once('value')
-          .then((playersSnapshot) => {
-            if (!playersSnapshot.exists()) {
-              throw new Error('Player does not exist!');
-            }
 
-            const matchingPlayers = Object.keys(playersSnapshot.val());
-            if (matchingPlayers.length > 1) {
-              throw new Error('There exists more than one player with that UID!');
+        authRef
+          .once('value')
+          .then((authenticationSnapshot) => {
+            if (!authenticationSnapshot.exists()) {
+              const playerObj = getState().app.player;
+              const playerID = playerObj.name.toLowerCase();
+
+              Logger.debug(`User ${user.uid} does not exist yet ...`);
+              return db
+                .child(`players/${playerID}`)
+                .set(Object.assign(playerObj, {uid: user.uid}))
+                .then(() => {
+                  return authRef.set(playerID);
+                })
+                .then(() => {
+                  return authRef.once('value');
+                });
+            } else {
+              return authenticationSnapshot;
             }
-            const playerID = matchingPlayers[0];
-            const player = Object.assign(playersSnapshot.val()[playerID], {
-              id: playerID,
-            });
-            Logger.debug('setting user: ', player);
-            dispatch(authenticate(player));
-            dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)));
+          })
+          .then((authenticationSnapshot) => {
+            const playerID = authenticationSnapshot.val();
+
+            return db
+              .child(`players/${playerID}`)
+              .once('value')
+              .then((playerSnapshot) => {
+                if (!playerSnapshot.exists()) {
+                  throw new Error('Player does not exist!');
+                }
+
+                const player = Object.assign(playerSnapshot.val(), {
+                  id: playerID,
+                });
+                Logger.debug('setting user: ', player);
+                dispatch(authenticate(player));
+                dispatch(
+                  pushPage(
+                    PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)
+                  )
+                );
+              });
+          })
+          .then(() => {
+            dispatch(endLoading());
             Logger.debug('you got logged in');
           })
           .catch((e) => {
-            Logger.debug('error occured during login:', e);
-            dispatch(deauthenticate());
+            Logger.debug('error occured during login:', e.message);
             firebase.auth().signOut();
+            dispatch(deauthenticate());
+            dispatch(endLoading());
             dispatch(showMessage('Could not log you in.'));
           });
       } else {

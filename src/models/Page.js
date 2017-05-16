@@ -145,11 +145,15 @@ export class Page {
 
 export const PAGES = {
   LOGIN: new Page('login').withTitle('Welcome to Towers'),
-  REGISTRATION: new Page('register').withBackButton('back', goBackOnePage),
+  REGISTRATION: new Page('register')
+    .withTitle('Create Account')
+    .withBackButton('back', goBackOnePage),
   DASHBOARD: new Page('dashboard')
     .withBackButton('logout', goBackOnePage)
     .withForwardButton('tutorial', startTutorial),
-  CREATE_GAME: new Page('createGame').withBackButton('back', goBackOnePage),
+  CREATE_GAME: new Page('createGame')
+    .withTitle('Create New Game')
+    .withBackButton('back', goBackOnePage),
   GAME: new Page('game').withBackButton('back', goBackOnePage),
 };
 

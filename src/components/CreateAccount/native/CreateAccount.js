@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Text,
-  View,
-  Button,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+import {Text, View, Button, TextInput, StyleSheet} from 'react-native';
 import React from 'react';
 
 /**
@@ -40,32 +33,6 @@ export default class CreateAccount extends React.Component {
         width: 150,
       },
     });
-
-    const createActivityIndicator = () => {
-      if (this.props.isLoading) {
-        return (
-          <View
-            style={{
-              zIndex: 2,
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'white',
-              opacity: 0.5,
-            }}
-          >
-            <ActivityIndicator size="large" />
-          </View>
-        );
-      } else {
-        return null;
-      }
-    };
 
     const createAccount = (event) => {
       this.props.createAccount(
@@ -121,8 +88,11 @@ export default class CreateAccount extends React.Component {
             secureTextEntry={true}
           />
         </View>
-        <Button title="Create Account" onPress={createAccount} />
-        {createActivityIndicator()}
+        <Button
+          disabled={!this.props.usernameValid}
+          title="Create Accounts"
+          onPress={createAccount}
+        />
       </View>
     );
   }

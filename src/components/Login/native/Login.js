@@ -1,14 +1,6 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  Button,
-  ActivityIndicator,
-} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
 import dismissKeyboard from 'dismissKeyboard';
-import {AUTH_STATE} from '../../../actions/index';
 
 /**
  * Native login form.
@@ -62,20 +54,6 @@ export default class Login extends React.Component {
         width: 150,
       },
     });
-
-    if (
-      this.props.authState === AUTH_STATE.INITIALIZING ||
-      this.props.authState === AUTH_STATE.PENDING
-    ) {
-      return (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <ActivityIndicator size="large" />
-          {this.props.authState === AUTH_STATE.INITIALIZING
-            ? <Text>Initializing ...</Text>
-            : <Text>We are logging you back in ...</Text>}
-        </View>
-      );
-    }
 
     return (
       <View style={{flex: 1}}>
