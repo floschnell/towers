@@ -35,7 +35,7 @@ export default class PushController extends React.Component {
     });
 
     FCM.getInitialNotification().then((notif) => {
-      Logger.debug('initial notification:', notif);
+      Logger.debug('initial notification.');
       if (notif.game) {
         Logger.debug('has game');
         this.props.goToGame(notif.game);
@@ -43,7 +43,7 @@ export default class PushController extends React.Component {
     });
 
     this.notificationListner = FCM.on(FCMEvent.Notification, (notif) => {
-      Logger.debug('Notification', notif);
+      Logger.debug('incoming notification.', notif);
       if (notif.local_notification) {
         if (notif.opened_from_tray && notif.game) {
           Logger.debug('has game');
@@ -53,7 +53,7 @@ export default class PushController extends React.Component {
       }
 
       if (notif.opened_from_tray) {
-        Logger.debug('opened from tray');
+        Logger.debug('opened from tray.');
         if (notif.game) {
           Logger.debug('has game');
           this.props.goToGame(notif.game);
