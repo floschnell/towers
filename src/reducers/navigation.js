@@ -32,11 +32,13 @@ export default (state, action) => {
 
     case ACTION_TYPES.POP_UNTIL_PAGE:
       const newStack = [];
+      const destinationPage = Page.fromJson(action.page);
+
       for (const pageJson of state.pageStack) {
         const page = Page.fromJson(pageJson);
 
         newStack.push(pageJson);
-        if (action.page.equals(page)) {
+        if (destinationPage.equals(page)) {
           break;
         }
       }

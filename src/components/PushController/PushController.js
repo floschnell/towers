@@ -35,8 +35,10 @@ export default class PushController extends React.Component {
     });
 
     FCM.getInitialNotification().then((notif) => {
+      Logger.debug('initial notification:', notif);
       if (notif.game) {
-        // dunno
+        Logger.debug('has game');
+        this.props.goToGame(notif.game);
       }
     });
 
