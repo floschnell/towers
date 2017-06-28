@@ -2,6 +2,7 @@ import React from 'react';
 import {Text, View, Button, Keyboard, ScrollView} from 'react-native';
 import Game from '../../../models/Game';
 import Logger from '../../../logger';
+import PropTypes from 'prop-types';
 
 /**
  * Native dashboard component.
@@ -105,13 +106,13 @@ export default class Dashboard extends React.Component {
 }
 
 Dashboard.propTypes = {
-  playAgainstPC: React.PropTypes.func.isRequired,
-  startNewGame: React.PropTypes.func.isRequired,
-  playTutorial: React.PropTypes.func.isRequired,
-  chooseGame: React.PropTypes.func.isRequired,
-  subscribeOnGameUpdates: React.PropTypes.func.isRequired,
-  unsubscribeFromGameUpdates: React.PropTypes.func.isRequired,
-  player: React.PropTypes.object,
-  games: React.PropTypes.object,
-  isLoading: React.PropTypes.bool,
+  playAgainstPC: PropTypes.func.isRequired,
+  startNewGame: PropTypes.func.isRequired,
+  playTutorial: PropTypes.func.isRequired,
+  chooseGame: PropTypes.func.isRequired,
+  subscribeOnGameUpdates: PropTypes.func.isRequired,
+  unsubscribeFromGameUpdates: PropTypes.func.isRequired,
+  player: PropTypes.object,
+  games: PropTypes.object,
+  isLoading: PropTypes.bool,
 };

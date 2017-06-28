@@ -1,5 +1,6 @@
 import React from 'react';
 import TowerContainer from '../../Tower/TowerContainer';
+import PropTypes from 'prop-types';
 
 /**
  * Renders a set of towers for the native web.
@@ -28,6 +29,6 @@ export default class TowerSet extends React.Component {
 }
 
 TowerSet.propTypes = {
-  size: React.PropTypes.number,
-  towers: React.PropTypes.array,
+  size: PropTypes.number,
+  towers: PropTypes.array,
 };

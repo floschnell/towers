@@ -1,5 +1,6 @@
 import {Text, View, Button, TextInput, StyleSheet} from 'react-native';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Native form to create a new account.
@@ -99,8 +100,8 @@ export default class CreateAccount extends React.Component {
 }
 
 CreateAccount.propTypes = {
-  checkUsername: React.PropTypes.func,
-  usernameValid: React.PropTypes.bool,
-  createAccount: React.PropTypes.func,
-  isLoading: React.PropTypes.bool,
+  checkUsername: PropTypes.func,
+  usernameValid: PropTypes.bool,
+  createAccount: PropTypes.func,
+  isLoading: PropTypes.bool,
 };

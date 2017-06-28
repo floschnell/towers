@@ -1,6 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, View} from 'react-native';
 import {getColor} from '../../../utils';
+import PropTypes from 'prop-types';
 
 /**
  * Native component for a field of the board game.
@@ -54,12 +55,12 @@ export default class Field extends React.Component {
 }
 
 Field.propTypes = {
-  color: React.PropTypes.number,
-  onClick: React.PropTypes.func,
-  playerID: React.PropTypes.string,
-  opponentID: React.PropTypes.string,
-  currentGame: React.PropTypes.string,
-  myTurn: React.PropTypes.bool,
-  canBeReached: React.PropTypes.bool,
-  surfaceSize: React.PropTypes.number,
+  color: PropTypes.number,
+  onClick: PropTypes.func,
+  playerID: PropTypes.string,
+  opponentID: PropTypes.string,
+  currentGame: PropTypes.string,
+  myTurn: PropTypes.bool,
+  canBeReached: PropTypes.bool,
+  surfaceSize: PropTypes.number,
 };

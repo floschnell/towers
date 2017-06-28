@@ -2,6 +2,7 @@ import React from 'react';
 import Game from '../../../models/Game';
 import './Dashboard.styl';
 import Logger from '../../../logger';
+import PropTypes from 'prop-types';
 
 /**
  * Dashboard component for the web.
@@ -87,12 +88,12 @@ export default class Dashboard extends React.Component {
 }
 
 Dashboard.propTypes = {
-  playAgainstPC: React.PropTypes.func.isRequired,
-  startNewGame: React.PropTypes.func.isRequired,
-  chooseGame: React.PropTypes.func.isRequired,
-  subscribeOnGameUpdates: React.PropTypes.func.isRequired,
-  unsubscribeFromGameUpdates: React.PropTypes.func.isRequired,
-  player: React.PropTypes.object,
-  games: React.PropTypes.object,
-  isLoading: React.PropTypes.bool,
+  playAgainstPC: PropTypes.func.isRequired,
+  startNewGame: PropTypes.func.isRequired,
+  chooseGame: PropTypes.func.isRequired,
+  subscribeOnGameUpdates: PropTypes.func.isRequired,
+  unsubscribeFromGameUpdates: PropTypes.func.isRequired,
+  player: PropTypes.object,
+  games: PropTypes.object,
+  isLoading: PropTypes.bool,
 };

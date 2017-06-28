@@ -124,7 +124,9 @@ export function loadGameFromKey(gameKey) {
           const game = gameSnapshot.val();
           const player = Game.getPlayer(game, currentState.app.player.id);
           const opponent = Game.getOpponent(game, currentState.app.player.id);
-          const gamePage = PAGES.GAME.withTitle(`${player.name} vs ${opponent.name}`);
+          const gamePage = PAGES.GAME.withTitle(
+            `${player.name} vs ${opponent.name}`
+          );
 
           dispatch(resumeGame(gameKey));
           dispatch(updateGame(game));
@@ -219,7 +221,9 @@ export function startGame(playerID, opponentID, players) {
           throw new Error('Player does not exist in database!');
         }
         if (game.exists()) {
-          throw new Error(`You are already playing against ${opponent.val().name}!`);
+          throw new Error(
+            `You are already playing against ${opponent.val().name}!`
+          );
         }
 
         return gameRef
@@ -246,7 +250,9 @@ export function startGame(playerID, opponentID, players) {
       })
       .catch((err) => {
         dispatch(endLoading());
-        dispatch(showMessage(err));
+        if (err instanceof Error) {
+          dispatch(showMessage(err.message));
+        }
       });
   };
 }
@@ -364,14 +370,19 @@ export function clickOnField(field) {
       if (oldState.game.isAIGame) {
         setTimeout(() => {
           while (
-            !Game.hasEnded(newState.game) && newState.game.currentPlayer === 'computer'
+            !Game.hasEnded(newState.game) &&
+            newState.game.currentPlayer === 'computer'
           ) {
             const chosenMove = computerPlayer.getNextMove(newState.game);
 
             if (chosenMove) {
               Logger.info('will choose:', chosenMove);
               dispatch(
-                clickedOnField(chosenMove.to, newState.game.currentPlayer, currentGame)
+                clickedOnField(
+                  chosenMove.to,
+                  newState.game.currentPlayer,
+                  currentGame
+                )
               );
               newState = getState();
             } else {

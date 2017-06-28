@@ -51,12 +51,3 @@ buck-out/
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
-
-# Webpack
-dist/
-
-# VS Code
-.vscode/
-
-# Jest
-coverage/

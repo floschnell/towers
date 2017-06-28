@@ -1,5 +1,6 @@
 import React from 'react';
 import './Dialog.styl';
+import PropTypes from 'prop-types';
 
 /**
  * Renders a dialog window that consists of a message and buttons for interaction.
@@ -25,6 +26,6 @@ export default class Dialog extends React.Component {
 }
 
 Dialog.propTypes = {
-  message: React.PropTypes.string,
-  buttons: React.PropTypes.arrayOf(React.PropTypes.object),
+  message: PropTypes.string,
+  buttons: PropTypes.arrayOf(PropTypes.object),
 };

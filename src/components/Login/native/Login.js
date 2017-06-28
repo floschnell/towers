@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
 import dismissKeyboard from 'dismissKeyboard';
+import PropTypes from 'prop-types';
 
 /**
  * Native login form.
@@ -95,7 +96,7 @@ export default class Login extends React.Component {
 }
 
 Login.propTypes = {
-  authState: React.PropTypes.string,
-  createAccount: React.PropTypes.func,
-  finalizeLogin: React.PropTypes.func,
+  authState: PropTypes.string,
+  createAccount: PropTypes.func,
+  finalizeLogin: PropTypes.func,
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import './CreateAccount.styl';
+import PropTypes from 'prop-types';
 
 /**
  * Web mask that will be shown to users who want to create a new account.
@@ -83,9 +84,9 @@ export default class CreateAccount extends React.Component {
 }
 
 CreateAccount.propTypes = {
-  checkUsername: React.PropTypes.func,
-  usernameValid: React.PropTypes.bool,
-  createAccount: React.PropTypes.func,
-  isLoading: React.PropTypes.bool,
-  goBack: React.PropTypes.func,
+  checkUsername: PropTypes.func,
+  usernameValid: PropTypes.bool,
+  createAccount: PropTypes.func,
+  isLoading: PropTypes.bool,
+  goBack: PropTypes.func,
 };

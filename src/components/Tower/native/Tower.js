@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity} from 'react-native';
 import {getColor} from '../../../utils';
+import PropTypes from 'prop-types';
 
 /**
  * Renders a game tower for the native game version.
@@ -77,13 +78,13 @@ export default class Tower extends React.Component {
 }
 
 Tower.propTypes = {
-  size: React.PropTypes.number,
-  x: React.PropTypes.number,
-  y: React.PropTypes.number,
-  playerID: React.PropTypes.string,
-  tower: React.PropTypes.object,
-  isActive: React.PropTypes.bool,
-  isSelected: React.PropTypes.bool,
-  belongsToMe: React.PropTypes.bool,
-  clickOnTower: React.PropTypes.func,
+  size: PropTypes.number,
+  x: PropTypes.number,
+  y: PropTypes.number,
+  playerID: PropTypes.string,
+  tower: PropTypes.object,
+  isActive: PropTypes.bool,
+  isSelected: PropTypes.bool,
+  belongsToMe: PropTypes.bool,
+  clickOnTower: PropTypes.func,
 };

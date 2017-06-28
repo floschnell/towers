@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, View} from 'react-native';
+import PropTypes from 'prop-types';
 
 /**
  * Top navigation bar.
@@ -106,13 +107,13 @@ export default class NavigationBar extends React.Component {
 }
 
 NavigationBar.propTypes = {
-  leftButtonTitle: React.PropTypes.string,
-  rightButtonTitle: React.PropTypes.string,
-  title: React.PropTypes.string,
-  titleColor: React.PropTypes.string,
-  backgroundColor: React.PropTypes.string,
-  rightButtonColor: React.PropTypes.string,
-  leftButtonColor: React.PropTypes.string,
-  onLeftButtonPress: React.PropTypes.func,
-  onRightButtonPress: React.PropTypes.func,
+  leftButtonTitle: PropTypes.string,
+  rightButtonTitle: PropTypes.string,
+  title: PropTypes.string,
+  titleColor: PropTypes.string,
+  backgroundColor: PropTypes.string,
+  rightButtonColor: PropTypes.string,
+  leftButtonColor: PropTypes.string,
+  onLeftButtonPress: PropTypes.func,
+  onRightButtonPress: PropTypes.func,
 };

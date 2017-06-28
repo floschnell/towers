@@ -1,6 +1,7 @@
 import React from 'react';
-import { AUTH_STATE } from '../../../actions/app';
+import {AUTH_STATE} from '../../../actions/app';
 import './Login.styl';
+import PropTypes from 'prop-types';
 
 /**
  * The login form for the web.
@@ -37,7 +38,7 @@ export default class Login extends React.Component {
 }
 
 Login.propTypes = {
-  authState: React.PropTypes.string,
-  createAccount: React.PropTypes.func,
-  finalizeLogin: React.PropTypes.func,
+  authState: PropTypes.string,
+  createAccount: PropTypes.func,
+  finalizeLogin: PropTypes.func,
 };

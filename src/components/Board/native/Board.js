@@ -1,6 +1,7 @@
 import React from 'react';
 import FieldContainer from '../../Field/FieldContainer';
 import {View} from 'react-native';
+import PropTypes from 'prop-types';
 
 /**
  * The native game board that renders all the differently colored patches.
@@ -58,7 +59,7 @@ Board.defaultProps = {
 };
 
 Board.propTypes = {
-  fields: React.PropTypes.array.isRequired,
-  size: React.PropTypes.number.isRequired,
-  reverse: React.PropTypes.bool.isRequired,
+  fields: PropTypes.array.isRequired,
+  size: PropTypes.number.isRequired,
+  reverse: PropTypes.bool.isRequired,
 };

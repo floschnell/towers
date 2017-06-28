@@ -5,6 +5,7 @@ import PlayerPlateContainer from '../../PlayerPlate/PlayerPlateContainer';
 import Dialog from '../../Dialog/Dialog';
 import './Game.styl';
 import closeButton from '../../../../resources/close.png';
+import PropTypes from 'prop-types';
 
 let timeoutHandler = 0;
 
@@ -162,16 +163,16 @@ export default class Game extends React.Component {
 }
 
 Game.propTypes = {
-  playerIDs: React.PropTypes.arrayOf(React.PropTypes.string),
-  suspendGame: React.PropTypes.func,
-  endGame: React.PropTypes.func,
-  game: React.PropTypes.string,
-  surfaceWidth: React.PropTypes.number,
-  surfaceHeight: React.PropTypes.number,
-  resizeGameSurface: React.PropTypes.func,
-  goToDashboard: React.PropTypes.func,
-  won: React.PropTypes.bool,
-  lost: React.PropTypes.bool,
-  playerID: React.PropTypes.string,
-  towerPositions: React.PropTypes.object,
+  playerIDs: PropTypes.arrayOf(PropTypes.string),
+  suspendGame: PropTypes.func,
+  endGame: PropTypes.func,
+  game: PropTypes.string,
+  surfaceWidth: PropTypes.number,
+  surfaceHeight: PropTypes.number,
+  resizeGameSurface: PropTypes.func,
+  goToDashboard: PropTypes.func,
+  won: PropTypes.bool,
+  lost: PropTypes.bool,
+  playerID: PropTypes.string,
+  towerPositions: PropTypes.object,
 };

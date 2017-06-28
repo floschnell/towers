@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, View, TextInput, Button, ScrollView} from 'react-native';
+import PropTypes from 'prop-types';
 
 /**
  * Native view to create a new game.
@@ -67,8 +68,8 @@ export default class CreateGame extends React.Component {
 }
 
 CreateGame.propTypes = {
-  player: React.PropTypes.object,
-  players: React.PropTypes.object,
-  startGame: React.PropTypes.func.isRequired,
-  searchForPlayers: React.PropTypes.func.isRequired,
+  player: PropTypes.object,
+  players: PropTypes.object,
+  startGame: PropTypes.func.isRequired,
+  searchForPlayers: PropTypes.func.isRequired,
 };

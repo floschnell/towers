@@ -2,6 +2,7 @@ import React from 'react';
 import tower from '../../../../resources/tower.svg';
 import towerActive from '../../../../resources/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
+import PropTypes from 'prop-types';
 
 import './PlayerPlate.styl';
 
@@ -30,7 +31,7 @@ export default class PlayerPlate extends React.Component {
 }
 
 PlayerPlate.propTypes = {
-  isCurrentPlayer: React.PropTypes.bool,
-  isThisPlayer: React.PropTypes.bool,
-  name: React.PropTypes.string,
+  isCurrentPlayer: PropTypes.bool,
+  isThisPlayer: PropTypes.bool,
+  name: PropTypes.string,
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import FieldContainer from '../../Field/FieldContainer';
 import './Board.styl';
+import PropTypes from 'prop-types';
 
 /**
  * The web board that renders all the different patches.
@@ -40,6 +41,6 @@ Board.defaultProps = {
 };
 
 Board.propTypes = {
-  fields: React.PropTypes.array,
-  surfaceSize: React.PropTypes.number.isRequired,
+  fields: PropTypes.array,
+  surfaceSize: PropTypes.number.isRequired,
 };

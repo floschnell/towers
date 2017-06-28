@@ -1,6 +1,7 @@
 import React from 'react';
 import FCM, {FCMEvent} from 'react-native-fcm';
 import Logger from '../../logger';
+import PropTypes from 'prop-types';
 
 /**
  * Handles retrieval of push notifications.
@@ -99,7 +100,7 @@ export default class PushController extends React.Component {
 }
 
 PushController.propTypes = {
-  onChangeToken: React.PropTypes.func,
-  goToGame: React.PropTypes.func,
-  game: React.PropTypes.string,
+  onChangeToken: PropTypes.func,
+  goToGame: PropTypes.func,
+  game: PropTypes.string,
 };

@@ -7,6 +7,7 @@ import CreateAccountContainer from '../../CreateAccount/CreateAccountContainer';
 import Logger from '../../../logger';
 import {PAGES} from '../../../models/Page';
 import './App.styl';
+import PropTypes from 'prop-types';
 
 /**
  * Wrapper for the web application.
@@ -46,6 +47,6 @@ export default class App extends React.Component {
 }
 
 App.propTypes = {
-  currentPage: React.PropTypes.object,
-  waitForLogin: React.PropTypes.func,
+  currentPage: PropTypes.object,
+  waitForLogin: PropTypes.func,
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import towerPlayer2 from '../../../../resources/tower.svg';
 import towerPlayer2Active from '../../../../resources/tower_active.svg';
 import InlineSVG from 'svg-inline-react';
-
+import PropTypes from 'prop-types';
 import './Tower.styl';
 
 const towerElementPlayer2 = <InlineSVG src={towerPlayer2} />;
@@ -52,13 +52,13 @@ export default class Tower extends React.Component {
 }
 
 Tower.propTypes = {
-  size: React.PropTypes.number,
-  x: React.PropTypes.number,
-  y: React.PropTypes.number,
-  playerID: React.PropTypes.string,
-  tower: React.PropTypes.object,
-  isActive: React.PropTypes.bool,
-  isSelected: React.PropTypes.bool,
-  belongsToMe: React.PropTypes.bool,
-  clickOnTower: React.PropTypes.func,
+  size: PropTypes.number,
+  x: PropTypes.number,
+  y: PropTypes.number,
+  playerID: PropTypes.string,
+  tower: PropTypes.object,
+  isActive: PropTypes.bool,
+  isSelected: PropTypes.bool,
+  belongsToMe: PropTypes.bool,
+  clickOnTower: PropTypes.func,
 };

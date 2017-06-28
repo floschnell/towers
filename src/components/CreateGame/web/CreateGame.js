@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Web version of the create game component.
@@ -45,9 +46,9 @@ export default class CreateGame extends React.Component {
 }
 
 CreateGame.propTypes = {
-  player: React.PropTypes.object,
-  players: React.PropTypes.object,
-  startGame: React.PropTypes.func.isRequired,
-  searchForPlayers: React.PropTypes.func.isRequired,
-  goToDashboard: React.PropTypes.func.isRequired,
+  player: PropTypes.object,
+  players: PropTypes.object,
+  startGame: PropTypes.func.isRequired,
+  searchForPlayers: PropTypes.func.isRequired,
+  goToDashboard: PropTypes.func.isRequired,
 };

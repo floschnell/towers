@@ -1,5 +1,6 @@
-const React = require('react');
+import React from 'react';
 import {View} from 'react-native';
+import PropTypes from 'prop-types';
 
 /**
  * Represents a 2-dimensional arrow from one point to another.
@@ -45,10 +46,10 @@ export default class Arrow extends React.Component {
 }
 
 Arrow.propTypes = {
-  fromY: React.PropTypes.number.isRequired,
-  fromX: React.PropTypes.number.isRequired,
-  toY: React.PropTypes.number.isRequired,
-  toX: React.PropTypes.number.isRequired,
-  width: React.PropTypes.number.isRequired,
-  color: React.PropTypes.string.isRequired,
+  fromY: PropTypes.number.isRequired,
+  fromX: PropTypes.number.isRequired,
+  toY: PropTypes.number.isRequired,
+  toX: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
 };

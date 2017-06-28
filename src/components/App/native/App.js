@@ -9,6 +9,7 @@ import {
   Modal,
   ToastAndroid,
 } from 'react-native';
+import PropTypes from 'prop-types';
 import React from 'react';
 import LoginContainer from '../../Login/LoginContainer';
 import DashboardContainer from '../../Dashboard/DashboardContainer';
@@ -254,19 +255,19 @@ export default class App extends React.Component {
 }
 
 App.propTypes = {
-  message: React.PropTypes.string,
-  loadingMessage: React.PropTypes.string,
-  cancelLoading: React.PropTypes.func,
-  isLoading: React.PropTypes.bool,
-  currentPage: React.PropTypes.object,
-  player: React.PropTypes.object,
-  isLoggedIn: React.PropTypes.bool,
-  navigateBack: React.PropTypes.func,
-  logOut: React.PropTypes.func,
-  clearMessage: React.PropTypes.func,
-  waitForLogin: React.PropTypes.func,
-  resizeGameSurface: React.PropTypes.func,
-  executeBackButtonAction: React.PropTypes.func,
-  executeForwardButtonAction: React.PropTypes.func,
-  gotoDashboard: React.PropTypes.func,
+  message: PropTypes.string,
+  loadingMessage: PropTypes.string,
+  cancelLoading: PropTypes.func,
+  isLoading: PropTypes.bool,
+  currentPage: PropTypes.object,
+  player: PropTypes.object,
+  isLoggedIn: PropTypes.bool,
+  navigateBack: PropTypes.func,
+  logOut: PropTypes.func,
+  clearMessage: PropTypes.func,
+  waitForLogin: PropTypes.func,
+  resizeGameSurface: PropTypes.func,
+  executeBackButtonAction: PropTypes.func,
+  executeForwardButtonAction: PropTypes.func,
+  gotoDashboard: PropTypes.func,
 };
