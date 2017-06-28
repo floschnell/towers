@@ -4,16 +4,18 @@ import {
   waitForLogin,
   logout,
   popPage,
+  pushPage,
   resizeGameSurface,
   clearMessage,
   cancelLoading,
   executeBackButtonAction,
   executeForwardButtonAction,
 } from '../../actions/index';
-import {Page} from '../../models/Page';
+import {Page, PAGES} from '../../models/Page';
 
 const mapStateToProps = (state) => ({
   player: state.app.player,
+  isLoggedIn: state.app.player !== null,
   user: state.app.user,
   game: state.app.currentGame,
   currentPage: Page.fromJson(
@@ -48,6 +50,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   executeForwardButtonAction: (page) => {
     dispatch(executeForwardButtonAction(page));
+  },
+  gotoDashboard: (playerName) => {
+    dispatch(pushPage(PAGES.DASHBOARD.withTitle(`Playing as ${playerName}`)));
   },
 });
 

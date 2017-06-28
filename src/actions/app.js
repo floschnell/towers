@@ -1,7 +1,7 @@
 import db from '../database';
 import firebase from 'firebase';
 import {PAGES} from '../models/Page';
-import {pushPage, initializeWithPage} from '../actions/navigation';
+import {initializeWithPage} from '../actions/navigation';
 import Rx from 'rxjs';
 import Logger from '../logger';
 
@@ -370,11 +370,6 @@ export function waitForLogin() {
                 });
                 Logger.debug('setting user: ', player);
                 dispatch(authenticate(player));
-                dispatch(
-                  pushPage(
-                    PAGES.DASHBOARD.withTitle(`Playing as ${player.name}`)
-                  )
-                );
               });
           })
           .then(() => {

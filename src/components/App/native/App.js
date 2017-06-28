@@ -54,14 +54,16 @@ export default class App extends React.Component {
       ToastAndroid.show(nextProps.message, 2000);
       nextProps.clearMessage();
     }
+
+    if (nextProps.isLoggedIn && PAGES.LOGIN.equals(this.props.currentPage)) {
+      nextProps.gotoDashboard(nextProps.player.name);
+    }
   }
 
   /**
    * @override
    */
   render() {
-    this.renderActivityIndicator();
-
     return (
       <View style={{flex: 1}} onLayout={this.onLayout.bind(this)}>
         {this.renderPushController()}
@@ -119,19 +121,21 @@ export default class App extends React.Component {
    * @return {React.Component}
    */
   renderPage() {
-    const loggedIn = this.props.player !== null;
-
-    if (PAGES.REGISTRATION.equals(this.props.currentPage)) {
-      return <CreateAccountContainer />;
-    } else if (PAGES.DASHBOARD.equals(this.props.currentPage) && loggedIn) {
-      return <DashboardContainer />;
-    } else if (PAGES.GAME.equals(this.props.currentPage) && loggedIn) {
-      return <GameContainer />;
-    } else if (PAGES.CREATE_GAME.equals(this.props.currentPage) && loggedIn) {
-      return <CreateGameContainer />;
+    if (this.props.isLoggedIn) {
+      if (PAGES.DASHBOARD.equals(this.props.currentPage)) {
+        return <DashboardContainer />;
+      } else if (PAGES.GAME.equals(this.props.currentPage)) {
+        return <GameContainer />;
+      } else if (PAGES.CREATE_GAME.equals(this.props.currentPage)) {
+        return <CreateGameContainer />;
+      }
     } else {
-      return <LoginContainer />;
+      if (PAGES.REGISTRATION.equals(this.props.currentPage)) {
+        return <CreateAccountContainer />;
+      }
     }
+
+    return <LoginContainer />;
   }
 
   /**
@@ -141,19 +145,30 @@ export default class App extends React.Component {
    * @return {null|PushController}
    */
   renderPushController() {
-    const loggedIn = this.props.player !== null;
-
-    if (loggedIn) {
+    if (this.props.isLoggedIn) {
       return <PushController />;
     } else {
       return null;
     }
   }
 
+  /**
+   * Will be executed when the player presses the forward
+   * button on the navigation bar.
+   *
+   * @memberof App
+   */
   pressForwardButton() {
     this.props.executeForwardButtonAction(this.props.currentPage);
   }
 
+  /**
+   * Will be executed when the player
+   * - presses the back button in the navigation bar
+   * - presses the hardware back button on his device.
+   *
+   * @memberof App
+   */
   pressBackButton() {
     if (this.props.currentPage.equals(PAGES.DASHBOARD)) {
       Alert.alert(
@@ -245,6 +260,7 @@ App.propTypes = {
   isLoading: React.PropTypes.bool,
   currentPage: React.PropTypes.object,
   player: React.PropTypes.object,
+  isLoggedIn: React.PropTypes.bool,
   navigateBack: React.PropTypes.func,
   logOut: React.PropTypes.func,
   clearMessage: React.PropTypes.func,
@@ -252,4 +268,5 @@ App.propTypes = {
   resizeGameSurface: React.PropTypes.func,
   executeBackButtonAction: React.PropTypes.func,
   executeForwardButtonAction: React.PropTypes.func,
+  gotoDashboard: React.PropTypes.func,
 };

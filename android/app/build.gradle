@@ -95,8 +95,8 @@ android {
         applicationId "de.floschnell.towers.android"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 19
-        versionName "0.5.3"
+        versionCode 20
+        versionName "0.5.4"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
