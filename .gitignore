@@ -57,3 +57,6 @@ dist/
 
 # VS Code
 .vscode/
+
+# Jest
+coverage/

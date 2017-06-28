@@ -28,7 +28,7 @@ suite
     Board.coordHasTower(board, x, y);
   })
   .add('copy', () => {
-    const boardCopy = boardFactory.copyBoard(board);
+    boardFactory.copyBoard(board);
   })
   .add('getTowerForPlayerAndColor', () => {
     const player = Math.random() < 0.5 ? 'playerA' : 'playerB';
