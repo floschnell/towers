@@ -9,7 +9,6 @@
     "android:build": "cd android && ./gradlew assembleRelease",
     "android:dev": "(emulator -avd ReactNative &) && adb wait-for-device && react-native run-android && react-native start",
     "start": "node serve.js",
-    "postinstall": "npm run web:build",
     "test": "./node_modules/.bin/jest ./tests",
     "benchmark": "./node_modules/.bin/webpack --config webpack/webpack.benchmark.config.js --target node && node ./dist/benchmarks.js"
   },
