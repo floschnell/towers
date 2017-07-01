@@ -26,18 +26,12 @@ interface MoveStructure {
   targetField: FieldStructure
 }
 
-interface BoardStructure {
-  playerA: string,
-  playerB: string,
-  data: Uint8Array
-}
-
 interface GameStructure {
   currentColor: number,
   currentPlayer: string,
   moves: Array<Move>,
   players: Object,
-  board: BoardStructure
+  board: Uint32Array
 }
 
 declare interface Page {

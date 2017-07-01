@@ -35,7 +35,7 @@ export default class Game {
 
   /**
    * @static
-   * @param {Game} game
+   * @param {GameStructure} game
    * @param {String} playerID
    * @return {Player}
    *
@@ -134,7 +134,7 @@ export default class Game {
    * @param {GameStructure} game The game with the current state.
    * @param {string} playerID Player to get the tower for.
    * @param {number} color Color of the tower.
-   * @return {TowerStructure}
+   * @return {Tower}
    *
    * @memberof Game
    */
@@ -182,6 +182,29 @@ export default class Game {
   }
 
   /**
+   * Check if the current game state corresponds to the game moves.
+   *
+   * @param {GameStructure} game The game state that should be checked.
+   * @param {MoveStructure[]} moves Moves that the current game state should be
+   *                                checked against.
+   */
+  static _sanityCheckMoves(game, moves) {
+    const lastMove = moves[moves.length - 1];
+
+    if (game.currentPlayer === game.player) {
+      throw new Error(
+        `Current player '${game.currentPlayer}' has to be different than the player of the last move!` // eslint-disable-line
+      );
+    }
+
+    if (game.currentColor !== lastMove.targetField.color) {
+      throw new Error(
+        `Current color is ${game.currentColor} when it should be ${lastMove.targetField.color}` // eslint-disable-line
+      );
+    }
+  }
+
+  /**
    * Initializes the board for a certain game.
    * That involves creating the board structure and
    * executing all the moves that have been stored in the database.
@@ -201,8 +224,9 @@ export default class Game {
       Board.setTower(game.board, 1, color, 7 - color, 7);
     }
 
-    if (game.moves) {
+    if (game.moves && game.moves.length > 0) {
       Game.executeMoves(game, game.moves);
+      Game._sanityCheckMoves(game, game.moves);
     }
 
     return game;
@@ -223,11 +247,7 @@ export default class Game {
     const towerPositions = [];
 
     for (let color = 0; color < 8; color++) {
-      const tower = Board.getTowerForPlayerAndColor(
-        game.board,
-        playerNumber,
-        color
-      );
+      const tower = Board.getTowerForPlayerAndColor(game.board, playerNumber, color);
       towerPositions[color] = Object.assign(tower, {
         belongsToPlayer: playerID,
         color,
@@ -250,7 +270,8 @@ export default class Game {
   static executeMove(game, move) {
     const playerNumber = Game.getPlayerNumber(game, move.player);
 
-    if (Game.checkMoveForValidity(game, move) === CHECK_MOVE_RESULT.VALID) {
+    const checkMoveResult = Game.checkMoveForValidity(game, move);
+    if (checkMoveResult === CHECK_MOVE_RESULT.VALID) {
       const success = Board.moveTower(
         game.board,
         playerNumber,
@@ -265,7 +286,9 @@ export default class Game {
         throw new Error('Tower could not be moved on the board!');
       }
     } else {
-      throw new Error('The move is not valid!');
+      throw new Error(
+        `The move '${JSON.stringify(move)}' is not valid, result: ${checkMoveResult}!`
+      );
     }
 
     Logger.info('moved from', move.sourceField, 'to', move.targetField);
@@ -317,16 +340,10 @@ export default class Game {
           towerToMove.y + moveDirection
         );
     }
-    if (
-      towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0
-    ) {
+    if (towerToMove.y + moveDirection <= 7 && towerToMove.y + moveDirection >= 0) {
       canMove =
         canMove ||
-        !Board.coordHasTower(
-          game.board,
-          towerToMove.x,
-          towerToMove.y + moveDirection
-        );
+        !Board.coordHasTower(game.board, towerToMove.x, towerToMove.y + moveDirection);
     }
     if (towerToMove.x > 0) {
       canMove =
@@ -414,30 +431,17 @@ export default class Game {
     const deltaY = move.targetField.y - move.sourceField.y;
     const moveDirection = Game.getMoveDirectionFor(game, move.player);
     if (deltaX !== 0 && Math.abs(deltaX) !== Math.abs(deltaY)) {
-      Logger.info(
-        'Move needs to be either straight or diagonally',
-        deltaX,
-        deltaY
-      );
+      Logger.info('Move needs to be either straight or diagonally', deltaX, deltaY);
       return CHECK_MOVE_RESULT.NOT_STRAIGHT_OR_DIAGONALLY;
     }
-    if (
-      (deltaY > 0 && moveDirection < 0) || (deltaY < 0 && moveDirection > 0)
-    ) {
+    if ((deltaY > 0 && moveDirection < 0) || (deltaY < 0 && moveDirection > 0)) {
       Logger.info('Can not move in reverse direction', deltaY, moveDirection);
       return CHECK_MOVE_RESULT.NOT_FORWARD;
     }
 
     // try to move the tower to destination
-    const actualField = Game.moveCarefully(
-      game,
-      move.sourceField,
-      move.targetField
-    );
-    if (
-      actualField.x !== move.targetField.x ||
-      actualField.y !== move.targetField.y
-    ) {
+    const actualField = Game.moveCarefully(game, move.sourceField, move.targetField);
+    if (actualField.x !== move.targetField.x || actualField.y !== move.targetField.y) {
       Logger.info(
         'Could not move because of an obstacle.',
         actualField,

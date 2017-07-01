@@ -182,6 +182,7 @@ export default (state, action) => {
             newState.selectedTower = null;
             if (!newState.moves) newState.moves = [];
             newState.moves.push(move);
+            newState.moveResult = MOVE_RESULTS.OK;
 
             if (state.isTutorial && state.tutorial.continueOnFieldClick) {
               Logger.debug('tutorial click on field');
@@ -205,7 +206,6 @@ export default (state, action) => {
       return newState;
 
     case ACTION_TYPES.UPDATE_GAME:
-      Logger.info('game state: ');
       try {
         const game = Game.initialize(action.game);
         const updatedState = Object.assign(newState, game, {valid: true});

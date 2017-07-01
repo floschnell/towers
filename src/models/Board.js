@@ -36,7 +36,7 @@ export class BoardFactory {
    * Creates a new board and reserves its own memory.
    *
    * @static
-   * @return {BoardStructure}
+   * @return {Uint32Array}
    *
    * @memberof BoardFactory
    */
@@ -49,8 +49,8 @@ export class BoardFactory {
    * Does not use shared memory and thus is slower than
    * the factory instance's method.
    *
-   * @param {BoardStructure} board Board to copy.
-   * @return {BoardStructure}
+   * @param {Uint32Array} board Board to copy.
+   * @return {Uint32Array}
    */
   static copyBoard(board) {
     const newBoard = BoardFactory.createBoard();
@@ -222,7 +222,7 @@ export default class Board {
    * Checks if there is a tower on the give board coordinate.
    *
    * @static
-   * @param {BoardStructure} board The board on which the towers stand.
+   * @param {Uint32Array} board The board on which the towers stand.
    * @param {number} x X coordinate of the position that should be checked for a tower.
    * @param {number} y Y coordinate of the position that should be checked for a tower.
    * @return {boolean}
@@ -237,7 +237,7 @@ export default class Board {
    * Retrieves the color of the tower at the given coord.
    *
    * @static
-   * @param {BoardStructure} board The board on which the towers stand.
+   * @param {Uint32Array} board The board on which the towers stand.
    * @param {number} x X coordinate of the field on which the tower is.
    * @param {number} y Y coordinate of the field on which the tower is.
    * @return {number|null} Color of the tower or null if there is no tower.
@@ -271,7 +271,7 @@ export default class Board {
    * Prints the give board to the console for easier debugging.
    *
    * @static
-   * @param {BoardStructure} board The board which should be printed.
+   * @param {Uint32Array} board The board which should be printed.
    *
    * @memberof Board
    */
@@ -305,7 +305,7 @@ export default class Board {
    * Retrieves the player's target row on the given board.
    * Target row is the starting row of the opponent at the same time.
    *
-   * @param {string} playerNumber The player number (either 0 or 1).
+   * @param {number} playerNumber The player number (either 0 or 1).
    * @return {number} The target row which is either 0 or 7.
    */
   static getTargetRowFor(playerNumber) {
@@ -320,7 +320,7 @@ export default class Board {
    * Gets the number of moves a player can perform from a given position.
    *
    * @static
-   * @param {BoardStructure} board Board on which the towers stand.
+   * @param {Uint32Array} board Board on which the towers stand.
    * @param {number} playerNumber Player that can move.
    * @param {number} color Color that can be moved.
    * @return {number} Number of moves that the player can perform

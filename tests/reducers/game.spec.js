@@ -1,5 +1,8 @@
 import gameReducer from '../../src/reducers/game';
 import {ACTION_TYPES} from '../../src/actions/index';
+import Game from '../../src/models/Game';
+import {MOVE_RESULTS} from '../../src/actions/game';
+import Logger, {LOG_LEVELS} from '../../src/logger';
 
 const cleanGameState = {
   players: {
@@ -10,11 +13,16 @@ const cleanGameState = {
   currentColor: null,
   selectedTower: null,
   moves: [],
+  board: null,
   isAIGame: false,
 };
 
+beforeAll(() => {
+  Logger.setVerbosity(LOG_LEVELS.WARN);
+});
+
 describe('game reducer', () => {
-  test('select tower does not have to match color, if currentColor is not set', () => {
+  it('should allow any tower to be chosen, if no color has yet been set.', () => {
     // GIVEN
     const clickOnTowerAction = {
       type: ACTION_TYPES.CLICK_ON_TOWER,
@@ -34,7 +42,7 @@ describe('game reducer', () => {
     expect(resultState.selectedTower).toBeTruthy();
   });
 
-  test('selected tower should match currentColor', () => {
+  it('should only allow the choice of the tower with matching color', () => {
     // GIVEN
     const gameStateWithCurrentColor = Object.assign(cleanGameState, {
       currentColor: 1,
@@ -51,12 +59,101 @@ describe('game reducer', () => {
     };
 
     // WHEN
-    const resultState = gameReducer(
-      gameStateWithCurrentColor,
-      clickOnTowerAction
-    );
+    const resultState = gameReducer(gameStateWithCurrentColor, clickOnTowerAction);
 
     // THEN
     expect(resultState.selectedTower).toBeNull();
+  });
+
+  it('should execute valid moves', () => {
+    // GIVEN
+    const gameStateWithCurrentColor = Object.assign(cleanGameState, {
+      currentColor: 0,
+    });
+    const clickOnFieldAction = {
+      type: ACTION_TYPES.CLICK_ON_FIELD,
+      field: {
+        x: 7,
+        y: 4,
+        color: 0,
+      },
+      playerID: 'flo',
+      gameID: 'dumbo-flo',
+    };
+
+    // WHEN
+    const initializedGameState = Game.initialize(gameStateWithCurrentColor);
+    const resultState = gameReducer(initializedGameState, clickOnFieldAction);
+
+    // THEN
+    const movedTower = Game.getTowerForPlayerAndColor(resultState, 'flo', 0);
+    expect(resultState.moveResult).toEqual(MOVE_RESULTS.OK);
+    expect(movedTower.x).toEqual(7);
+    expect(movedTower.y).toEqual(4);
+  });
+
+  it('should not execute invalid moves', () => {
+    // GIVEN
+    const gameStateWithCurrentColor = Object.assign(cleanGameState, {
+      currentColor: 0,
+    });
+    const clickOnFieldAction = {
+      type: ACTION_TYPES.CLICK_ON_FIELD,
+      field: {
+        x: 2,
+        y: 4,
+        color: 0,
+      },
+      playerID: 'flo',
+      gameID: 'dumbo-flo',
+    };
+
+    // WHEN
+    const initializedGameState = Game.initialize(gameStateWithCurrentColor);
+    const resultState = gameReducer(initializedGameState, clickOnFieldAction);
+
+    // THEN
+    expect(resultState.moveResult).toEqual(MOVE_RESULTS.INVALID);
+  });
+
+  it('should fail, when an invalid game state gets loaded.', () => {
+    // GIVEN
+    const updateGameAction = {
+      type: ACTION_TYPES.UPDATE_GAME,
+      game: {
+        currentPlayer: 'dumbo',
+        currentColor: 3,
+        players: {
+          flo: {
+            id: 'flo',
+          },
+          dumbo: {
+            id: 'dumbo',
+          },
+        },
+        moves: [
+          {
+            color: 0,
+            player: 'flo',
+            sourceField: {
+              x: 7,
+              y: 7,
+              color: 0,
+            },
+            targetField: {
+              x: 7,
+              y: 4,
+              color: 3,
+            },
+          },
+        ],
+      },
+    };
+
+    // WHEN
+    const resultState = gameReducer(cleanGameState, updateGameAction);
+
+    // THEN
+    expect(resultState.valid).toBeTruthy();
   });
 });
