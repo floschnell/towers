@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/floschnell/towers.svg?branch=master)](https://travis-ci.org/floschnell/towers)
+[![Build Status](https://travis-ci.org/floschnell/towers.svg?branch=master)] (https://travis-ci.org/floschnell/towers)
+[![Coverage Status](https://coveralls.io/repos/github/floschnell/towers/badge.svg?branch=master)](https://coveralls.io/github/floschnell/towers?branch=master)
 
 # Towers
 Towers is an OS independent board game. Currently there is a multiplayer mode that enables player to compete online and a simple single player variant, where one can play against an AI. The game runs on almost any operating system. There is a web version and also a native Android and iOS version available. So far only web and Android have been tested regularly though. Towers is an open source implementation of the original game [Kamisado](https://en.wikipedia.org/wiki/Kamisado). The game is chess-flavored, but with simplified rules and an intelligent twist.
