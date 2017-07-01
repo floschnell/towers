@@ -9,7 +9,7 @@
     "android:build": "cd android && ./gradlew assembleRelease",
     "android:dev": "(emulator -avd ReactNative &) && adb wait-for-device && react-native run-android && react-native start",
     "start": "node serve.js",
-    "test": "./node_modules/.bin/jest ./tests",
+    "test": "./node_modules/.bin/jest ./tests --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "benchmark": "./node_modules/.bin/webpack --config webpack/webpack.benchmark.config.js --target node && node ./dist/benchmarks.js"
   },
   "repository": {
@@ -58,6 +58,7 @@
     "webpack": "^2.4.1"
   },
   "devDependencies": {
+    "coveralls": "^2.13.1",
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.1",
     "eslint-plugin-react": "^6.10.3",
