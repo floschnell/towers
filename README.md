@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/floschnell/towers.svg?branch=master)] (https://travis-ci.org/floschnell/towers)
+[![Build Status](https://travis-ci.org/floschnell/towers.svg?branch=master)](https://travis-ci.org/floschnell/towers)
 [![Coverage Status](https://coveralls.io/repos/github/floschnell/towers/badge.svg?branch=master)](https://coveralls.io/github/floschnell/towers?branch=master)
 
 # Towers
