@@ -31,7 +31,7 @@ export default class AI {
    * This method will rate all different opporunities which there are
    * under given circumstances.
    *
-   * @param {BoardStructure} board Current tower positions.
+   * @param {Uint32Array} board Current tower positions.
    * @param {number} currentColor The color of the tower that needs to be moved.
    * @param {string} currentPlayer ID of the player who's turn it is.
    * @param {Object} players Object structure containing information on both players.
@@ -39,10 +39,7 @@ export default class AI {
    */
   getNextMove({board, currentColor, currentPlayer, players}) {
     const boardCopy = boardFactory.copyBoard(board);
-    const currentPlayerNumber = Game.getPlayerNumber(
-      {players},
-      currentPlayer
-    );
+    const currentPlayerNumber = Game.getPlayerNumber({players}, currentPlayer);
 
     // estimate freedom of combinations
     const freedom = [0, 1]
@@ -289,11 +286,7 @@ export default class AI {
       if (results.length === 0) {
         iterations--;
         if (iterations >= 1) {
-          const blockedTower = Board.getTowerForPlayerAndColor(
-            board,
-            player,
-            to.color
-          );
+          const blockedTower = Board.getTowerForPlayerAndColor(board, player, to.color);
           player = Board.getOpponentFor(player);
           const blockedTowerFieldColor = Board.getBoardColorAtCoord(
             blockedTower.x,
@@ -335,8 +328,7 @@ export default class AI {
    */
   rateBoard(board, me) {
     const opponent = Board.getOpponentFor(me);
-    const opponentRating =
-      this.aggressiveness * this.rateBoardFor(board, opponent);
+    const opponentRating = this.aggressiveness * this.rateBoardFor(board, opponent);
     const myRating = (1 - this.aggressiveness) * this.rateBoardFor(board, me);
 
     return myRating - opponentRating;
@@ -367,10 +359,7 @@ export default class AI {
       }
 
       for (
-        let distance = 1,
-          moveStraight = true,
-          moveLeft = true,
-          moveRight = true;
+        let distance = 1, moveStraight = true, moveLeft = true, moveRight = true;
         moveStraight || moveLeft || moveRight;
         distance++
       ) {
