@@ -149,7 +149,7 @@ export const PAGES = {
     .withTitle('Create Account')
     .withBackButton('back', goBackOnePage),
   DASHBOARD: new Page('dashboard')
-    .withBackButton('logout', goBackOnePage)
+    .withBackButton('logout', logOut)
     .withForwardButton('tutorial', startTutorial),
   CREATE_GAME: new Page('createGame')
     .withTitle('Create New Game')

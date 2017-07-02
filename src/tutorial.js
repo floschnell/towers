@@ -2,6 +2,7 @@ import Game from './models/Game';
 import {getColor} from './utils';
 import {MOVE_RESULTS} from './actions/index';
 import Logger from './logger';
+import Board from './models/Board';
 
 export const TUTORIAL_MESSAGE_POSITION = {
   TOP: 'TOP',
@@ -21,9 +22,13 @@ export function nextTutorialState(gameState) {
   const playerID = Object.keys(gameState.players).find((id) => id !== 'computer');
   const computerID = 'computer';
   const getPlayerField = (x, y) =>
-    (playerID < computerID ? {x: 7 - x, y: 7 - y} : {x, y});
+    (playerID < computerID
+      ? {x: 7 - x, y: 7 - y, color: Board.getBoardColorAtCoord(7 - x, 7 - y)}
+      : {x, y, color: Board.getBoardColorAtCoord(x, y)});
   const getComputerField = (x, y) =>
-    (computerID < playerID ? {x: 7 - x, y: 7 - y} : {x, y});
+    (computerID < playerID
+      ? {x: 7 - x, y: 7 - y, color: Board.getBoardColorAtCoord(7 - x, 7 - y)}
+      : {x, y, color: Board.getBoardColorAtCoord(x, y)});
 
   switch (gameState.tutorial.step) {
     case 0:
@@ -115,12 +120,10 @@ export function nextTutorialState(gameState) {
       break;
     case 4:
       const shouldFieldFirst = getPlayerField(7, 3);
-      const isFieldFirst =
-        gameState.moves[gameState.moves.length - 1].targetField;
+      const isFieldFirst = gameState.moves[gameState.moves.length - 1].targetField;
       Logger.debug('should', shouldFieldFirst, 'but is', isFieldFirst);
       if (
-        isFieldFirst.x === shouldFieldFirst.x &&
-        isFieldFirst.y === shouldFieldFirst.y
+        isFieldFirst.x === shouldFieldFirst.x && isFieldFirst.y === shouldFieldFirst.y
       ) {
         gameState.tutorial.message = `
           Awesome! Your opponent could not move, because his yellow tower is blocked.
@@ -144,8 +147,7 @@ export function nextTutorialState(gameState) {
       break;
     case 5:
       const shouldFieldSecond = getPlayerField(4, 0);
-      const isFieldSecond =
-        gameState.moves[gameState.moves.length - 1].targetField;
+      const isFieldSecond = gameState.moves[gameState.moves.length - 1].targetField;
       Logger.debug('should', shouldFieldSecond, 'but is', isFieldSecond);
       if (
         isFieldSecond.x !== shouldFieldSecond.x ||
