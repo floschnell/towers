@@ -6,6 +6,7 @@ import db from '../database';
 import {startLoading, endLoading, setSubscription, showMessage} from './app';
 import {pushPage, popPage, replacePage} from './navigation';
 import {PAGES} from '../models/Page';
+import Firebase from 'firebase';
 
 export const GAME_ACTIONS = {
   RESUME_GAME: 'RESUME_GAME',
@@ -79,6 +80,42 @@ export function suspendGame(gameKey) {
       db.child(`games/${gameKey}`).off();
     }
     dispatch(gameSuspended());
+  };
+}
+
+/**
+ * Sends a request to the given opponent.
+ *
+ * @export
+ * @param {String} opponentId The ID of the opponent which will receive the game request.
+ * @param {String} beginningPlayer Player that will begin the new game.
+ * @return {void} Nothing useful.
+ */
+export function requestGame(opponentId, beginningPlayer) {
+  return (dispatch, getState) => {
+    const player = getState().app.player;
+    const requestRef = db.child(`requests/${opponentId}/${player.id}`);
+    const contender = {
+      id: player.id,
+      name: player.name,
+    };
+    const data = {
+      when: Firebase.database.ServerValue.TIMESTAMP,
+      beginningPlayer,
+      contender,
+    };
+    console.log(data);
+
+    dispatch(startLoading(`Resuming game ...`));
+    requestRef.set(data).then(() => {
+      dispatch(endLoading());
+      dispatch(popPage());
+      dispatch(showMessage(`Request has been sent to ${opponentId}`));
+    }).catch((e) => {
+      Logger.error('Error while requesting a new game:', e);
+      dispatch(endLoading());
+      dispatch(showMessage('Could not send request to opponent. Please retry later.'));
+    });
   };
 }
 

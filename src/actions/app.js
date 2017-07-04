@@ -41,6 +41,7 @@ export const APP_ACTIONS = {
   NEXT_TUTORIAL_STEP: 'NEXT_TUTORIAL_STEP',
   UPDATE_GAMES: 'UPDATE_GAMES',
   SET_PLAYER: 'SET_PLAYER',
+  UPDATE_REQUESTS: 'UPDATE_REQUESTS',
 };
 
 export const AUTH_STATE = {
@@ -56,6 +57,11 @@ export const launchTutorial = () => ({
 
 export const nextTutorialStep = () => ({
   type: APP_ACTIONS.NEXT_TUTORIAL_STEP,
+});
+
+export const updateRequests = (requests) => ({
+  type: APP_ACTIONS.UPDATE_REQUESTS,
+  requests,
 });
 
 /**
@@ -199,6 +205,38 @@ export function login(id, password) {
         dispatch(endLoading());
         dispatch(showMessage(error.message));
       });
+  };
+}
+
+/**
+ * Listen for a player's currently running games.
+ *
+ * @param {string} playerID User name of the player.
+ * @return {void}
+ */
+export function startListeningForGameRequests(playerID) {
+  return (dispatch) => {
+    const playerRequestsRef = db.child(`requests/${playerID}`);
+
+    playerRequestsRef.on('value', (snapshot) => {
+      const requests = snapshot.val() || {};
+
+      dispatch(updateRequests(requests));
+    });
+  };
+}
+
+/**
+ * Stop receiving updates on the player's running games.
+ *
+ * @param {string} playerID User name of the player.
+ * @return {void}
+ */
+export function stopListeningForGameRequests(playerID) {
+  return (dispatch) => {
+    const playerRequestsRef = db.child(`requests/${playerID}`);
+
+    playerRequestsRef.off('value');
   };
 }
 
