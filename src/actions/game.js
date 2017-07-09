@@ -3,9 +3,9 @@ import Game from '../models/Game';
 import Logger from '../logger';
 import Rx from 'rxjs';
 import db from '../database';
-import {startLoading, endLoading, setSubscription, showMessage} from './app';
-import {pushPage, popPage, replacePage} from './navigation';
-import {PAGES} from '../models/Page';
+import { startLoading, endLoading, setSubscription, showMessage } from './app';
+import { pushPage, popPage, replacePage } from './navigation';
+import { PAGES } from '../models/Page';
 import Firebase from 'firebase';
 
 export const GAME_ACTIONS = {
@@ -80,6 +80,60 @@ export function suspendGame(gameKey) {
       db.child(`games/${gameKey}`).off();
     }
     dispatch(gameSuspended());
+  };
+}
+
+/**
+ * Accepts a request from another player and starts the according game.
+ *
+ * @export
+ * @param {Player} player The player.
+ * @param {Player} opponent Player's opponent.
+ * @return {void}
+ */
+export function acceptGameRequest(player, opponent) {
+  return (dispatch) => {
+    dispatch(startLoading('Accepting request ...'));
+    const removeGameRequests = Promise.all([
+      db.child(`requests/${opponent.id}/${player.id}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+      db.child(`requests/${player.id}/${opponent.id}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+    ]);
+
+    removeGameRequests.then(() => {
+      dispatch(startGame(player.id, opponent.id, {
+        [player.id]: player,
+        [opponent.id]: opponent,
+      }));
+    });
+  };
+}
+
+/**
+ * Decline a game request from a certain player.
+ *
+ * @export
+ * @param {String} playerID Player's ID.
+ * @param {String} opponentID Player's opponent's ID.
+ * @return {void}
+ */
+export function declineGameRequest(playerID, opponentID) {
+  return (dispatch) => {
+    const removeGameRequests = Promise.all([
+      db.child(`requests/${opponentID}/${playerID}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+      db.child(`requests/${playerID}/${opponentID}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+    ]);
+
+    removeGameRequests.then(() => {
+      dispatch(showMessage('Request has been declined.'));
+    });
   };
 }
 

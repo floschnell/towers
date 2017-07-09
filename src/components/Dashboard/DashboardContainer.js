@@ -1,4 +1,4 @@
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import Dashboard from './native/Dashboard';
 
 import {
@@ -10,10 +10,11 @@ import {
   loadGameFromKey,
   launchTutorial,
   startGameAgainstAI,
-  startGame,
+  acceptGameRequest,
+  declineGameRequest,
 } from '../../actions/index';
 
-import {PAGES} from '../../models/Page';
+import { PAGES } from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
   player: state.app.player,
@@ -49,10 +50,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     dispatch(pushPage(PAGES.CREATE_GAME.withTitle('Start New Game')));
   },
   acceptRequest: (player, opponent) => {
-    dispatch(startGame(player.id, opponent.id, {
-      [player.id]: player,
-      [opponent.id]: opponent,
-    }));
+    dispatch(acceptGameRequest(player, opponent));
+  },
+  declineRequest: (playerID, opponentID) => {
+    dispatch(declineGameRequest(playerID, opponentID));
   },
 });
 

@@ -9,6 +9,7 @@ import {
   nextTutorialStep,
   popPageUntil,
   updateGame,
+  requestGame,
 } from '../../actions/index';
 import {PAGES} from '../../models/Page';
 import Logger from '../../logger';
@@ -82,6 +83,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
   endGame: (gameKey, player) => {
     dispatch(endGame(gameKey, player));
+  },
+  endGameAndAskForRevenge: (gameKey, playerID, opponentID, hasWon) => {
+    dispatch(endGame(gameKey, playerID));
+    dispatch(requestGame(opponentID, hasWon ? opponentID : playerID));
   },
   resizeGameSurface: (width, height) => {
     dispatch(resizeGameSurface(width, height));
