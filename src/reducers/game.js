@@ -1,12 +1,12 @@
-import {ACTION_TYPES, MOVE_RESULTS} from '../actions/index';
+import { ACTION_TYPES, MOVE_RESULTS } from '../actions/index';
 import Game from '../models/Game';
 import Board from '../models/Board';
-import {nextTutorialState, TUTORIAL_MESSAGE_POSITION} from '../tutorial';
+import { nextTutorialState, TUTORIAL_MESSAGE_POSITION } from '../tutorial';
 import Logger from '../logger';
 
 export default (state, action) => {
   if (typeof state === 'undefined') {
-    const initialPlayers = {'0': {}, '1': {}};
+    const initialPlayers = { '0': {}, '1': {} };
 
     return {
       board: [],
@@ -208,7 +208,7 @@ export default (state, action) => {
     case ACTION_TYPES.UPDATE_GAME:
       try {
         const game = Game.initialize(action.game);
-        const updatedState = Object.assign(newState, game, {valid: true});
+        const updatedState = Object.assign(newState, game, { valid: true });
 
         return updatedState;
       } catch (e) {
@@ -233,7 +233,8 @@ export default (state, action) => {
 
     case ACTION_TYPES.START_GAME:
       Logger.log('created game:', action.game);
-      const newGameState = Object.assign({}, action.game);
+      const game = Game.initialize(action.game);
+      const newGameState = Object.assign({}, game);
 
       return Object.assign(newGameState, {
         isTutorial: false,
@@ -243,7 +244,6 @@ export default (state, action) => {
         player: newState.player,
         currentColor: undefined,
         selectedTower: undefined,
-        board: [],
       });
 
     default:

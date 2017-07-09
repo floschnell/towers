@@ -101,6 +101,9 @@ export default class Game extends React.Component {
     const endGame = () => {
       this.props.endGame(this.props.game, this.props.player.id);
     };
+    const endGameAndAskForRevenge = () => {
+      this.props.endGameAndAskForRevenge(this.props.game, this.props.player.id, this.props.opponent.id, this.props.won);
+    };
 
     const renderEndOfGame = () => {
       if (gameHasEnded) {
@@ -153,6 +156,7 @@ export default class Game extends React.Component {
                     Oh no, you lost.
                   </Text>}
               <Button title="End Game" onPress={endGame} />
+              <Button title="Offer Revenge" onPress={endGameAndAskForRevenge} />
             </View>
           </View>
         );
@@ -383,4 +387,5 @@ Game.propTypes = {
   currentPlayer: PropTypes.string,
   currentColor: PropTypes.number,
   updateGame: PropTypes.func,
+  endGameAndAskForRevenge: PropTypes.func,
 };

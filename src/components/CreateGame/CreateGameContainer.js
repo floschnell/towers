@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import CreateGame from './native/CreateGame';
-import {searchForPlayers, startGame, popPageUntil} from '../../actions/index';
+import {searchForPlayers, popPageUntil, requestGame} from '../../actions/index';
 import {PAGES} from '../../models/Page';
 
 const mapStateToProps = (state) => ({
@@ -12,7 +12,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   startGame: (playerID, opponentID, players) => {
-    dispatch(startGame(playerID, opponentID, players));
+    dispatch(requestGame(opponentID, opponentID));
   },
   searchForPlayers: (searchStr) => {
     dispatch(searchForPlayers(searchStr));

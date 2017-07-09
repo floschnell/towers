@@ -11,6 +11,7 @@ export default (state, action) => {
       loadingMessage: '',
       players: {},
       games: {},
+      requests: {},
       player: null,
       user: null,
       currentGame: null,
@@ -131,6 +132,12 @@ export default (state, action) => {
       Logger.debug('clear message', newState.message);
       return Object.assign(newState, {
         message: null,
+      });
+
+    case ACTION_TYPES.UPDATE_REQUESTS:
+      Logger.debug('new requests', action.requests);
+      return Object.assign(newState, {
+        requests: action.requests,
       });
 
     default:

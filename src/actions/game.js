@@ -3,9 +3,10 @@ import Game from '../models/Game';
 import Logger from '../logger';
 import Rx from 'rxjs';
 import db from '../database';
-import {startLoading, endLoading, setSubscription, showMessage} from './app';
-import {pushPage, popPage, replacePage} from './navigation';
-import {PAGES} from '../models/Page';
+import { startLoading, endLoading, setSubscription, showMessage } from './app';
+import { pushPage, popPage, replacePage } from './navigation';
+import { PAGES } from '../models/Page';
+import Firebase from 'firebase';
 
 export const GAME_ACTIONS = {
   RESUME_GAME: 'RESUME_GAME',
@@ -79,6 +80,96 @@ export function suspendGame(gameKey) {
       db.child(`games/${gameKey}`).off();
     }
     dispatch(gameSuspended());
+  };
+}
+
+/**
+ * Accepts a request from another player and starts the according game.
+ *
+ * @export
+ * @param {Player} player The player.
+ * @param {Player} opponent Player's opponent.
+ * @return {void}
+ */
+export function acceptGameRequest(player, opponent) {
+  return (dispatch) => {
+    dispatch(startLoading('Accepting request ...'));
+    const removeGameRequests = Promise.all([
+      db.child(`requests/${opponent.id}/${player.id}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+      db.child(`requests/${player.id}/${opponent.id}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+    ]);
+
+    removeGameRequests.then(() => {
+      dispatch(startGame(player.id, opponent.id, {
+        [player.id]: player,
+        [opponent.id]: opponent,
+      }));
+    });
+  };
+}
+
+/**
+ * Decline a game request from a certain player.
+ *
+ * @export
+ * @param {String} playerID Player's ID.
+ * @param {String} opponentID Player's opponent's ID.
+ * @return {void}
+ */
+export function declineGameRequest(playerID, opponentID) {
+  return (dispatch) => {
+    const removeGameRequests = Promise.all([
+      db.child(`requests/${opponentID}/${playerID}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+      db.child(`requests/${playerID}/${opponentID}`).remove().catch(
+        () => Promise.resolve(null)
+      ),
+    ]);
+
+    removeGameRequests.then(() => {
+      dispatch(showMessage('Request has been declined.'));
+    });
+  };
+}
+
+/**
+ * Sends a request to the given opponent.
+ *
+ * @export
+ * @param {String} opponentId The ID of the opponent which will receive the game request.
+ * @param {String} beginningPlayer Player that will begin the new game.
+ * @return {void} Nothing useful.
+ */
+export function requestGame(opponentId, beginningPlayer) {
+  return (dispatch, getState) => {
+    const player = getState().app.player;
+    const requestRef = db.child(`requests/${opponentId}/${player.id}`);
+    const contender = {
+      id: player.id,
+      name: player.name,
+    };
+    const data = {
+      when: Firebase.database.ServerValue.TIMESTAMP,
+      beginningPlayer,
+      contender,
+    };
+    console.log(data);
+
+    dispatch(startLoading(`Resuming game ...`));
+    requestRef.set(data).then(() => {
+      dispatch(endLoading());
+      dispatch(popPage());
+      dispatch(showMessage(`Request has been sent to ${opponentId}`));
+    }).catch((e) => {
+      Logger.error('Error while requesting a new game:', e);
+      dispatch(endLoading());
+      dispatch(showMessage('Could not send request to opponent. Please retry later.'));
+    });
   };
 }
 
