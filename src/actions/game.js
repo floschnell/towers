@@ -435,7 +435,8 @@ export function clickOnField(field) {
     dispatch(clickedOnField(field, playerID, currentGame));
     let newState = getState();
 
-    if (oldState.game.currentPlayer !== newState.game.currentPlayer) {
+    if (oldState.game.currentPlayer !== newState.game.currentPlayer ||
+      Game.hasEnded(newState.game)) {
       // only save game if it is not a tutorial
       if (!oldState.game.isTutorial && !oldState.game.isAIGame) {
         const game = {

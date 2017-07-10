@@ -1,9 +1,9 @@
 import React from 'react';
-import {Text, View, Button, AsyncStorage, Alert} from 'react-native';
+import { Text, View, Button, AsyncStorage, Alert } from 'react-native';
 import BoardContainer from '../../Board/BoardContainer';
 import TowerSetContainer from '../../TowerSet/TowerSetContainer';
 import Arrow from '../../Arrow/native/Arrow';
-import {TUTORIAL_MESSAGE_POSITION} from '../../../tutorial';
+import { TUTORIAL_MESSAGE_POSITION } from '../../../tutorial';
 import Logger from '../../../logger';
 import PropTypes from 'prop-types';
 
@@ -26,7 +26,7 @@ export default class Game extends React.Component {
    */
   componentWillUnmount() {
     this.props.suspendGame(this.props.game);
-    this.setState({tutorialMessageExpanded: true});
+    this.setState({ tutorialMessageExpanded: true });
 
     if (this.props.inAIGame) {
       if (this.props.won || this.props.lost || this.props.moves.length === 0) {
@@ -63,7 +63,7 @@ export default class Game extends React.Component {
             'Resume Game',
             'A saved game has been found, do you want to continue playing?',
             [
-              {text: 'Discard', onPress: () => {}, style: 'cancel'},
+              { text: 'Discard', onPress: () => { }, style: 'cancel' },
               {
                 text: 'Resume',
                 onPress: () => {
@@ -74,7 +74,7 @@ export default class Game extends React.Component {
                 },
               },
             ],
-            {cancelable: false}
+            { cancelable: false }
           );
         }
       });
@@ -86,7 +86,7 @@ export default class Game extends React.Component {
    */
   componentWillReceiveProps(nextProps) {
     if (nextProps.tutorialMessage !== this.props.tutorialMessage) {
-      this.setState({tutorialMessageExpanded: true});
+      this.setState({ tutorialMessageExpanded: true });
     }
   }
 
@@ -136,26 +136,27 @@ export default class Game extends React.Component {
             <View>
               {this.props.won
                 ? <Text
-                    style={{
-                      padding: 10,
-                      fontSize: 20,
-                      fontWeight: 'bold',
-                      color: 'white',
-                    }}
-                  >
-                    Congratulations, you won!
+                  style={{
+                    padding: 10,
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: 'white',
+                  }}
+                >
+                  Congratulations, you won!
                   </Text>
                 : <Text
-                    style={{
-                      padding: 10,
-                      fontSize: 20,
-                      fontWeight: 'bold',
-                      color: 'white',
-                    }}
-                  >
-                    Oh no, you lost.
+                  style={{
+                    padding: 10,
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: 'white',
+                  }}
+                >
+                  Oh no, you lost.
                   </Text>}
               <Button title="End Game" onPress={endGame} />
+              <View style={{ height: 10 }}></View>
               <Button title="Offer Revenge" onPress={endGameAndAskForRevenge} />
             </View>
           </View>
@@ -188,10 +189,10 @@ export default class Game extends React.Component {
           alignItems: 'center',
         }}
       >
-        <Text style={{color: 'white', fontSize: 22}}>
+        <Text style={{ color: 'white', fontSize: 22 }}>
           {this.props.player.name}
         </Text>
-        <Text style={{color: 'white', fontSize: 14}}>
+        <Text style={{ color: 'white', fontSize: 14 }}>
           {renderText(false)}
         </Text>
       </View>
@@ -206,10 +207,10 @@ export default class Game extends React.Component {
           alignItems: 'center',
         }}
       >
-        <Text style={{color: 'black', fontSize: 22}}>
+        <Text style={{ color: 'black', fontSize: 22 }}>
           {this.props.opponent.name}
         </Text>
-        <Text style={{color: 'black', fontSize: 14}}>
+        <Text style={{ color: 'black', fontSize: 14 }}>
           {renderText(true)}
         </Text>
       </View>
@@ -251,11 +252,11 @@ export default class Game extends React.Component {
         : 10;
 
       const hideTutorialMessage = () => {
-        this.setState({tutorialMessageExpanded: false});
+        this.setState({ tutorialMessageExpanded: false });
       };
 
       const showTutorialMessage = () => {
-        this.setState({tutorialMessageExpanded: true});
+        this.setState({ tutorialMessageExpanded: true });
       };
 
       if (this.props.inTutorial && this.props.tutorialMessage) {
@@ -277,19 +278,19 @@ export default class Game extends React.Component {
                 elevation: 15,
               }}
             >
-              <Text style={{color: 'black'}}>
+              <Text style={{ color: 'black' }}>
                 {this.props.tutorialMessage}
               </Text>
               {this.props.tutorialContinueOnMessageClick
-                ? <View style={{marginTop: 5}}>
-                    <Button
-                      onPress={this.props.nextTutorialStep}
-                      title="Continue"
-                      color="red"
-                    />
-                  </View>
+                ? <View style={{ marginTop: 5 }}>
+                  <Button
+                    onPress={this.props.nextTutorialStep}
+                    title="Continue"
+                    color="red"
+                  />
+                </View>
                 : null}
-              <View style={{marginTop: 5}}>
+              <View style={{ marginTop: 5 }}>
                 <Button
                   onPress={hideTutorialMessage.bind(this)}
                   title="Hide Message"
@@ -315,7 +316,7 @@ export default class Game extends React.Component {
                 backgroundColor: 'white',
               }}
             >
-              <Text numberOfLines={1} style={{color: 'black', padding: 5, flex: 1}}>
+              <Text numberOfLines={1} style={{ color: 'black', padding: 5, flex: 1 }}>
                 {this.props.tutorialMessage}
               </Text>
               <Button
@@ -332,9 +333,9 @@ export default class Game extends React.Component {
     };
 
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'stretch' }}>
         {renderOpponent()}
-        <View style={{width: this.props.size, height: this.props.size}}>
+        <View style={{ width: this.props.size, height: this.props.size }}>
           <BoardContainer size={this.props.size} reverse={this.props.rotateBoard} />
           {visualizeLastMoves()}
           <TowerSetContainer

@@ -1,4 +1,4 @@
-import Board, {BoardFactory} from './Board';
+import Board, { BoardFactory } from './Board';
 import Logger from '../logger';
 
 export const CHECK_MOVE_RESULT = {
@@ -42,7 +42,7 @@ export default class Game {
    * @memberOf Game
    */
   static getPlayer(game, playerID) {
-    return Object.assign(game.players[playerID], {id: playerID});
+    return Object.assign(game.players[playerID], { id: playerID });
   }
 
   /**
@@ -56,7 +56,7 @@ export default class Game {
   static getOpponent(game, playerID) {
     const opponentID = Game.getOpponentID(game, playerID);
 
-    return Object.assign(game.players[opponentID], {id: opponentID});
+    return Object.assign(game.players[opponentID], { id: opponentID });
   }
 
   /**
@@ -182,29 +182,6 @@ export default class Game {
   }
 
   /**
-   * Check if the current game state corresponds to the game moves.
-   *
-   * @param {GameStructure} game The game state that should be checked.
-   * @param {MoveStructure[]} moves Moves that the current game state should be
-   *                                checked against.
-   */
-  static _sanityCheckMoves(game, moves) {
-    const lastMove = moves[moves.length - 1];
-
-    if (game.currentPlayer === game.player) {
-      throw new Error(
-        `Current player '${game.currentPlayer}' has to be different than the player of the last move!` // eslint-disable-line
-      );
-    }
-
-    if (game.currentColor !== lastMove.targetField.color) {
-      throw new Error(
-        `Current color is ${game.currentColor} when it should be ${lastMove.targetField.color}` // eslint-disable-line
-      );
-    }
-  }
-
-  /**
    * Initializes the board for a certain game.
    * That involves creating the board structure and
    * executing all the moves that have been stored in the database.
@@ -226,7 +203,6 @@ export default class Game {
 
     if (game.moves && game.moves.length > 0) {
       Game.executeMoves(game, game.moves);
-      Game._sanityCheckMoves(game, game.moves);
     }
 
     return game;
