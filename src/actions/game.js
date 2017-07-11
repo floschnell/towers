@@ -3,9 +3,9 @@ import Game from '../models/Game';
 import Logger from '../logger';
 import Rx from 'rxjs';
 import db from '../database';
-import { startLoading, endLoading, setSubscription, showMessage } from './app';
-import { pushPage, popPage, replacePage } from './navigation';
-import { PAGES } from '../models/Page';
+import {startLoading, endLoading, setSubscription, showMessage} from './app';
+import {pushPage, popPage, replacePage, popPageUntil} from './navigation';
+import {PAGES} from '../models/Page';
 import Firebase from 'firebase';
 
 export const GAME_ACTIONS = {
@@ -89,25 +89,35 @@ export function suspendGame(gameKey) {
  * @export
  * @param {Player} player The player.
  * @param {Player} opponent Player's opponent.
+ * @param {String} beginningPlayer Player that may start the game.
  * @return {void}
  */
-export function acceptGameRequest(player, opponent) {
+export function acceptGameRequest(player, opponent, beginningPlayer) {
   return (dispatch) => {
     dispatch(startLoading('Accepting request ...'));
     const removeGameRequests = Promise.all([
-      db.child(`requests/${opponent.id}/${player.id}`).remove().catch(
-        () => Promise.resolve(null)
-      ),
-      db.child(`requests/${player.id}/${opponent.id}`).remove().catch(
-        () => Promise.resolve(null)
-      ),
+      db
+        .child(`requests/${opponent.id}/${player.id}`)
+        .remove()
+        .catch(() => Promise.resolve(null)),
+      db
+        .child(`requests/${player.id}/${opponent.id}`)
+        .remove()
+        .catch(() => Promise.resolve(null)),
     ]);
 
     removeGameRequests.then(() => {
-      dispatch(startGame(player.id, opponent.id, {
-        [player.id]: player,
-        [opponent.id]: opponent,
-      }));
+      dispatch(
+        startGame(
+          player.id,
+          opponent.id,
+          {
+            [player.id]: player,
+            [opponent.id]: opponent,
+          },
+          beginningPlayer
+        )
+      );
     });
   };
 }
@@ -123,12 +133,14 @@ export function acceptGameRequest(player, opponent) {
 export function declineGameRequest(playerID, opponentID) {
   return (dispatch) => {
     const removeGameRequests = Promise.all([
-      db.child(`requests/${opponentID}/${playerID}`).remove().catch(
-        () => Promise.resolve(null)
-      ),
-      db.child(`requests/${playerID}/${opponentID}`).remove().catch(
-        () => Promise.resolve(null)
-      ),
+      db
+        .child(`requests/${opponentID}/${playerID}`)
+        .remove()
+        .catch(() => Promise.resolve(null)),
+      db
+        .child(`requests/${playerID}/${opponentID}`)
+        .remove()
+        .catch(() => Promise.resolve(null)),
     ]);
 
     removeGameRequests.then(() => {
@@ -141,14 +153,14 @@ export function declineGameRequest(playerID, opponentID) {
  * Sends a request to the given opponent.
  *
  * @export
- * @param {String} opponentId The ID of the opponent which will receive the game request.
+ * @param {Player} opponent The opponent which will receive the game request.
  * @param {String} beginningPlayer Player that will begin the new game.
  * @return {void} Nothing useful.
  */
-export function requestGame(opponentId, beginningPlayer) {
+export function requestGame(opponent, beginningPlayer) {
   return (dispatch, getState) => {
     const player = getState().app.player;
-    const requestRef = db.child(`requests/${opponentId}/${player.id}`);
+    const requestRef = db.child(`requests/${opponent.id}/${player.id}`);
     const contender = {
       id: player.id,
       name: player.name,
@@ -158,18 +170,30 @@ export function requestGame(opponentId, beginningPlayer) {
       beginningPlayer,
       contender,
     };
-    console.log(data);
 
-    dispatch(startLoading(`Resuming game ...`));
-    requestRef.set(data).then(() => {
-      dispatch(endLoading());
-      dispatch(popPage());
-      dispatch(showMessage(`Request has been sent to ${opponentId}`));
-    }).catch((e) => {
-      Logger.error('Error while requesting a new game:', e);
-      dispatch(endLoading());
-      dispatch(showMessage('Could not send request to opponent. Please retry later.'));
-    });
+    dispatch(startLoading(`Sending request ...`));
+    db
+      .child(`requests/${player.id}/${opponent.id}`)
+      .once('value')
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const request = snapshot.val();
+
+          dispatch(acceptGameRequest(player, opponent, request.beginningPlayer));
+          dispatch(showMessage(`${opponent.name} has accepted your request.`));
+        } else {
+          return requestRef.set(data).then(() => {
+            dispatch(endLoading());
+            dispatch(popPageUntil(PAGES.DASHBOARD));
+            dispatch(showMessage(`Request has been sent to ${opponent.name}`));
+          });
+        }
+      })
+      .catch((e) => {
+        Logger.error('Error while requesting a new game:', JSON.stringify(e));
+        dispatch(endLoading());
+        dispatch(showMessage('Could not send request to opponent. Please retry later.'));
+      });
   };
 }
 
@@ -255,7 +279,7 @@ export const gameStarted = (game) => ({
  * @param {any} players Map of player IDs to their corresponding player objects.
  * @return {function(function(object):void):void}
  */
-export function startGame(playerID, opponentID, players) {
+export function startGame(playerID, opponentID, players, beginningPlayer = playerID) {
   return (dispatch) => {
     dispatch(startLoading(`starting game against ${players[opponentID].name}`));
 
@@ -272,7 +296,7 @@ export function startGame(playerID, opponentID, players) {
 
     const newGame = {
       players: playersCopy,
-      currentPlayer: playerID,
+      currentPlayer: beginningPlayer,
       moves: [],
     };
     const gameName = Game.getKey(newGame);
@@ -403,7 +427,7 @@ export function endGame(gameKey) {
       .catch((e) => {
         Logger.error('an error occured while ending the game:', e);
       })
-      .then(() => dispatch(popPage()));
+      .then(() => dispatch(popPageUntil(PAGES.DASHBOARD)));
   };
 }
 
@@ -435,8 +459,10 @@ export function clickOnField(field) {
     dispatch(clickedOnField(field, playerID, currentGame));
     let newState = getState();
 
-    if (oldState.game.currentPlayer !== newState.game.currentPlayer ||
-      Game.hasEnded(newState.game)) {
+    if (
+      oldState.game.currentPlayer !== newState.game.currentPlayer ||
+      Game.hasEnded(newState.game)
+    ) {
       // only save game if it is not a tutorial
       if (!oldState.game.isTutorial && !oldState.game.isAIGame) {
         const game = {
@@ -458,7 +484,8 @@ export function clickOnField(field) {
       if (oldState.game.isAIGame) {
         setTimeout(() => {
           while (
-            !Game.hasEnded(newState.game) && newState.game.currentPlayer === 'computer'
+            !Game.hasEnded(newState.game) &&
+            newState.game.currentPlayer === 'computer'
           ) {
             const chosenMove = computerPlayer.getNextMove(newState.game);
 

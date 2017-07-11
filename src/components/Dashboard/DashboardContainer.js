@@ -1,4 +1,4 @@
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import Dashboard from './native/Dashboard';
 
 import {
@@ -14,7 +14,7 @@ import {
   declineGameRequest,
 } from '../../actions/index';
 
-import { PAGES } from '../../models/Page';
+import {PAGES} from '../../models/Page';
 
 const mapStateToProps = (state, ownProps) => ({
   player: state.app.player,
@@ -49,8 +49,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   startNewGame: () => {
     dispatch(pushPage(PAGES.CREATE_GAME.withTitle('Start New Game')));
   },
-  acceptRequest: (player, opponent) => {
-    dispatch(acceptGameRequest(player, opponent));
+  acceptRequest: (player, opponent, beginningPlayer) => {
+    dispatch(acceptGameRequest(player, opponent, beginningPlayer));
   },
   declineRequest: (playerID, opponentID) => {
     dispatch(declineGameRequest(playerID, opponentID));

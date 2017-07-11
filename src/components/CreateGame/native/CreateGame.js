@@ -23,23 +23,17 @@ export default class CreateGame extends React.Component {
     const renderPlayers = () => {
       return Object.keys(this.props.players).map((opponentID) => {
         const playerID = this.props.player.id;
-        const player = this.props.player;
-        const opponent = this.props.players[opponentID];
+        const opponent = Object.assign(this.props.players[opponentID], {
+          id: opponentID,
+        });
         const startGameOnClick = () => {
-          this.props.startGame(playerID, opponentID, {
-            [playerID]: player,
-            [opponentID]: opponent,
-          });
+          this.props.startGame(opponent);
         };
 
         if (playerID !== opponentID) {
           return (
             <View key={`${opponentID}-view`} style={{margin: 5}}>
-              <Button
-                key={opponentID}
-                title={opponent.name}
-                onPress={startGameOnClick}
-              />
+              <Button key={opponentID} title={opponent.name} onPress={startGameOnClick} />
             </View>
           );
         }

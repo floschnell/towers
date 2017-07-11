@@ -19,21 +19,21 @@ const mapStateToProps = (state, ownProps) => {
   const opponentID = GameModel.getOpponentID(state.game, playerID);
   const player = GameModel.getPlayer(state.game, playerID);
   const opponent = GameModel.getOpponent(state.game, playerID);
-  const size = state.app.surfaceWidth < state.app.surfaceHeight
-    ? state.app.surfaceWidth
-    : state.app.surfaceHeight;
-  const marginSize = state.app.surfaceWidth < state.app.surfaceHeight
-    ? state.app.surfaceHeight - state.app.surfaceWidth
-    : state.app.surfaceWidth - state.app.surfaceHeight;
+  const size =
+    state.app.surfaceWidth < state.app.surfaceHeight
+      ? state.app.surfaceWidth
+      : state.app.surfaceHeight;
+  const marginSize =
+    state.app.surfaceWidth < state.app.surfaceHeight
+      ? state.app.surfaceHeight - state.app.surfaceWidth
+      : state.app.surfaceWidth - state.app.surfaceHeight;
   const gameHasEnded = GameModel.hasEnded(state.game);
 
   const lastMoves = [];
   let lastActingPlayer = null;
   if (state.game.moves) {
     for (let i = state.game.moves.length - 1; i >= 0; i--) {
-      if (
-        lastActingPlayer === null || state.game.moves[i].player === lastActingPlayer
-      ) {
+      if (lastActingPlayer === null || state.game.moves[i].player === lastActingPlayer) {
         lastActingPlayer = state.game.moves[i].player;
       } else {
         break;
@@ -81,12 +81,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   goToDashboard: () => {
     dispatch(popPageUntil(PAGES.DASHBOARD));
   },
-  endGame: (gameKey, player) => {
-    dispatch(endGame(gameKey, player));
-  },
-  endGameAndAskForRevenge: (gameKey, playerID, opponentID, hasWon) => {
+  endGame: (gameKey, playerID) => {
     dispatch(endGame(gameKey, playerID));
-    dispatch(requestGame(opponentID, hasWon ? opponentID : playerID));
+  },
+  endGameAndAskForRevenge: (gameKey, playerID, opponent, hasWon) => {
+    dispatch(endGame(gameKey, playerID));
+    dispatch(requestGame(opponent, hasWon ? opponent.id : playerID));
   },
   resizeGameSurface: (width, height) => {
     dispatch(resizeGameSurface(width, height));

@@ -11,8 +11,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  startGame: (playerID, opponentID, players) => {
-    dispatch(requestGame(opponentID, opponentID));
+  startGame: (opponent) => {
+    dispatch(requestGame(opponent, opponent.id));
   },
   searchForPlayers: (searchStr) => {
     dispatch(searchForPlayers(searchStr));
