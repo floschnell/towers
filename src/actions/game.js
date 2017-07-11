@@ -13,7 +13,6 @@ export const GAME_ACTIONS = {
   START_GAME: 'START_GAME',
   UPDATE_GAME: 'UPDATE_GAME',
   SUSPEND_GAME: 'SUSPEND_GAME',
-  GAME_ENDED: 'GAME_ENDED',
   LAUNCH_GAME_AGAINST_AI: 'LAUNCH_GAME_AGAINST_AI',
   CLICK_ON_TOWER: 'CLICK_ON_TOWER',
   CLICK_ON_FIELD: 'CLICK_ON_FIELD',
@@ -422,19 +421,14 @@ export function endGame(gameKey) {
           });
       })
       .then(() => {
-        dispatch(gameEnded(gameKey));
+        dispatch(popPageUntil(PAGES.DASHBOARD));
       })
       .catch((e) => {
         Logger.error('an error occured while ending the game:', e);
-      })
-      .then(() => dispatch(popPageUntil(PAGES.DASHBOARD)));
+        dispatch(popPageUntil(PAGES.DASHBOARD));
+      });
   };
 }
-
-export const gameEnded = (gameKey, player) => ({
-  type: GAME_ACTIONS.GAME_ENDED,
-  gameKey,
-});
 
 export const clickOnTower = (tower, playerID) => ({
   type: GAME_ACTIONS.CLICK_ON_TOWER,

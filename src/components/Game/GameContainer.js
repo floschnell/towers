@@ -81,11 +81,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   goToDashboard: () => {
     dispatch(popPageUntil(PAGES.DASHBOARD));
   },
-  endGame: (gameKey, playerID) => {
-    dispatch(endGame(gameKey, playerID));
+  endGame: (gameKey) => {
+    dispatch(endGame(gameKey));
   },
   endGameAndAskForRevenge: (gameKey, playerID, opponent, hasWon) => {
-    dispatch(endGame(gameKey, playerID));
+    dispatch(endGame(gameKey));
     dispatch(requestGame(opponent, hasWon ? opponent.id : playerID));
   },
   resizeGameSurface: (width, height) => {

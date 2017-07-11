@@ -99,7 +99,7 @@ export default class Game extends React.Component {
     const playerTwoTowers = this.props.towerPositionsForOpponent;
     const gameHasEnded = this.props.won || this.props.lost;
     const endGame = () => {
-      this.props.endGame(this.props.game, this.props.player.id);
+      this.props.endGame(this.props.game);
     };
     const endGameAndAskForRevenge = () => {
       this.props.endGameAndAskForRevenge(
